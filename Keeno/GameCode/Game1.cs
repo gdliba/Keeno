@@ -17,6 +17,8 @@ namespace Keeno
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
+        private StaticSwarmPoint testSwarmPoint;
+
         #region VARIABLES
 
         // Game State
@@ -41,7 +43,7 @@ namespace Keeno
             _graphics.PreferredBackBufferHeight = 
                 GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             // Set screen to Fullscreen
-            _graphics.IsFullScreen = true;
+            _graphics.IsFullScreen = false;
             _graphics.ApplyChanges();
 
 
@@ -54,7 +56,8 @@ namespace Keeno
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
+            testSwarmPoint = new StaticSwarmPoint(Content.Load<Texture2D>("SpriteSheets\\colored_packed")
+                , new Rectangle(48, 320, 16, 16), new Rectangle(100, 100, 16, 16));
         }
 
         protected override void Update(GameTime gameTime)
@@ -83,6 +86,8 @@ namespace Keeno
         {
             GraphicsDevice.Clear(Color.Black);
 
+            _spriteBatch.Begin();
+
             switch (currentGameState)
             {
                 case GameState.Start:
@@ -95,6 +100,9 @@ namespace Keeno
                     GameOverDraw();
                     break;
             }
+
+            _spriteBatch.End();
+
 
             base.Draw(gameTime);
         }
@@ -117,7 +125,7 @@ namespace Keeno
         #region STATE DRAWS
         private void StartDraw()
         {
-
+            testSwarmPoint.drawme(_spriteBatch);
         }
 
         private void PlayingDraw()
