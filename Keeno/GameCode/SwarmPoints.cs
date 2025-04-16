@@ -25,7 +25,7 @@ namespace Keeno
 
     }
 
-    class MobileSwarmPoint : Animated2D
+    class MobileSwarmPoint : AnimatedKeeno2D
     {
 
         public MobileSwarmPoint(Texture2D spriteSheet, int fps, Rectangle rect)

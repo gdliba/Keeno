@@ -109,15 +109,24 @@ namespace Keeno
             sBatch.Draw(_txr, _rect, _srcRect, Color.White);
         }
     }
-
+    /// <summary>
+    /// Class made to help with making both the Keeno and the player inherit
+    /// their walk animation and relevant logic shared without making the Keeno
+    /// an odd child of the player, by not also making them a MobileSpawnPoint
+    /// </summary>
     class AnimatedKeeno2D : Animated2D
     {
-        Direction _direction;
+        protected Direction _direction;
+        protected bool _isWalking;
 
         public AnimatedKeeno2D(Texture2D spriteSheet, int fps, Rectangle rect)
             : base(spriteSheet, fps, rect)
         {
             _direction = Direction.West;
+        }
+        public override void updateme(GameTime gt)
+        {
+
         }
 
     }
