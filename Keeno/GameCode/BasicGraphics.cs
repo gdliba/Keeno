@@ -28,10 +28,10 @@ namespace Keeno
         /// <param name="spriteSheet"></param>
         /// <param name="sourceRect"></param>
         /// <param name="destinationRect"></param>
-        public StaticGraphic(Texture2D spriteSheet, Rectangle sourceRect, Rectangle destinationRect)
+        public StaticGraphic(Texture2D spriteSheet, int xTile, int yTile, int tileWidth, int tileHeight, Rectangle destinationRect)
         {
             _txr = spriteSheet;
-            _staticSrcRect = sourceRect;
+            _staticSrcRect = new Rectangle(xTile * tileWidth, yTile * tileHeight, tileWidth, tileHeight);
             _rect = destinationRect;
         }
 

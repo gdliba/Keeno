@@ -24,6 +24,8 @@ namespace Keeno
         // Game State
         private GameState currentGameState;
 
+        // Debug Pixel
+        private Texture2D debugPixel;
 
         #endregion
 
@@ -56,8 +58,10 @@ namespace Keeno
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            testSwarmPoint = new StaticSwarmPoint(Content.Load<Texture2D>("SpriteSheets\\colored_packed")
-                , new Rectangle(48, 320, 16, 16), new Rectangle(100, 100, 16, 16));
+            debugPixel = Content.Load<Texture2D>("Pixel");
+
+            testSwarmPoint = new StaticSwarmPoint(Content.Load<Texture2D>("SpriteSheets\\mono")
+                , 2, 19, 16, 16, new Rectangle(100, 100, 16, 16), debugPixel);
         }
 
         protected override void Update(GameTime gameTime)
