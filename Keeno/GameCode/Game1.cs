@@ -17,7 +17,6 @@ namespace Keeno
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        private StaticSwarmPoint testSwarmPoint;
 
         #region VARIABLES
 
@@ -26,6 +25,12 @@ namespace Keeno
 
         // Debug Pixel
         private Texture2D debugPixel;
+
+        // TESTS
+        private StaticSwarmPoint testSwarmPoint;
+        private MobileSwarmPoint testMobileSwarmPoint;
+
+
 
         #endregion
 
@@ -60,11 +65,13 @@ namespace Keeno
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             debugPixel = Content.Load<Texture2D>("Pixel");
 
-            testSwarmPoint = new StaticSwarmPoint(Content.Load<Texture2D>("SpriteSheets\\mono")
+            testSwarmPoint = new StaticSwarmPoint(Content.Load<Texture2D>("SpriteSheets\\color_t")
                 , 2, 19, 16, 16, new Rectangle(100, 100, 16, 16), debugPixel);
+
+            testMobileSwarmPoint = new MobileSwarmPoint(Content.Load<Texture2D>("Characters\\Keeno"), 2, new Rectangle(200, 200, 16, 16));
         }
 
-        protected override void Update(GameTime gameTime)
+        protected override void Update(GameTime gt)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
@@ -74,7 +81,7 @@ namespace Keeno
             switch (currentGameState)
             {
                 case GameState.Start:
-                    StartUpdate();
+                    StartUpdate(gt);
                     break;
                 case GameState.Playing:
                     PlayingUpdate();
@@ -83,10 +90,10 @@ namespace Keeno
                     GameOverUpdate();
                     break;
             }
-            base.Update(gameTime);
+            base.Update(gt);
         }
 
-        protected override void Draw(GameTime gameTime)
+        protected override void Draw(GameTime gt)
         {
             GraphicsDevice.Clear(Color.Black);
 
@@ -108,12 +115,12 @@ namespace Keeno
             _spriteBatch.End();
 
 
-            base.Draw(gameTime);
+            base.Draw(gt);
         }
         #region STATE UPDATES
-        private void StartUpdate()
+        private void StartUpdate(GameTime gt)
         {
-
+            testMobileSwarmPoint.updateme(gt);
         }
 
         private void PlayingUpdate()
@@ -130,6 +137,7 @@ namespace Keeno
         private void StartDraw()
         {
             testSwarmPoint.drawme(_spriteBatch);
+            testMobileSwarmPoint.drawme(_spriteBatch);
         }
 
         private void PlayingDraw()

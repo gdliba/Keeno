@@ -3,6 +3,13 @@ using Microsoft.Xna.Framework;
 
 namespace Keeno
 {
+    public enum Direction
+    {
+        North,
+        West,
+        East,
+        South
+    }
     class StaticGraphic
     {
         protected Rectangle _rect;
@@ -101,5 +108,17 @@ namespace Keeno
 
             sBatch.Draw(_txr, _rect, _srcRect, Color.White);
         }
+    }
+
+    class AnimatedKeeno2D : Animated2D
+    {
+        Direction _direction;
+
+        public AnimatedKeeno2D(Texture2D spriteSheet, int fps, Rectangle rect)
+            : base(spriteSheet, fps, rect)
+        {
+            _direction = Direction.West;
+        }
+
     }
 }

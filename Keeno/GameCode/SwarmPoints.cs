@@ -18,15 +18,20 @@ namespace Keeno
 
         public override void drawme(SpriteBatch sb)
         {
-            base.drawme(sb);
             sb.Draw(_testPixel, _testRectangle, Color.Red * .75f);
 
+            base.drawme(sb);
         }
 
     }
 
-    class MobileSwarPoints
+    class MobileSwarmPoint : Animated2D
     {
 
+        public MobileSwarmPoint(Texture2D spriteSheet, int fps, Rectangle rect)
+            : base ( spriteSheet, fps, rect)
+        {
+
+        }
     }
 }
