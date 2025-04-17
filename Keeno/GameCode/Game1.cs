@@ -64,7 +64,7 @@ namespace Keeno
             _graphics.PreferredBackBufferHeight = 
                 GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             // Set screen to Fullscreen
-            _graphics.IsFullScreen = true;
+            _graphics.IsFullScreen = false;
             _graphics.ApplyChanges();
 
 
@@ -152,8 +152,8 @@ namespace Keeno
 
             if (Keyboard.GetState().IsKeyDown(Keys.K))
             {
-                int x = RNG.Next(100, 501);
-                int y = RNG.Next(100, 501);
+                int x = RNG.Next(0, _graphics.PreferredBackBufferWidth);
+                int y = RNG.Next(0, _graphics.PreferredBackBufferHeight);
 
                 var newKeeno = new Keeno(keenoTexture,3,new Rectangle(x,y,16,16),debugPixel);
                 keenos.Add(newKeeno);
