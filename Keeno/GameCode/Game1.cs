@@ -30,7 +30,11 @@ namespace Keeno
         private StaticSwarmPoint testSwarmPoint;
         private MobileSwarmPoint testMobileSwarmPoint;
 
+        // Keyboard
+        KeyboardState kb_curr;
 
+        // Player
+        Player testPlayer;
 
         #endregion
 
@@ -65,23 +69,25 @@ namespace Keeno
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             debugPixel = Content.Load<Texture2D>("Pixel");
 
-            testSwarmPoint = new StaticSwarmPoint(Content.Load<Texture2D>("SpriteSheets\\color_t")
-                , 2, 19, 16, 16, new Rectangle(100, 100, 16, 16), debugPixel);
+            //testSwarmPoint = new StaticSwarmPoint(Content.Load<Texture2D>("SpriteSheets\\color_t")
+            //    , 2, 19, 16, 16, new Rectangle(100, 100, 16, 16), debugPixel);
 
-            testMobileSwarmPoint = new MobileSwarmPoint(Content.Load<Texture2D>("Characters\\Keeno"), 3, new Rectangle(200, 200, 16, 16));
+            //testMobileSwarmPoint = new MobileSwarmPoint(Content.Load<Texture2D>("Characters\\Keeno"), 3, new Rectangle(200, 200, 16, 16), debugPixel);
+
+            testPlayer = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 3, new Rectangle(200, 200, 16, 16), debugPixel);
         }
 
         protected override void Update(GameTime gt)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-
+            kb_curr = Keyboard.GetState();
 
             // GameState Switch
             switch (currentGameState)
             {
                 case GameState.Start:
-                    StartUpdate(gt);
+                    StartUpdate(gt, kb_curr);
                     break;
                 case GameState.Playing:
                     PlayingUpdate();
@@ -118,9 +124,11 @@ namespace Keeno
             base.Draw(gt);
         }
         #region STATE UPDATES
-        private void StartUpdate(GameTime gt)
+        private void StartUpdate(GameTime gt, KeyboardState kb)
         {
-            testMobileSwarmPoint.updateme(gt);
+            //testMobileSwarmPoint.updateme(gt);
+            testPlayer.updateme(gt,kb);
+            
         }
 
         private void PlayingUpdate()
@@ -136,8 +144,9 @@ namespace Keeno
         #region STATE DRAWS
         private void StartDraw()
         {
-            testSwarmPoint.drawme(_spriteBatch);
-            testMobileSwarmPoint.drawme(_spriteBatch);
+            //testSwarmPoint.drawme(_spriteBatch);
+            //testMobileSwarmPoint.drawme(_spriteBatch);
+            testPlayer.drawme(_spriteBatch);
         }
 
         private void PlayingDraw()

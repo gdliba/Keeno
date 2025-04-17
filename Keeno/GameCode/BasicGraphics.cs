@@ -4,13 +4,6 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Keeno
 {
-    public enum Direction
-    {
-        North,
-        West,
-        East,
-        South
-    }
     class StaticGraphic
     {
         protected Rectangle _rect;
@@ -99,7 +92,7 @@ namespace Keeno
                     _srcRect.X = 0;
             }
 
-            _position = _position + _velocity;
+            _position += _velocity * (float)gt.ElapsedGameTime.TotalSeconds;
         }
 
         public override void drawme(SpriteBatch sBatch)
@@ -117,65 +110,121 @@ namespace Keeno
     /// </summary>
     class AnimatedKeeno2D : Animated2D
     {
-        protected Direction _direction;
         protected bool _isWalking;
+        protected bool _wasWalking;
         protected int _defaultFps;
         protected int _idleFPS;
+        protected float _moveSpeed;
+        protected bool _wasFacingRight;
+        protected bool _wasFacingLeft;
 
-        public AnimatedKeeno2D(Texture2D spriteSheet, int fps, Rectangle rect)
+        // test related
+        protected Texture2D _testPixel;
+        protected Rectangle _testRectangle;
+
+        public AnimatedKeeno2D(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
             : base(spriteSheet, fps, rect)
         {
-            _direction = Direction.West;
-            _srcRect = new Rectangle(32, 0, rect.Width, rect.Height);
-            _defaultFps = fps;
+            _isWalking = true;
             _idleFPS = 2;
 
-            _isWalking = false;
+            _srcRect = new Rectangle(32, 0, rect.Width, rect.Height);
+            _defaultFps = fps;
+
+            // test related
+            _testPixel = pixel;
+            _testRectangle = rect;
         }
         public override void updateme(GameTime gt)
         {
             _updateTrigger += (float)gt.ElapsedGameTime.TotalSeconds * _framesPerSecond;
-            /// Frame 1 is death frame
 
-            // if iswalking (direction will tell drawme to flip)
-            if (_isWalking)
+            // Detect transitions between walking and idle
+            if (_isWalking != _wasWalking)  // if they don't match up it means it's transitioning
             {
-                // Set FPS to what is stated in the constructor
-                _framesPerSecond = _defaultFps;
-                // cycle between frames 3 and 4
-                if (_updateTrigger >= 1)
+                _updateTrigger = 0;
+
+                if (_isWalking)
                 {
-                    _updateTrigger = 0;
-                    _srcRect.X += _srcRect.Width;
-                    if (_srcRect.X == _txr.Width)
-                        _srcRect.X = _srcRect.Width*2;
+                    // Reset to start of walking frames
+                    _srcRect.X = _srcRect.Width * 2;
+                }
+                else
+                {
+                    // Reset to start of idle frames
+                    _srcRect.X = _srcRect.Width;
                 }
             }
-            // else 
-            else
+
+            if (_isWalking)
             {
-                // change the fps to slow down the idle animation
-                _framesPerSecond = _idleFPS;
-                // cycle between frames 2 and 3 (idle animation)
+                _framesPerSecond = _defaultFps; // switch FPS to the deault
+
                 if (_updateTrigger >= 1)
                 {
                     _updateTrigger = 0;
                     _srcRect.X += _srcRect.Width;
-                    if (_srcRect.X == _txr.Width - _srcRect.Width) 
+
+                    // Loop walking frames (3 and 4)
+                    if (_srcRect.X >= _srcRect.Width * 4)
+                        _srcRect.X = _srcRect.Width * 2;
+                }
+            }
+            else
+            {
+                _framesPerSecond = _idleFPS;    // switch FPS to _idleFPS (slower animation)
+
+                if (_updateTrigger >= 1)
+                {
+                    _updateTrigger = 0;
+                    _srcRect.X += _srcRect.Width;
+
+                    // Loop idle frames (2 and 3)
+                    if (_srcRect.X >= _srcRect.Width * 3)
                         _srcRect.X = _srcRect.Width;
                 }
             }
 
-            _position += _velocity;
+            _wasWalking = _isWalking; // Update for next frame
+            _position += _velocity * (float)gt.ElapsedGameTime.TotalSeconds;
+            _rect.Location = _position.ToPoint();
+
+            _testRectangle.Location = _rect.Location;
+        }
+        public virtual void MoveMe(Vector2 direction)
+        {
+            _velocity = Vector2.Zero;
+            _isWalking = false;
+
+            if (direction != Vector2.Zero)
+            {
+                // normalize direction to prevent diagonal movement from being faster
+                direction.Normalize();
+                _velocity = direction * _moveSpeed;
+                _isWalking = true;
+
+                // if moving towards the right
+                if (direction.X > 0)
+                {
+                    _wasFacingRight = true;
+                    _wasFacingLeft = false;
+                }
+                // else if moving towards the left
+                else if (direction.X < 0)
+                {
+                    _wasFacingRight = false;
+                    _wasFacingLeft = true;
+                }
+            }
         }
         public override void drawme(SpriteBatch sBatch)
         {
             _rect.X = (int)_position.X;
             _rect.Y = (int)_position.Y;
 
-            if (_direction == Direction.East)
+            if (_wasFacingRight)
                 sBatch.Draw(_txr, _rect, _srcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 0f);
-            else
+            else if (_wasFacingLeft)
                 sBatch.Draw(_txr, _rect, _srcRect, Color.White);
 
 

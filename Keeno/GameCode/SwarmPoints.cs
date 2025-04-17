@@ -28,10 +28,16 @@ namespace Keeno
     class MobileSwarmPoint : AnimatedKeeno2D
     {
 
-        public MobileSwarmPoint(Texture2D spriteSheet, int fps, Rectangle rect)
-            : base ( spriteSheet, fps, rect)
+        public MobileSwarmPoint(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
+            : base ( spriteSheet, fps, rect, pixel)
         {
 
+        }
+        public override void drawme(SpriteBatch sb)
+        {
+            sb.Draw(_testPixel, _testRectangle, Color.Red * .75f);
+
+            base.drawme(sb);
         }
     }
 }
