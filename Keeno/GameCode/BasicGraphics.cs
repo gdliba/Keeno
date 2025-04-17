@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Keeno
 {
@@ -118,14 +119,67 @@ namespace Keeno
     {
         protected Direction _direction;
         protected bool _isWalking;
+        protected int _defaultFps;
+        protected int _idleFPS;
 
         public AnimatedKeeno2D(Texture2D spriteSheet, int fps, Rectangle rect)
             : base(spriteSheet, fps, rect)
         {
             _direction = Direction.West;
+            _srcRect = new Rectangle(32, 0, rect.Width, rect.Height);
+            _defaultFps = fps;
+            _idleFPS = 2;
+
+            _isWalking = false;
         }
         public override void updateme(GameTime gt)
         {
+            _updateTrigger += (float)gt.ElapsedGameTime.TotalSeconds * _framesPerSecond;
+            /// Frame 1 is death frame
+
+            // if iswalking (direction will tell drawme to flip)
+            if (_isWalking)
+            {
+                // Set FPS to what is stated in the constructor
+                _framesPerSecond = _defaultFps;
+                // cycle between frames 3 and 4
+                if (_updateTrigger >= 1)
+                {
+                    _updateTrigger = 0;
+                    _srcRect.X += _srcRect.Width;
+                    if (_srcRect.X == _txr.Width)
+                        _srcRect.X = _srcRect.Width*2;
+                }
+            }
+            // else 
+            else
+            {
+                // change the fps to slow down the idle animation
+                _framesPerSecond = _idleFPS;
+                // cycle between frames 2 and 3 (idle animation)
+                if (_updateTrigger >= 1)
+                {
+                    _updateTrigger = 0;
+                    _srcRect.X += _srcRect.Width;
+                    if (_srcRect.X == _txr.Width - _srcRect.Width) 
+                        _srcRect.X = _srcRect.Width;
+                }
+            }
+
+            _position += _velocity;
+        }
+        public override void drawme(SpriteBatch sBatch)
+        {
+            _rect.X = (int)_position.X;
+            _rect.Y = (int)_position.Y;
+
+            if (_direction == Direction.East)
+                sBatch.Draw(_txr, _rect, _srcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 0f);
+            else
+                sBatch.Draw(_txr, _rect, _srcRect, Color.White);
+
+
+
 
         }
 

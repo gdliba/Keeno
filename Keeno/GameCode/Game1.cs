@@ -68,7 +68,7 @@ namespace Keeno
             testSwarmPoint = new StaticSwarmPoint(Content.Load<Texture2D>("SpriteSheets\\color_t")
                 , 2, 19, 16, 16, new Rectangle(100, 100, 16, 16), debugPixel);
 
-            testMobileSwarmPoint = new MobileSwarmPoint(Content.Load<Texture2D>("Characters\\Keeno"), 2, new Rectangle(200, 200, 16, 16));
+            testMobileSwarmPoint = new MobileSwarmPoint(Content.Load<Texture2D>("Characters\\Keeno"), 3, new Rectangle(200, 200, 16, 16));
         }
 
         protected override void Update(GameTime gt)
