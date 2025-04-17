@@ -226,10 +226,8 @@ namespace Keeno
                 sBatch.Draw(_txr, _rect, _srcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 0f);
             else if (_wasFacingLeft)
                 sBatch.Draw(_txr, _rect, _srcRect, Color.White);
-
-
-
-
+            else
+                sBatch.Draw(_txr, _rect, _srcRect, Color.White);
         }
 
     }

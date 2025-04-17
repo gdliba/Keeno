@@ -7,12 +7,36 @@ namespace Keeno
 
     class Keeno : AnimatedKeeno2D
     {
+        private float _moveTimer;
+        private float _moveTimerReset;
+
         public Keeno(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
             : base (spriteSheet, fps, rect, pixel)
         {
-
+            _isWalking = false;
+            _moveTimer = 3;
+            _moveTimerReset = _moveTimer;
+            _moveSpeed = 20;
         }
 
+        public void updateme(GameTime gt, KeyboardState kb)
+        {
+            Vector2 moveDir = Vector2.Zero;
+
+            if (_moveTimer >= 0)
+            {
+                _moveTimer -= (float)gt.ElapsedGameTime.TotalSeconds;
+
+            }
+            else
+            {
+                moveDir = new Vector2(Game1.RNG.Next(-1, 2), Game1.RNG.Next(-1, 2));
+                MoveMe(moveDir);
+                _moveTimer = _moveTimerReset;
+            }
+
+            base.updateme(gt);
+        }
     }
     class Player : MobileSwarmPoint
     {
@@ -21,22 +45,6 @@ namespace Keeno
         {
             _moveSpeed = 200;
         }
-        //public void updateme(GameTime gt, KeyboardState kb)
-        //{
-            
-        //    if (Globals.MoveUP)       // move NORTH
-        //        MoveMe(Direction.North);
-        //    if (Globals.MoveLEFT)      // move WEST
-        //        MoveMe(Direction.West);
-        //    if (Globals.MoveRIGHT)      // move EAST
-        //        MoveMe(Direction.East);
-        //    if (Globals.MoveDOWN)      // move SOUTH
-        //        MoveMe(Direction.South);
-        //    if (Globals.NoMovementKeysPressed)
-        //        MoveMe(Direction.None);     // DONT MOVE
-
-        //    base.updateme(gt);
-        //}
         public void updateme(GameTime gt, KeyboardState kb)
         {
             Vector2 moveDir = Vector2.Zero;

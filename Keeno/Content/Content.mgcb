@@ -37,6 +37,13 @@
 /processorParam:TextureFormat=Color
 /build:Characters/KeenoPlus.png
 
+#begin Fonts/debugFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/debugFont.spritefont
+
 #begin Pixel.png
 /importer:TextureImporter
 /processor:TextureProcessor
