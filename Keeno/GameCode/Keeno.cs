@@ -9,11 +9,12 @@ namespace Keeno
     {
         private float _moveTimer;
         private float _moveTimerReset;
+        private Vector2 _moveDir;
 
         public Keeno(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
             : base (spriteSheet, fps, rect, pixel)
         {
-            _isWalking = false;
+            //_isWalking = false;
             _moveTimer = 3;
             _moveTimerReset = _moveTimer;
             _moveSpeed = 20;
@@ -21,7 +22,7 @@ namespace Keeno
 
         public void updateme(GameTime gt, KeyboardState kb)
         {
-            Vector2 moveDir = Vector2.Zero;
+             _moveDir = Vector2.Zero;
 
             if (_moveTimer >= 0)
             {
@@ -30,8 +31,8 @@ namespace Keeno
             }
             else
             {
-                moveDir = new Vector2(Game1.RNG.Next(-1, 2), Game1.RNG.Next(-1, 2));
-                MoveMe(moveDir);
+                _moveDir = new Vector2(Game1.RNG.Next(-1, 2), Game1.RNG.Next(-1, 2));
+                MoveMe(_moveDir);
                 _moveTimer = _moveTimerReset;
             }
 
@@ -43,7 +44,9 @@ namespace Keeno
         public Player(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
             : base(spriteSheet, fps, rect, pixel)
         {
-            _moveSpeed = 200;
+            _moveSpeed = 50;
+            //_rect = new Rectangle(rect.X, rect.Y, rect.Width / 2, rect.Height / 2);
+            //_testRectangle = _rect;
         }
         public void updateme(GameTime gt, KeyboardState kb)
         {
@@ -57,6 +60,23 @@ namespace Keeno
             MoveMe(moveDir); // Call the base class method with the final direction
 
             base.updateme(gt);
+        }
+
+        public override void drawme(SpriteBatch sb)
+        {
+            _rect.X = (int)_position.X;
+            _rect.Y = (int)_position.Y;
+
+            sb.Draw(_testPixel, Bounds, Color.Red * .75f);
+
+            if (_wasFacingRight)
+                sb.Draw(_txr, _rect, _srcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 0f);
+            else if (_wasFacingLeft)
+                sb.Draw(_txr, _rect, _srcRect, Color.White);
+            else
+                sb.Draw(_txr, _rect, _srcRect, Color.White);
+
+
         }
     }
 }

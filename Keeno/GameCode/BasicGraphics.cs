@@ -110,13 +110,15 @@ namespace Keeno
     /// </summary>
     class AnimatedKeeno2D : Animated2D
     {
-        protected bool _isWalking;
+        protected bool _isWalking { get { return _velocity.Length() > 0; } }
         protected bool _wasWalking;
         protected int _defaultFps;
         protected int _idleFPS;
         protected float _moveSpeed;
         protected bool _wasFacingRight;
         protected bool _wasFacingLeft;
+
+        public Rectangle Bounds { get { return _rect; } }
 
         // test related
         protected Texture2D _testPixel;
@@ -125,7 +127,7 @@ namespace Keeno
         public AnimatedKeeno2D(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
             : base(spriteSheet, fps, rect)
         {
-            _isWalking = true;
+            //_isWalking = true;
             _idleFPS = 2;
 
             _srcRect = new Rectangle(32, 0, rect.Width, rect.Height);
@@ -194,14 +196,14 @@ namespace Keeno
         public virtual void MoveMe(Vector2 direction)
         {
             _velocity = Vector2.Zero;
-            _isWalking = false;
+            //_isWalking = false;
 
             if (direction != Vector2.Zero)
             {
                 // normalize direction to prevent diagonal movement from being faster
                 direction.Normalize();
                 _velocity = direction * _moveSpeed;
-                _isWalking = true;
+                //_isWalking = true;
 
                 // if moving towards the right
                 if (direction.X > 0)

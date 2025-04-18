@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Keeno
 {
@@ -17,6 +18,10 @@ namespace Keeno
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+
+        // Adding Render Target to scale the screen
+        private RenderTarget2D _renderTarget;
+
         // RNG
         public static readonly Random RNG = new Random();
 
@@ -32,6 +37,10 @@ namespace Keeno
         // TESTS
         private StaticSwarmPoint testSwarmPoint;
         private MobileSwarmPoint testMobileSwarmPoint;
+        Map testMap;
+        Texture2D tilesetTxr;
+
+
 
         // Keyboard
         KeyboardState kb_curr;
@@ -44,7 +53,9 @@ namespace Keeno
         Texture2D keenoTexture;
 
         // Fonts
-        SpriteFont debugFont;
+#if DEBUG
+        public static SpriteFont debugFont;
+#endif
 
         #endregion
 
@@ -80,6 +91,9 @@ namespace Keeno
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
+            _renderTarget = new RenderTarget2D(_spriteBatch.GraphicsDevice, _graphics.PreferredBackBufferWidth/2, _graphics.PreferredBackBufferHeight/2);
+
+
             debugPixel = Content.Load<Texture2D>("Pixel");
 
             //testSwarmPoint = new StaticSwarmPoint(Content.Load<Texture2D>("SpriteSheets\\color_t")
@@ -95,7 +109,9 @@ namespace Keeno
             // Fonts
 #if DEBUG
             debugFont = Content.Load<SpriteFont>("Fonts\\debugFont");
-#endif        
+#endif
+            tilesetTxr = Content.Load<Texture2D>("SpriteSheets\\color_t");
+            testMap = new Map("Content/MapData/testLevel_Map.csv", tilesetTxr, 16, 16, 49);
         }
 
         protected override void Update(GameTime gt)
@@ -103,6 +119,7 @@ namespace Keeno
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             kb_curr = Keyboard.GetState();
+            Globals.UpdateInput();
 
             // GameState Switch
             switch (currentGameState)
@@ -122,6 +139,9 @@ namespace Keeno
 
         protected override void Draw(GameTime gt)
         {
+            // screen scaling
+            GraphicsDevice.SetRenderTarget(_renderTarget);
+
             GraphicsDevice.Clear(Color.Black);
 
             _spriteBatch.Begin();
@@ -142,11 +162,45 @@ namespace Keeno
             _spriteBatch.End();
 
 
+            // Completing Scale effect on the screen
+            GraphicsDevice.SetRenderTarget(null);
+            _spriteBatch.Begin();
+            _spriteBatch.Draw(_renderTarget, GraphicsDevice.Viewport.Bounds, null, Color.White, 0, Vector2.Zero, SpriteEffects.None, 1);
+            _spriteBatch.End();
+
             base.Draw(gt);
         }
         #region STATE UPDATES
         private void StartUpdate(GameTime gt, KeyboardState kb)
         {
+
+
+            foreach (var obj in testMap.WorldObjects)
+                obj.Update(gt);
+
+
+
+
+            // PLAYER - TREE INTERACTION
+            if (kb_curr.IsKeyDown(Keys.E))
+            {
+                for(var i = 0; i < testMap.WorldObjects.Count; i++)
+                {
+                    if (testPlayer.Bounds.Intersects(testMap.WorldObjects[i].Bounds))
+                    {
+                        testMap.WorldObjects[i].OnInteract();
+                    }
+                }
+
+            }
+
+
+
+
+
+
+
+
             //testMobileSwarmPoint.updateme(gt);
             testPlayer.updateme(gt,kb);
 
@@ -158,9 +212,6 @@ namespace Keeno
                 var newKeeno = new Keeno(keenoTexture,3,new Rectangle(x,y,16,16),debugPixel);
                 keenos.Add(newKeeno);
             }
-
-
-
 
             // Keeno
             foreach (var keeno in keenos)
@@ -183,9 +234,23 @@ namespace Keeno
         #region STATE DRAWS
         private void StartDraw(GameTime gt)
         {
+
+
+
+            // CURREBNTLY DRAWING TREES 
+            foreach (var obj in testMap.WorldObjects)
+                obj.Draw(_spriteBatch);
+
+
+
+
+
             //testSwarmPoint.drawme(_spriteBatch);
             //testMobileSwarmPoint.drawme(_spriteBatch);
             testPlayer.drawme(_spriteBatch);
+
+            // TEST MAP
+            testMap.Draw(_spriteBatch);
 
             // Keenos
             foreach (var keeno in keenos)
@@ -197,6 +262,8 @@ namespace Keeno
                 + "\nKeenos: " + keenos.Count,
                 new Vector2(10, 10), Color.White);
 #endif
+
+
         }
 
         private void PlayingDraw()

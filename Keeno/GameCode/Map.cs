@@ -1,0 +1,143 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using static System.Net.Mime.MediaTypeNames;
+
+namespace Keeno
+{
+    public class Map
+    {
+
+        private List<WorldObject> _worldObjects;
+        public List<WorldObject> WorldObjects {  get { return _worldObjects; } }
+
+
+
+
+
+
+
+        // 2D array storing tile indices for the map
+        private int[,] _mapData;
+
+        // Dimensions of each tile in pixels
+        private int _tileWidth;
+        private int _tileHeight;
+
+        // Dimensions of the map in tiles
+        private int _mapWidth;
+        private int _mapHeight;
+
+        // The tileset texture containing all tile sprites
+        private Texture2D _tileset;
+
+        // How many columns (tiles per row) are in the tileset image
+        private int _tilesetColumns;
+
+
+        /// <summary>
+        /// takes a CSV path and tile settings, loads the map
+        /// </summary>
+        /// <param name="csvPath"></param>
+        /// <param name="tilesetTexture"></param>
+        /// <param name="tileWidth"></param>
+        /// <param name="tileHeight"></param>
+        /// <param name="tilesetColumns"></param>
+        public Map(string csvPath, Texture2D tilesetTexture, int tileWidth, int tileHeight, int tilesetColumns)
+        {
+            _tileWidth = tileWidth;
+            _tileHeight = tileHeight;
+            _tileset = tilesetTexture;
+            _tilesetColumns = tilesetColumns;
+
+            // Loads the map data from the CSV
+            LoadMap(csvPath);
+
+            _worldObjects = new List<WorldObject>();
+
+
+            // after LoadMap has filled _mapData:
+            for (int y = 0; y < _mapHeight; y++)
+            {
+                for (int x = 0; x < _mapWidth; x++)
+                {
+                    if (_mapData[y, x] == 51)  // tree tile
+                    {
+                        _worldObjects.Add(new Tree(
+                            _tileset,        // your tileset texture
+                            _tileWidth,
+                            _tileHeight,
+                            _tilesetColumns,
+                            new Point(x, y)
+                        ));
+                        // optionally clear the map cell so Map.Draw won’t over‐draw it:
+                        _mapData[y, x] = -1;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Reads the CSV file and fills _mapData with tile indices
+        /// </summary>
+        /// <param name="path"></param>
+        private void LoadMap(string path)
+        {
+            // Read entire CSV as a string
+            string csv = File.ReadAllText(path);
+            // Split into rows
+            string[] rows = csv.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+            _mapHeight = rows.Length;                   // Number of tile rows
+            _mapWidth = rows[0].Split(',').Length;      // Number of tile columns
+
+            _mapData = new int[_mapHeight, _mapWidth];  // Initialize map array
+
+            // Loop through each row
+            for (int y = 0; y < _mapHeight; y++)
+            {
+                string[] cols = rows[y].Split(',');     // Split row into columns
+                for (int x = 0; x < _mapWidth; x++)
+                {
+                    _mapData[y, x] = int.Parse(cols[x]);// Parse each tile index
+                }
+            }
+        }
+
+        /// <summary>
+        /// Draw Method for the class
+        /// </summary>
+        /// <param name="sb"></param>
+        public void Draw(SpriteBatch sb)
+        {
+            // Loop through the tiles to process their information
+            for (int y = 0; y < _mapHeight; y++)
+            {
+                for (int x = 0; x < _mapWidth; x++)
+                {
+                    int tileIndex = _mapData[y, x]; // Get the tile index
+                    if (tileIndex == -1) 
+                        continue;                   // skip "empty" tiles
+
+                    int col = (tileIndex) % _tilesetColumns;    // X position in the tileset
+                    int row = (tileIndex) / _tilesetColumns;    // Y position in the tileset
+
+                    // Adjust source rectangle
+                    Rectangle sourceRect = new Rectangle(col * _tileWidth, row * _tileHeight, _tileWidth, _tileHeight);
+
+                    // Calculate screen position to draw the tile
+                    Vector2 position = new Vector2(x * _tileWidth, y * _tileHeight);
+
+                    // Draw the tile from tileset onto screen
+                    sb.Draw(_tileset, position, sourceRect, Color.White);
+
+                    // Draw the tileIndexes on screen
+                    string tempText = tileIndex.ToString();
+                    //sb.DrawString(Game1.debugFont, tempText, position + new Vector2(0, (_tileHeight / 2)), Color.Red);
+                }
+            }
+        }
+    }
+}
