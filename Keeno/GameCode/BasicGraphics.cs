@@ -128,7 +128,7 @@ namespace Keeno
         public AnimatedKeeno2D(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
             : base(spriteSheet, fps, rect)
         {
-            _idleFPS = 2;
+            _idleFPS = 1;
 
             _srcRect = new Rectangle(32, 0, rect.Width, rect.Height);
             _defaultFps = fps;

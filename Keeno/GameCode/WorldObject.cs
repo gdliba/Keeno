@@ -44,9 +44,11 @@ namespace Keeno
     {
         private bool _isChopped;
         private Texture2D _fallenTreeTxr;
+        private Texture2D _choppedTreeTxr;
+
 
         public Tree(Texture2D tileset, int tileWidth, int tileHeight,
-            int tilesetColumns, Point tilePosition, Texture2D fallenTreeTxr)
+            int tilesetColumns, Point tilePosition, Texture2D choppedTree)
             : base(
                 tileset,
                 // world‐space bounds: tilePosition * tileSize
@@ -67,7 +69,7 @@ namespace Keeno
             _tileWidth = tileWidth;
             _tilePosition = tilePosition;
             _tilesetColumns = tilesetColumns;
-            _fallenTreeTxr = fallenTreeTxr;
+            _choppedTreeTxr = choppedTree;
         }
 
         public override void OnInteract()
@@ -89,7 +91,7 @@ namespace Keeno
 
             if (_isChopped)
             {
-                sb.Draw(_fallenTreeTxr, _rect, Color.White);
+                sb.Draw(_choppedTreeTxr, _rect, Color.White);
             }
             else
                 base.Draw(sb);

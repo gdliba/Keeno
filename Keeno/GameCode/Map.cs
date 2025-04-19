@@ -41,7 +41,7 @@ namespace Keeno
         /// <param name="tileHeight"></param>
         /// <param name="tilesetColumns"></param>
         public Map(string csvPath, Texture2D tilesetTexture, int tileWidth,
-            int tileHeight, int tilesetColumns, Texture2D fallenTreeTxr)
+            int tileHeight, int tilesetColumns, Texture2D choppedTree)
         {
             _tileWidth = tileWidth;
             _tileHeight = tileHeight;
@@ -76,7 +76,7 @@ namespace Keeno
                     switch (_mapData[y, x])
                     {
                         case Globals.TreeTileIndex:
-                            AddTree(x,y, fallenTreeTxr);
+                            AddTree(x,y, choppedTree);
                             break;
                         case Globals.TownCentreTileIndex:
                             AddTownCentre(x,y);
