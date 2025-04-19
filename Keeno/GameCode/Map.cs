@@ -143,6 +143,12 @@ namespace Keeno
         /// <param name="sb"></param>
         public void Draw(SpriteBatch sb)
         {
+            for (int i = 0; i < _worldObjects.Count; i++)
+            {
+                _worldObjects[i].Draw(sb);
+            }
+
+
             // Loop through the tiles to process their information
             for (int y = 0; y < _mapHeight; y++)
             {

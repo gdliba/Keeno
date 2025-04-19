@@ -246,11 +246,13 @@ namespace Keeno
         private void StartDraw(GameTime gt)
         {
 
+            // TEST MAP
+            testMap.Draw(_spriteBatch);
 
 
-            // CURREBNTLY DRAWING TREES 
-            foreach (var obj in testMap.WorldObjects)
-                obj.Draw(_spriteBatch);
+            //// CURREBNTLY DRAWING TREES 
+            //foreach (var obj in testMap.WorldObjects)
+            //    obj.Draw(_spriteBatch);
 
 
 
@@ -260,8 +262,6 @@ namespace Keeno
             //testMobileSwarmPoint.drawme(_spriteBatch);
             testPlayer.drawme(_spriteBatch);
 
-            // TEST MAP
-            testMap.Draw(_spriteBatch);
 
             // Keenos
             foreach (var keeno in keenos)
