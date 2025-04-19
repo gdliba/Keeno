@@ -115,8 +115,9 @@ namespace Keeno
         protected int _defaultFps;
         protected int _idleFPS;
         protected float _moveSpeed;
-        protected bool _wasFacingRight;
-        protected bool _wasFacingLeft;
+        protected bool _facingRight;
+        protected bool _drawBounds;
+
 
         public Rectangle Bounds { get { return _rect; } }
 
@@ -127,7 +128,6 @@ namespace Keeno
         public AnimatedKeeno2D(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
             : base(spriteSheet, fps, rect)
         {
-            //_isWalking = true;
             _idleFPS = 2;
 
             _srcRect = new Rectangle(32, 0, rect.Width, rect.Height);
@@ -136,6 +136,7 @@ namespace Keeno
             // test related
             _testPixel = pixel;
             _testRectangle = rect;
+            _drawBounds = false;
         }
         public override void updateme(GameTime gt)
         {
@@ -195,9 +196,6 @@ namespace Keeno
         }
         public virtual void MoveMe(Vector2 direction)
         {
-            _velocity = Vector2.Zero;
-            //_isWalking = false;
-
             if (direction != Vector2.Zero)
             {
                 // normalize direction to prevent diagonal movement from being faster
@@ -208,28 +206,35 @@ namespace Keeno
                 // if moving towards the right
                 if (direction.X > 0)
                 {
-                    _wasFacingRight = true;
-                    _wasFacingLeft = false;
+                    _facingRight = true;
                 }
                 // else if moving towards the left
                 else if (direction.X < 0)
                 {
-                    _wasFacingRight = false;
-                    _wasFacingLeft = true;
+                    _facingRight = false;
                 }
             }
+            else
+            {
+                _velocity = Vector2.Zero;
+            }
         }
-        public override void drawme(SpriteBatch sBatch)
+        public override void drawme(SpriteBatch sb)
         {
+            // Make sure the rectangle moves and is drawn in the right position
             _rect.X = (int)_position.X;
             _rect.Y = (int)_position.Y;
 
-            if (_wasFacingRight)
-                sBatch.Draw(_txr, _rect, _srcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 0f);
-            else if (_wasFacingLeft)
-                sBatch.Draw(_txr, _rect, _srcRect, Color.White);
-            else
-                sBatch.Draw(_txr, _rect, _srcRect, Color.White);
+            // determine when to flip the sprite (making it look to the RIGHT)
+            var flip = _facingRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+
+            sb.Draw(_txr, _rect, _srcRect, Color.White, 0f, 
+                Vector2.Zero, flip, 0f);
+
+            // Draw test pixel
+            if(_drawBounds)
+                sb.Draw(_testPixel, Bounds, Color.Red * .75f);
+
         }
 
     }

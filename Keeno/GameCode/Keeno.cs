@@ -14,10 +14,10 @@ namespace Keeno
         public Keeno(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
             : base (spriteSheet, fps, rect, pixel)
         {
-            //_isWalking = false;
             _moveTimer = 3;
             _moveTimerReset = _moveTimer;
-            _moveSpeed = 20;
+            _moveSpeed = Globals.KeenoMovementSpeed;
+            _drawBounds = true;
         }
 
         public void updateme(GameTime gt, KeyboardState kb)
@@ -44,7 +44,7 @@ namespace Keeno
         public Player(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
             : base(spriteSheet, fps, rect, pixel)
         {
-            _moveSpeed = 50;
+            _moveSpeed = Globals.PlayerMovementSpeed;
             //_rect = new Rectangle(rect.X, rect.Y, rect.Width / 2, rect.Height / 2);
             //_testRectangle = _rect;
         }
@@ -60,23 +60,6 @@ namespace Keeno
             MoveMe(moveDir); // Call the base class method with the final direction
 
             base.updateme(gt);
-        }
-
-        public override void drawme(SpriteBatch sb)
-        {
-            _rect.X = (int)_position.X;
-            _rect.Y = (int)_position.Y;
-
-            sb.Draw(_testPixel, Bounds, Color.Red * .75f);
-
-            if (_wasFacingRight)
-                sb.Draw(_txr, _rect, _srcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 0f);
-            else if (_wasFacingLeft)
-                sb.Draw(_txr, _rect, _srcRect, Color.White);
-            else
-                sb.Draw(_txr, _rect, _srcRect, Color.White);
-
-
         }
     }
 }

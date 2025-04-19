@@ -17,24 +17,29 @@ namespace Keeno
             SourceRect = sourceRect;
         }
 
-        /// <summary> Called once per frame to update your object logic (e.g. animations). </summary>
-        public virtual void Update(GameTime gt) { }
 
-        /// <summary> Draw this object to the screen. </summary>
+        public virtual void Update(GameTime gt)
+        {
+
+        }
+
         public virtual void Draw(SpriteBatch sb)
         {
             sb.Draw(Texture, Bounds, SourceRect, Color.White);
         }
 
-        /// <summary> Called when the player “interacts” with this object. </summary>
+        /// <summary>
+        /// Called when the player “interacts” with this object
+        /// </summary>
         public abstract void OnInteract();
     }
 
-    public class Tree : WorldObject
+    class Tree : WorldObject
     {
-        public bool IsChopped { get; private set; }
+        private bool _isChopped;
 
-        public Tree(Texture2D tileset, int tileWidth, int tileHeight, int tilesetColumns, Point tilePosition)
+        public Tree(Texture2D tileset, int tileWidth, int tileHeight,
+            int tilesetColumns, Point tilePosition)
             : base(
                 tileset,
                 // world‐space bounds: tilePosition * tileSize
@@ -44,21 +49,21 @@ namespace Keeno
                               tileHeight),
                 // sourceRect inside the tileset:
                 new Rectangle(
-                  (51 % tilesetColumns) * tileWidth,
-                  (51 / tilesetColumns) * tileHeight,
+                  (Globals.TreeTileIndex % tilesetColumns) * tileWidth,
+                  (Globals.TreeTileIndex/ tilesetColumns) * tileHeight,
                   tileWidth,
                   tileHeight)
               )
         {
-            IsChopped = false;
+            _isChopped = false;
         }
 
         public override void OnInteract()
         {
-            if (!IsChopped)
+            if (!_isChopped)
             {
                 // play chop animation / sound
-                IsChopped = true;
+                _isChopped = true;
 
                 // swap SourceRect to a “stump” sprite here
             }
@@ -66,7 +71,7 @@ namespace Keeno
 
         public override void Draw(SpriteBatch sb)
         {
-            if (IsChopped)
+            if (_isChopped)
             {
                 // draw stump (could be a different sourceRect or texture)
             }
@@ -74,6 +79,39 @@ namespace Keeno
             {
                 base.Draw(sb);
             }
+        }
+    }
+    class TownCentre : WorldObject
+    {
+        private Color _tint;
+        public TownCentre(Texture2D tileset, int tileWidth, int tileHeight,
+            int tilesetColumns, Point tilePosition)
+            : base(
+                tileset,
+                // world‐space bounds: tilePosition * tileSize
+                new Rectangle(tilePosition.X * tileWidth,
+                              tilePosition.Y * tileHeight,
+                              tileWidth,
+                              tileHeight),
+                // sourceRect inside the tileset:
+                new Rectangle(
+                  (Globals.TownCentreTileIndex % tilesetColumns) * tileWidth,
+                  (Globals.TownCentreTileIndex / tilesetColumns) * tileHeight,
+                  tileWidth,
+                  tileHeight)
+              )
+        {
+            _tint = Color.White;
+        }
+        public override void OnInteract()
+        {
+            _tint = new Color(Game1.RNG.Next(0, 256), 
+                Game1.RNG.Next(0, 256), Game1.RNG.Next(0, 256));
+        }
+
+        public override void Draw(SpriteBatch sb)
+        {
+            sb.Draw(Texture, Bounds, SourceRect, _tint);
         }
     }
 }

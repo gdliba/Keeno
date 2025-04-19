@@ -12,5 +12,19 @@ namespace Keeno
         public static bool MoveDOWN => _keyboard.IsKeyDown(Keys.S);
         public static bool MoveRIGHT => _keyboard.IsKeyDown(Keys.D);
         public static bool NoMovementKeysPressed { get { return !MoveUP && !MoveLEFT && !MoveDOWN && !MoveRIGHT; } }
+
+
+        public const int TreeTileIndex = 51;
+        public const int EmptyTileIndex = -1;
+        public const int TownCentreTileIndex = 983;
+
+
+
+        public static int PlayerMovementSpeed = 50;
+        public static int KeenoMovementSpeed = 20;
+
+
+
+
     }
 }

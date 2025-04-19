@@ -11,6 +11,7 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Content\MapData\testLevel_Collisions.csv" />
     <None Remove="Content\MapData\testLevel_Map.csv" />
     <None Remove="Icon.ico" />
     <None Remove="Icon.bmp" />

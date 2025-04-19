@@ -13,12 +13,6 @@ namespace Keeno
         private List<WorldObject> _worldObjects;
         public List<WorldObject> WorldObjects {  get { return _worldObjects; } }
 
-
-
-
-
-
-
         // 2D array storing tile indices for the map
         private int[,] _mapData;
 
@@ -45,7 +39,8 @@ namespace Keeno
         /// <param name="tileWidth"></param>
         /// <param name="tileHeight"></param>
         /// <param name="tilesetColumns"></param>
-        public Map(string csvPath, Texture2D tilesetTexture, int tileWidth, int tileHeight, int tilesetColumns)
+        public Map(string csvPath, Texture2D tilesetTexture, int tileWidth,
+            int tileHeight, int tilesetColumns)
         {
             _tileWidth = tileWidth;
             _tileHeight = tileHeight;
@@ -58,22 +53,35 @@ namespace Keeno
             _worldObjects = new List<WorldObject>();
 
 
-            // after LoadMap has filled _mapData:
+            // after LoadMap has filled _mapData
             for (int y = 0; y < _mapHeight; y++)
             {
                 for (int x = 0; x < _mapWidth; x++)
                 {
-                    if (_mapData[y, x] == 51)  // tree tile
+                    //if (_mapData[y, x] == Globals.TreeTileIndex)  // tree tile
+                    //{
+                    //_worldObjects.Add(new Tree(
+                    //    _tileset,
+                    //    _tileWidth,
+                    //    _tileHeight,
+                    //    _tilesetColumns,
+                    //    new Point(x, y)
+                    //    ));
+                    //    // clear the map cell so it's not drawn over
+                    //    _mapData[y, x] = Globals.EmptyTileIndex;
+                    //}
+
+
+                    switch (_mapData[y, x])
                     {
-                        _worldObjects.Add(new Tree(
-                            _tileset,        // your tileset texture
-                            _tileWidth,
-                            _tileHeight,
-                            _tilesetColumns,
-                            new Point(x, y)
-                        ));
-                        // optionally clear the map cell so Map.Draw won’t over‐draw it:
-                        _mapData[y, x] = -1;
+                        case Globals.TreeTileIndex:
+                            AddTree(x,y);
+                            break;
+                        case Globals.TownCentreTileIndex:
+                            AddTownCentre(x,y);
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
@@ -88,7 +96,8 @@ namespace Keeno
             // Read entire CSV as a string
             string csv = File.ReadAllText(path);
             // Split into rows
-            string[] rows = csv.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] rows = csv.Split(new[] { '\r', '\n' },
+                StringSplitOptions.RemoveEmptyEntries);
 
             _mapHeight = rows.Length;                   // Number of tile rows
             _mapWidth = rows[0].Split(',').Length;      // Number of tile columns
@@ -105,6 +114,28 @@ namespace Keeno
                 }
             }
         }
+        private void AddTree(int x, int y)
+        {
+            _worldObjects.Add(new Tree(_tileset, _tileWidth, _tileHeight,
+                                _tilesetColumns, new Point(x, y)));
+
+            _mapData[y, x] = Globals.EmptyTileIndex;
+        }
+        private void AddTownCentre(int x, int y)
+        {
+            _worldObjects.Add(new TownCentre(_tileset, _tileWidth, _tileHeight,
+                                _tilesetColumns, new Point(x, y)));
+
+            _mapData[y, x] = Globals.EmptyTileIndex;
+        }
+
+        public void Update(GameTime gt)
+        {
+            for (int i = 0; i < _worldObjects.Count; i++)
+            {
+                _worldObjects[i].Update(gt);
+            }
+        }
 
         /// <summary>
         /// Draw Method for the class
@@ -118,14 +149,15 @@ namespace Keeno
                 for (int x = 0; x < _mapWidth; x++)
                 {
                     int tileIndex = _mapData[y, x]; // Get the tile index
-                    if (tileIndex == -1) 
+                    if (tileIndex == Globals.EmptyTileIndex) 
                         continue;                   // skip "empty" tiles
 
                     int col = (tileIndex) % _tilesetColumns;    // X position in the tileset
                     int row = (tileIndex) / _tilesetColumns;    // Y position in the tileset
 
                     // Adjust source rectangle
-                    Rectangle sourceRect = new Rectangle(col * _tileWidth, row * _tileHeight, _tileWidth, _tileHeight);
+                    Rectangle sourceRect = new Rectangle(col * _tileWidth, 
+                        row * _tileHeight, _tileWidth, _tileHeight);
 
                     // Calculate screen position to draw the tile
                     Vector2 position = new Vector2(x * _tileWidth, y * _tileHeight);
@@ -134,8 +166,9 @@ namespace Keeno
                     sb.Draw(_tileset, position, sourceRect, Color.White);
 
                     // Draw the tileIndexes on screen
-                    string tempText = tileIndex.ToString();
-                    //sb.DrawString(Game1.debugFont, tempText, position + new Vector2(0, (_tileHeight / 2)), Color.Red);
+                    //string tempText = tileIndex.ToString();
+                    //sb.DrawString(Game1.debugFont, tempText, position +
+                    //new Vector2(0, (_tileHeight / 2)), Color.Red);
                 }
             }
         }

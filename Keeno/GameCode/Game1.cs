@@ -91,7 +91,8 @@ namespace Keeno
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            _renderTarget = new RenderTarget2D(_spriteBatch.GraphicsDevice, _graphics.PreferredBackBufferWidth/2, _graphics.PreferredBackBufferHeight/2);
+            _renderTarget = new RenderTarget2D(_spriteBatch.GraphicsDevice,
+                _graphics.PreferredBackBufferWidth/2, _graphics.PreferredBackBufferHeight/2);
 
 
             debugPixel = Content.Load<Texture2D>("Pixel");
@@ -175,13 +176,13 @@ namespace Keeno
         {
 
 
-            foreach (var obj in testMap.WorldObjects)
-                obj.Update(gt);
+            //foreach (var obj in testMap.WorldObjects)
+            //    obj.Update(gt);
+            testMap.Update(gt);
 
 
 
-
-            // PLAYER - TREE INTERACTION
+            // PLAYER - WorldObject INTERACTION
             if (kb_curr.IsKeyDown(Keys.E))
             {
                 for(var i = 0; i < testMap.WorldObjects.Count; i++)
@@ -191,7 +192,17 @@ namespace Keeno
                         testMap.WorldObjects[i].OnInteract();
                     }
                 }
+            }
 
+            for (var j = 0; j < keenos.Count; j++)
+            {
+                for (var i = 0; i < testMap.WorldObjects.Count; i++)
+                {
+                    if (keenos[j].Bounds.Intersects(testMap.WorldObjects[i].Bounds))
+                    {
+                        testMap.WorldObjects[i].OnInteract();
+                    }
+                }
             }
 
 
@@ -206,8 +217,8 @@ namespace Keeno
 
             if (Keyboard.GetState().IsKeyDown(Keys.K))
             {
-                int x = RNG.Next(0, _graphics.PreferredBackBufferWidth);
-                int y = RNG.Next(0, _graphics.PreferredBackBufferHeight);
+                int x = RNG.Next(0, _renderTarget.Width);
+                int y = RNG.Next(0, _renderTarget.Height);
 
                 var newKeeno = new Keeno(keenoTexture,3,new Rectangle(x,y,16,16),debugPixel);
                 keenos.Add(newKeeno);
