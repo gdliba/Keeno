@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection.Metadata;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using static System.Net.Mime.MediaTypeNames;
@@ -40,7 +41,7 @@ namespace Keeno
         /// <param name="tileHeight"></param>
         /// <param name="tilesetColumns"></param>
         public Map(string csvPath, Texture2D tilesetTexture, int tileWidth,
-            int tileHeight, int tilesetColumns)
+            int tileHeight, int tilesetColumns, Texture2D fallenTreeTxr)
         {
             _tileWidth = tileWidth;
             _tileHeight = tileHeight;
@@ -75,7 +76,7 @@ namespace Keeno
                     switch (_mapData[y, x])
                     {
                         case Globals.TreeTileIndex:
-                            AddTree(x,y);
+                            AddTree(x,y, fallenTreeTxr);
                             break;
                         case Globals.TownCentreTileIndex:
                             AddTownCentre(x,y);
@@ -114,10 +115,10 @@ namespace Keeno
                 }
             }
         }
-        private void AddTree(int x, int y)
+        private void AddTree(int x, int y, Texture2D fallenTreeTxr)
         {
             _worldObjects.Add(new Tree(_tileset, _tileWidth, _tileHeight,
-                                _tilesetColumns, new Point(x, y)));
+                                _tilesetColumns, new Point(x, y), fallenTreeTxr));
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }
@@ -129,13 +130,13 @@ namespace Keeno
             _mapData[y, x] = Globals.EmptyTileIndex;
         }
 
-        public void Update(GameTime gt)
-        {
-            for (int i = 0; i < _worldObjects.Count; i++)
-            {
-                _worldObjects[i].Update(gt);
-            }
-        }
+        //public void Update(GameTime gt)
+        //{
+        //    for (int i = 0; i < _worldObjects.Count; i++)
+        //    {
+        //        _worldObjects[i].Update(gt);
+        //    }
+        //}
 
         /// <summary>
         /// Draw Method for the class

@@ -6,15 +6,21 @@ namespace Keeno
 {
     public abstract class WorldObject
     {
-        public Rectangle Bounds { get; protected set; }
-        protected Texture2D Texture;
-        protected Rectangle SourceRect;
+        public Rectangle Bounds { get{ return _rect; } }
+        protected Rectangle _rect;
+        protected Texture2D _txr;
+        protected Rectangle _srcRect;
+        protected Point _tilePosition;
+        protected int _tileWidth;
+        protected int _tileHeight;
+        protected int _tilesetColumns;
+
 
         protected WorldObject(Texture2D texture, Rectangle bounds, Rectangle sourceRect)
         {
-            Texture = texture;
-            Bounds = bounds;
-            SourceRect = sourceRect;
+            _txr = texture;
+            _rect = bounds;
+            _srcRect = sourceRect;
         }
 
 
@@ -25,7 +31,7 @@ namespace Keeno
 
         public virtual void Draw(SpriteBatch sb)
         {
-            sb.Draw(Texture, Bounds, SourceRect, Color.White);
+            sb.Draw(_txr, _rect, _srcRect, Color.White);
         }
 
         /// <summary>
@@ -37,9 +43,10 @@ namespace Keeno
     class Tree : WorldObject
     {
         private bool _isChopped;
+        private Texture2D _fallenTreeTxr;
 
         public Tree(Texture2D tileset, int tileWidth, int tileHeight,
-            int tilesetColumns, Point tilePosition)
+            int tilesetColumns, Point tilePosition, Texture2D fallenTreeTxr)
             : base(
                 tileset,
                 // world‐space bounds: tilePosition * tileSize
@@ -47,7 +54,7 @@ namespace Keeno
                               tilePosition.Y * tileHeight,
                               tileWidth,
                               tileHeight),
-                // sourceRect inside the tileset:
+                // sourceRect inside the tileset
                 new Rectangle(
                   (Globals.TreeTileIndex % tilesetColumns) * tileWidth,
                   (Globals.TreeTileIndex/ tilesetColumns) * tileHeight,
@@ -56,29 +63,36 @@ namespace Keeno
               )
         {
             _isChopped = false;
+            _tileHeight = tileHeight;
+            _tileWidth = tileWidth;
+            _tilePosition = tilePosition;
+            _tilesetColumns = tilesetColumns;
+            _fallenTreeTxr = fallenTreeTxr;
         }
 
         public override void OnInteract()
         {
             if (!_isChopped)
             {
+
                 // play chop animation / sound
                 _isChopped = true;
 
+                _srcRect.X = (Globals.ChoppedTreeTileIndex % _tilesetColumns) * _tileWidth;
+                _srcRect.Y = (Globals.ChoppedTreeTileIndex / _tilesetColumns) * _tileHeight;
                 // swap SourceRect to a “stump” sprite here
             }
         }
 
         public override void Draw(SpriteBatch sb)
         {
+
             if (_isChopped)
             {
-                // draw stump (could be a different sourceRect or texture)
+                sb.Draw(_fallenTreeTxr, _rect, Color.White);
             }
             else
-            {
                 base.Draw(sb);
-            }
         }
     }
     class TownCentre : WorldObject
@@ -93,7 +107,7 @@ namespace Keeno
                               tilePosition.Y * tileHeight,
                               tileWidth,
                               tileHeight),
-                // sourceRect inside the tileset:
+                // sourceRect inside the tileset
                 new Rectangle(
                   (Globals.TownCentreTileIndex % tilesetColumns) * tileWidth,
                   (Globals.TownCentreTileIndex / tilesetColumns) * tileHeight,
@@ -111,7 +125,7 @@ namespace Keeno
 
         public override void Draw(SpriteBatch sb)
         {
-            sb.Draw(Texture, Bounds, SourceRect, _tint);
+            sb.Draw(_txr, _rect, _srcRect, _tint);
         }
     }
 }

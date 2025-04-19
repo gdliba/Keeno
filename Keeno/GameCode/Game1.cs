@@ -52,6 +52,10 @@ namespace Keeno
         List<Keeno> keenos;
         Texture2D keenoTexture;
 
+
+        // WorldObjects
+        Texture2D fallenTreeTxr;
+
         // Fonts
 #if DEBUG
         public static SpriteFont debugFont;
@@ -107,12 +111,15 @@ namespace Keeno
             // Keeno
             keenoTexture = Content.Load<Texture2D>("Characters\\Keeno");
 
+            // World Objects
+            fallenTreeTxr = Content.Load<Texture2D>("WorldObjects\\Flora\\fallenTree");
+
             // Fonts
 #if DEBUG
             debugFont = Content.Load<SpriteFont>("Fonts\\debugFont");
 #endif
             tilesetTxr = Content.Load<Texture2D>("SpriteSheets\\color_t");
-            testMap = new Map("Content/MapData/testLevel_Map.csv", tilesetTxr, 16, 16, 49);
+            testMap = new Map("Content/MapData/testLevel_Map.csv", tilesetTxr, 16, 16, 49, fallenTreeTxr);
         }
 
         protected override void Update(GameTime gt)
@@ -178,7 +185,7 @@ namespace Keeno
 
             //foreach (var obj in testMap.WorldObjects)
             //    obj.Update(gt);
-            testMap.Update(gt);
+            //testMap.Update(gt);
 
 
 
