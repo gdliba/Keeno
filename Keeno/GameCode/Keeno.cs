@@ -17,7 +17,7 @@ namespace Keeno
             _moveTimer = 3;
             _moveTimerReset = _moveTimer;
             _moveSpeed = Globals.KeenoMovementSpeed;
-            _drawBounds = true;
+            _drawBounds = false;
         }
 
         public void updateme(GameTime gt, KeyboardState kb)
@@ -45,8 +45,7 @@ namespace Keeno
             : base(spriteSheet, fps, rect, pixel)
         {
             _moveSpeed = Globals.PlayerMovementSpeed;
-            //_rect = new Rectangle(rect.X, rect.Y, rect.Width / 2, rect.Height / 2);
-            //_testRectangle = _rect;
+            _drawBounds = false;
         }
         public void updateme(GameTime gt, KeyboardState kb)
         {

@@ -106,7 +106,7 @@ namespace Keeno
 
             //testMobileSwarmPoint = new MobileSwarmPoint(Content.Load<Texture2D>("Characters\\Keeno"), 3, new Rectangle(200, 200, 16, 16), debugPixel);
 
-            testPlayer = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 3, new Rectangle(200, 200, 16, 16), debugPixel);
+            testPlayer = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(200, 200, 16, 16), debugPixel);
 
             // Keeno
             keenoTexture = Content.Load<Texture2D>("Characters\\Keeno");
@@ -227,7 +227,7 @@ namespace Keeno
                 int x = RNG.Next(0, _renderTarget.Width);
                 int y = RNG.Next(0, _renderTarget.Height);
 
-                var newKeeno = new Keeno(keenoTexture,3,new Rectangle(x,y,16,16),debugPixel);
+                var newKeeno = new Keeno(keenoTexture,4,new Rectangle(x,y,16,16),debugPixel);
                 keenos.Add(newKeeno);
             }
 

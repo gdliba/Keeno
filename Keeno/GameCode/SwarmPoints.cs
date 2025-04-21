@@ -33,11 +33,5 @@ namespace Keeno
         {
 
         }
-        public override void drawme(SpriteBatch sb)
-        {
-            sb.Draw(_testPixel, _testRectangle, Color.Red * .75f);
-
-            base.drawme(sb);
-        }
     }
 }

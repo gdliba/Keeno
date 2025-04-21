@@ -188,7 +188,7 @@ namespace Keeno
                 }
             }
 
-            _wasWalking = _isWalking; // Update for next frame
+            _wasWalking = _isWalking;           // Update for next frame
             _position += _velocity * (float)gt.ElapsedGameTime.TotalSeconds;
             _rect.Location = _position.ToPoint();
 
@@ -201,9 +201,8 @@ namespace Keeno
                 // normalize direction to prevent diagonal movement from being faster
                 direction.Normalize();
                 _velocity = direction * _moveSpeed;
-                //_isWalking = true;
 
-                // if moving towards the right
+                //if moving towards the right
                 if (direction.X > 0)
                 {
                     _facingRight = true;
@@ -225,15 +224,18 @@ namespace Keeno
             _rect.X = (int)_position.X;
             _rect.Y = (int)_position.Y;
 
+            // Draw test pixel
+            if (_drawBounds)
+                sb.Draw(_testPixel, Bounds, Color.Red * .75f);
+
             // determine when to flip the sprite (making it look to the RIGHT)
             var flip = _facingRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-
+            
+            // Draw actual sprite
             sb.Draw(_txr, _rect, _srcRect, Color.White, 0f, 
                 Vector2.Zero, flip, 0f);
 
-            // Draw test pixel
-            if(_drawBounds)
-                sb.Draw(_testPixel, Bounds, Color.Red * .75f);
+
 
         }
 
