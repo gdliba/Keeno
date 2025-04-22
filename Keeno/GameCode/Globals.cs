@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Input;
+using System.Drawing;
 
 namespace Keeno
 {
@@ -18,8 +19,7 @@ namespace Keeno
         public const int ChoppedTreeTileIndex = 313;
         public const int EmptyTileIndex = -1;
         public const int TownCentreTileIndex = 983;
-
-
+        public const int TileSelectedIndex = 624;
 
 
         public static int PlayerMovementSpeed = 50;

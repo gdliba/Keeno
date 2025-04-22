@@ -3,7 +3,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace Keeno
 {
@@ -47,6 +49,7 @@ namespace Keeno
 
         // Player
         Player testPlayer;
+        List<WorldObject> player_objectDistances;
 
         // Keeno
         List<Keeno> keenos;
@@ -87,6 +90,7 @@ namespace Keeno
 
             #region List Initialisations
             keenos = new List<Keeno>();
+            player_objectDistances = new List<WorldObject>();
             #endregion
 
             base.Initialize();
@@ -185,7 +189,7 @@ namespace Keeno
 
             //foreach (var obj in testMap.WorldObjects)
             //    obj.Update(gt);
-            //testMap.Update(gt);
+            testMap.Update(gt);
 
 
 
@@ -201,6 +205,41 @@ namespace Keeno
                 }
             }
 
+            // Clear the List of worldObjects that the are in range with the player
+            player_objectDistances.Clear();
+            for (var i = 0; i < testMap.WorldObjects.Count; i++)
+            {
+                if (testPlayer.InteractionRange.Intersects(testMap.WorldObjects[i].Bounds))
+                {
+                    player_objectDistances.Add(testMap.WorldObjects[i]);
+                }
+            }
+            //if (player_objectDistances.Count > 3)
+            //{ 
+            //    Debug.WriteLine($"Sorting prox: {player_objectDistances.Count}"); 
+            //    foreach (var i in player_objectDistances)
+            //        Debug.WriteLine(i.DistanceTo(testPlayer.Position).ToString());
+            //}
+
+            // Sort the list
+            var sortedList = player_objectDistances.OrderBy(x => x.DistanceTo(testPlayer.Position)).ToList();
+
+            //if (sortedList.Count > 3)
+            //{
+            //    Debug.WriteLine($"Now prox: {sortedList.Count}");
+            //    foreach (var i in sortedList)
+            //        Debug.WriteLine(i.DistanceTo(testPlayer.Position).ToString());
+            //}
+
+            if (sortedList.Count > 0)
+                sortedList[0].Selected();
+
+
+            //     list = list.OrderBy(x => x.AVC ? 0 : 1)
+            //.ToList();
+
+
+
             for (var j = 0; j < keenos.Count; j++)
             {
                 for (var i = 0; i < testMap.WorldObjects.Count; i++)
@@ -208,6 +247,13 @@ namespace Keeno
                     if (keenos[j].Bounds.Intersects(testMap.WorldObjects[i].Bounds))
                     {
                         testMap.WorldObjects[i].OnInteract();
+
+                        //if (testMap.WorldObjects[i] is Tree)
+                        //{
+                        //    var treeObject = (Tree)testMap.WorldObjects[i];
+
+
+                        //}
                     }
                 }
             }

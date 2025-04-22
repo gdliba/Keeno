@@ -6,38 +6,62 @@ namespace Keeno
 {
     public abstract class WorldObject
     {
-        public Rectangle Bounds { get{ return _rect; } }
         protected Rectangle _rect;
         protected Texture2D _txr;
         protected Rectangle _srcRect;
+        protected Rectangle _selectedTileSrcRect;
         protected Point _tilePosition;
         protected int _tileWidth;
         protected int _tileHeight;
         protected int _tilesetColumns;
+        protected bool _isSelected;
+
+        public Color Tint;
+        public Rectangle Bounds { get{ return _rect; } }
+        public Vector2 Position { get { return new Vector2(_tilePosition.X + _tileWidth / 2, _tilePosition.Y + _tileHeight / 2); } }
 
 
-        protected WorldObject(Texture2D texture, Rectangle bounds, Rectangle sourceRect)
+        protected WorldObject(Texture2D texture, Rectangle bounds, Rectangle sourceRect, int tilesetColumns, int tileWidth, int tileHeight)
         {
+            _isSelected = false;
             _txr = texture;
             _rect = bounds;
             _srcRect = sourceRect;
+            Tint = Color.White;
+            _tilesetColumns = tilesetColumns;
+            _tileWidth = tileWidth;
+            _tileHeight = tileHeight;
+            _selectedTileSrcRect.X = (Globals.TileSelectedIndex % _tilesetColumns) * _tileWidth;
+            _selectedTileSrcRect.Y = (Globals.TileSelectedIndex / _tilesetColumns) * _tileHeight;
         }
-
+        public float DistanceTo(Vector2 destination)
+        {
+            return (destination - Position).Length();
+        }
 
         public virtual void Update(GameTime gt)
         {
-
+            _isSelected = false;
         }
 
         public virtual void Draw(SpriteBatch sb)
         {
-            sb.Draw(_txr, _rect, _srcRect, Color.White);
+            if (_isSelected )
+                sb.Draw(_txr, _rect, _selectedTileSrcRect, Tint);
+            sb.Draw(_txr, _rect, _srcRect, Tint);
+
+
         }
 
         /// <summary>
         /// Called when the player “interacts” with this object
         /// </summary>
         public abstract void OnInteract();
+        public virtual void Selected()
+        {
+            _isSelected = true;
+        }
+
     }
 
     class Tree : WorldObject
@@ -61,13 +85,15 @@ namespace Keeno
                   (Globals.TreeTileIndex % tilesetColumns) * tileWidth,
                   (Globals.TreeTileIndex/ tilesetColumns) * tileHeight,
                   tileWidth,
-                  tileHeight)
+                  tileHeight), tilesetColumns, tileWidth, tileHeight
+                
               )
         {
             _isChopped = false;
             _tileHeight = tileHeight;
             _tileWidth = tileWidth;
-            _tilePosition = tilePosition;
+            _tilePosition.X = tilePosition.X * tileWidth;
+            _tilePosition.Y = tilePosition.Y * tileHeight;
             _tilesetColumns = tilesetColumns;
             _choppedTreeTxr = choppedTree;
         }
@@ -76,13 +102,8 @@ namespace Keeno
         {
             if (!_isChopped)
             {
-
                 // play chop animation / sound
                 _isChopped = true;
-
-                _srcRect.X = (Globals.ChoppedTreeTileIndex % _tilesetColumns) * _tileWidth;
-                _srcRect.Y = (Globals.ChoppedTreeTileIndex / _tilesetColumns) * _tileHeight;
-                // swap SourceRect to a “stump” sprite here
             }
         }
 
@@ -114,7 +135,7 @@ namespace Keeno
                   (Globals.TownCentreTileIndex % tilesetColumns) * tileWidth,
                   (Globals.TownCentreTileIndex / tilesetColumns) * tileHeight,
                   tileWidth,
-                  tileHeight)
+                  tileHeight), tilesetColumns, tileWidth, tileHeight
               )
         {
             _tint = Color.White;
