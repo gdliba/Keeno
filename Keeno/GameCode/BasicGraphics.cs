@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using static System.Net.Mime.MediaTypeNames;
+using System.Threading;
 
 namespace Keeno
 {
@@ -117,6 +118,7 @@ namespace Keeno
         protected float _moveSpeed;
         protected bool _facingRight;
         protected bool _drawBounds;
+        public Rectangle _targetDestinationBounds;
 
 
         public Rectangle Bounds { get { return _rect; } }
@@ -137,6 +139,7 @@ namespace Keeno
             _testPixel = pixel;
             _testRectangle = rect;
             _drawBounds = false;
+            _targetDestinationBounds = _rect;
         }
         public override void updateme(GameTime gt)
         {
@@ -200,7 +203,11 @@ namespace Keeno
             {
                 // normalize direction to prevent diagonal movement from being faster
                 direction.Normalize();
+
                 _velocity = direction * _moveSpeed;
+                // Trying to make collisions work
+                _targetDestinationBounds = new Rectangle(_rect.X + (int)direction.X * 5,
+                    _rect.Y + (int)direction.Y * 5, _rect.Width, _rect.Height);
 
                 //if moving towards the right
                 if (direction.X > 0)
@@ -216,6 +223,9 @@ namespace Keeno
             else
             {
                 _velocity = Vector2.Zero;
+                // Trying to make collisions work
+                _targetDestinationBounds = new Rectangle(_rect.X + (int)direction.X * 5,
+                    _rect.Y + (int)direction.Y * 5, _rect.Width, _rect.Height);
             }
         }
         public override void drawme(SpriteBatch sb)
@@ -226,7 +236,9 @@ namespace Keeno
 
             // Draw test pixel
             if (_drawBounds)
-                sb.Draw(_testPixel, Bounds, Color.Red * .75f);
+                sb.Draw(_testPixel, Bounds, Color.Blue * 1);
+            sb.Draw(_testPixel, _targetDestinationBounds, Color.Red * .75f);
+
 
             // determine when to flip the sprite (making it look to the RIGHT)
             var flip = _facingRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None;

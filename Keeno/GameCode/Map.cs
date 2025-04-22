@@ -31,6 +31,9 @@ namespace Keeno
         // How many columns (tiles per row) are in the tileset image
         private int _tilesetColumns;
 
+        /////////// TEST PIXEL
+        private Texture2D _testPixel;
+
 
         /// <summary>
         /// takes a CSV path and tile settings, loads the map
@@ -41,12 +44,13 @@ namespace Keeno
         /// <param name="tileHeight"></param>
         /// <param name="tilesetColumns"></param>
         public Map(string csvPath, Texture2D tilesetTexture, int tileWidth,
-            int tileHeight, int tilesetColumns, Texture2D choppedTree)
+            int tileHeight, int tilesetColumns, Texture2D choppedTree, Texture2D testPixel)
         {
             _tileWidth = tileWidth;
             _tileHeight = tileHeight;
             _tileset = tilesetTexture;
             _tilesetColumns = tilesetColumns;
+            _testPixel = testPixel;
 
             // Loads the map data from the CSV
             LoadMap(csvPath);
@@ -104,14 +108,14 @@ namespace Keeno
         private void AddTree(int x, int y, Texture2D fallenTreeTxr)
         {
             _worldObjects.Add(new Tree(_tileset, _tileWidth, _tileHeight,
-                                _tilesetColumns, new Point(x, y), fallenTreeTxr));
+                                _tilesetColumns, new Point(x, y), fallenTreeTxr, _testPixel));
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }
         private void AddTownCentre(int x, int y)
         {
             _worldObjects.Add(new TownCentre(_tileset, _tileWidth, _tileHeight,
-                                _tilesetColumns, new Point(x, y)));
+                                _tilesetColumns, new Point(x, y), _testPixel));
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }
@@ -142,8 +146,8 @@ namespace Keeno
                 for (int x = 0; x < _mapWidth; x++)
                 {
                     int tileIndex = _mapData[y, x]; // Get the tile index
-                    if (tileIndex == Globals.EmptyTileIndex) 
-                        continue;                   // skip "empty" tiles
+                    //if (tileIndex == Globals.EmptyTileIndex) 
+                    //    continue;                   // skip "empty" tiles
 
                     int col = (tileIndex) % _tilesetColumns;    // X position in the tileset
                     int row = (tileIndex) / _tilesetColumns;    // Y position in the tileset
@@ -158,10 +162,10 @@ namespace Keeno
                     // Draw the tile from tileset onto screen
                     sb.Draw(_tileset, position, sourceRect, Color.White);
 
-                    // Draw the tileIndexes on screen
-                    //string tempText = tileIndex.ToString();
-                    //sb.DrawString(Game1.debugFont, tempText, position +
-                    //new Vector2(0, (_tileHeight / 2)), Color.Red);
+                    //Draw the tileIndexes on screen
+                    string tempText = tileIndex.ToString();
+                    sb.DrawString(Game1.debugFont, tempText, position +
+                    new Vector2(0, (_tileHeight / 2)), Color.White);
                 }
             }
         }

@@ -123,7 +123,7 @@ namespace Keeno
             debugFont = Content.Load<SpriteFont>("Fonts\\debugFont");
 #endif
             tilesetTxr = Content.Load<Texture2D>("SpriteSheets\\color_t");
-            testMap = new Map("Content/MapData/testLevel_Map.csv", tilesetTxr, 16, 16, 49, choppedTree);
+            testMap = new Map("Content/MapData/testLevel_Map.csv", tilesetTxr, 16, 16, 49, choppedTree, debugPixel);
         }
 
         protected override void Update(GameTime gt)
@@ -194,16 +194,16 @@ namespace Keeno
 
 
             // PLAYER - WorldObject INTERACTION
-            if (kb_curr.IsKeyDown(Keys.E))
-            {
-                for(var i = 0; i < testMap.WorldObjects.Count; i++)
-                {
-                    if (testPlayer.Bounds.Intersects(testMap.WorldObjects[i].Bounds))
-                    {
-                        testMap.WorldObjects[i].OnInteract();
-                    }
-                }
-            }
+            //if (kb_curr.IsKeyDown(Keys.E))
+            //{
+            //    for(var i = 0; i < testMap.WorldObjects.Count; i++)
+            //    {
+            //        if (testPlayer.Bounds.Intersects(testMap.WorldObjects[i].Bounds))
+            //        {
+            //            testMap.WorldObjects[i].OnInteract();
+            //        }
+            //    }
+            //}
 
             // Clear the List of worldObjects that the are in range with the player
             player_objectDistances.Clear();
@@ -214,9 +214,9 @@ namespace Keeno
                     player_objectDistances.Add(testMap.WorldObjects[i]);
                 }
             }
-            //if (player_objectDistances.Count > 3)
-            //{ 
-            //    Debug.WriteLine($"Sorting prox: {player_objectDistances.Count}"); 
+            //if (player_objectDistances.Count > 0)
+            //{
+            //    Debug.WriteLine($"Sorting prox: {player_objectDistances.Count}");
             //    foreach (var i in player_objectDistances)
             //        Debug.WriteLine(i.DistanceTo(testPlayer.Position).ToString());
             //}
@@ -224,7 +224,7 @@ namespace Keeno
             // Sort the list
             var sortedList = player_objectDistances.OrderBy(x => x.DistanceTo(testPlayer.Position)).ToList();
 
-            //if (sortedList.Count > 3)
+            //if (sortedList.Count > 0)
             //{
             //    Debug.WriteLine($"Now prox: {sortedList.Count}");
             //    foreach (var i in sortedList)
@@ -232,8 +232,21 @@ namespace Keeno
             //}
 
             if (sortedList.Count > 0)
+            {
                 sortedList[0].Selected();
+                if (kb_curr.IsKeyDown(Keys.E))
+                    sortedList[0].OnInteract();
 
+            }
+
+            for (int i = 0; i < testMap.WorldObjects.Count; i++)
+            {
+                if (testPlayer._targetDestinationBounds.Intersects(testMap.WorldObjects[i].Bounds))
+                {
+                    testPlayer.MoveMe(Vector2.Zero);
+                }
+                
+            }
 
             //     list = list.OrderBy(x => x.AVC ? 0 : 1)
             //.ToList();

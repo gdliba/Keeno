@@ -14,12 +14,16 @@ namespace Keeno
         public static bool MoveRIGHT => _keyboard.IsKeyDown(Keys.D);
         public static bool NoMovementKeysPressed { get { return !MoveUP && !MoveLEFT && !MoveDOWN && !MoveRIGHT; } }
 
+        public const int TilemapColumns = 49;
+        public const int TileWidth_andHeight = 16;
 
         public const int TreeTileIndex = 51;
         public const int ChoppedTreeTileIndex = 313;
-        public const int EmptyTileIndex = -1;
+        public const int EmptyTileIndex = 0;
         public const int TownCentreTileIndex = 983;
         public const int TileSelectedIndex = 624;
+
+        public static Rectangle TileSelectSrcRect { get { return new Rectangle(1, 1, 1, 1); } }
 
 
         public static int PlayerMovementSpeed = 50;

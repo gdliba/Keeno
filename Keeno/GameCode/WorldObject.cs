@@ -14,15 +14,20 @@ namespace Keeno
         protected int _tileWidth;
         protected int _tileHeight;
         protected int _tilesetColumns;
+        protected Texture2D _testPixel;
+
         protected bool _isSelected;
+        protected bool _impassable;
 
         public Color Tint;
         public Rectangle Bounds { get{ return _rect; } }
-        public Vector2 Position { get { return new Vector2(_tilePosition.X + _tileWidth / 2, _tilePosition.Y + _tileHeight / 2); } }
+        public Vector2 Position { get { return new Vector2(_tilePosition.X + _tileWidth / 2, _tilePosition.Y + _tileHeight / 2-3); } }
 
 
-        protected WorldObject(Texture2D texture, Rectangle bounds, Rectangle sourceRect, int tilesetColumns, int tileWidth, int tileHeight)
+        protected WorldObject(Texture2D texture, Rectangle bounds, Rectangle sourceRect, int tilesetColumns, int tileWidth, int tileHeight, Texture2D testPixel)
         {
+            _testPixel = testPixel; 
+            _impassable = true;
             _isSelected = false;
             _txr = texture;
             _rect = bounds;
@@ -31,8 +36,12 @@ namespace Keeno
             _tilesetColumns = tilesetColumns;
             _tileWidth = tileWidth;
             _tileHeight = tileHeight;
-            _selectedTileSrcRect.X = (Globals.TileSelectedIndex % _tilesetColumns) * _tileWidth;
-            _selectedTileSrcRect.Y = (Globals.TileSelectedIndex / _tilesetColumns) * _tileHeight;
+
+            _selectedTileSrcRect = 
+                new Rectangle   (Globals.TileSelectedIndex % _tilesetColumns * _tileWidth,
+                                (Globals.TileSelectedIndex / _tilesetColumns) * _tileHeight,
+                                _tileWidth, _tileHeight);
+
         }
         public float DistanceTo(Vector2 destination)
         {
@@ -46,10 +55,11 @@ namespace Keeno
 
         public virtual void Draw(SpriteBatch sb)
         {
+            sb.Draw(_testPixel, Bounds, Color.Red*.75f);
             if (_isSelected )
                 sb.Draw(_txr, _rect, _selectedTileSrcRect, Tint);
             sb.Draw(_txr, _rect, _srcRect, Tint);
-
+            
 
         }
 
@@ -60,6 +70,7 @@ namespace Keeno
         public virtual void Selected()
         {
             _isSelected = true;
+            Tint = Color.White;
         }
 
     }
@@ -72,7 +83,7 @@ namespace Keeno
 
 
         public Tree(Texture2D tileset, int tileWidth, int tileHeight,
-            int tilesetColumns, Point tilePosition, Texture2D choppedTree)
+            int tilesetColumns, Point tilePosition, Texture2D choppedTree, Texture2D testpixel)
             : base(
                 tileset,
                 // world‐space bounds: tilePosition * tileSize
@@ -85,8 +96,8 @@ namespace Keeno
                   (Globals.TreeTileIndex % tilesetColumns) * tileWidth,
                   (Globals.TreeTileIndex/ tilesetColumns) * tileHeight,
                   tileWidth,
-                  tileHeight), tilesetColumns, tileWidth, tileHeight
-                
+                  tileHeight), tilesetColumns, tileWidth, tileHeight, testpixel
+
               )
         {
             _isChopped = false;
@@ -122,7 +133,7 @@ namespace Keeno
     {
         private Color _tint;
         public TownCentre(Texture2D tileset, int tileWidth, int tileHeight,
-            int tilesetColumns, Point tilePosition)
+            int tilesetColumns, Point tilePosition, Texture2D testpixel)
             : base(
                 tileset,
                 // world‐space bounds: tilePosition * tileSize
@@ -135,20 +146,15 @@ namespace Keeno
                   (Globals.TownCentreTileIndex % tilesetColumns) * tileWidth,
                   (Globals.TownCentreTileIndex / tilesetColumns) * tileHeight,
                   tileWidth,
-                  tileHeight), tilesetColumns, tileWidth, tileHeight
+                  tileHeight), tilesetColumns, tileWidth, tileHeight, testpixel
               )
         {
-            _tint = Color.White;
+            Tint = Color.White;
         }
         public override void OnInteract()
         {
-            _tint = new Color(Game1.RNG.Next(0, 256), 
+            Tint = new Color(Game1.RNG.Next(0, 256), 
                 Game1.RNG.Next(0, 256), Game1.RNG.Next(0, 256));
-        }
-
-        public override void Draw(SpriteBatch sb)
-        {
-            sb.Draw(_txr, _rect, _srcRect, _tint);
         }
     }
 }

@@ -49,7 +49,7 @@ namespace Keeno
             : base(spriteSheet, fps, rect, pixel)
         {
             _moveSpeed = Globals.PlayerMovementSpeed;
-            _drawBounds = false;
+            _drawBounds = true;
             _interactionRange = new Rectangle((int)_position.X - rect.Width, (int)_position.Y - rect.Height, rect.Width * 3, rect.Height * 3);
         }
         public void updateme(GameTime gt, KeyboardState kb)
@@ -71,10 +71,10 @@ namespace Keeno
             _interactionRange.X = (int)_position.X - _rect.Width;
             _interactionRange.Y = (int)_position.Y - _rect.Height;
 
-            sb.Draw(_testPixel, _interactionRange, Color.Red*.75f);
+            //sb.Draw(_testPixel, _interactionRange, Color.Red*.75f);
 
             base.drawme(sb);
-            sb.Draw(_testPixel, new Vector2(Position.X,Position.Y), Color.Blue);
+            //sb.Draw(_testPixel, new Vector2(Position.X,Position.Y), Color.Blue);
         }
     }
 }
