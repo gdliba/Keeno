@@ -19,7 +19,7 @@ namespace Keeno
 
         public const int TreeTileIndex = 51;
         public const int ChoppedTreeTileIndex = 313;
-        public const int EmptyTileIndex = 0;
+        public const int OccupiedTileIndex = 0;
         public const int TownCentreTileIndex = 983;
         public const int TileSelectedIndex = 624;
 

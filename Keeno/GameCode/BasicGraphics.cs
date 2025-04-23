@@ -111,17 +111,22 @@ namespace Keeno
     /// </summary>
     class AnimatedKeeno2D : Animated2D
     {
+        protected Vector2 _direction;
+        public Vector2 Direction { get { return _direction; } }
+
         protected bool _isWalking { get { return _velocity.Length() > 0; } }
         protected bool _wasWalking;
-        protected int _defaultFps;
-        protected int _idleFPS;
-        protected float _moveSpeed;
         protected bool _facingRight;
         protected bool _drawBounds;
+
+        protected float _moveSpeed;
+        protected int _defaultFps;
+        protected int _idleFPS;
+
         public Rectangle _targetDestinationBounds;
-
-
         public Rectangle Bounds { get { return _rect; } }
+
+
 
         // test related
         protected Texture2D _testPixel;
@@ -142,6 +147,24 @@ namespace Keeno
             _targetDestinationBounds = _rect;
         }
         public override void updateme(GameTime gt)
+        {
+            AnimateKeeno(gt);
+            _position += _velocity * (float)gt.ElapsedGameTime.TotalSeconds;
+            _rect.Location = _position.ToPoint();
+
+            // Debug Pixel related
+            _testRectangle.Location = _rect.Location;
+
+
+            // Update the player's "would be" bounds in relation to
+            // the direction they are moving in
+            _targetDestinationBounds = new Rectangle(
+                _rect.X + _rect.Width / 4 + (int)_direction.X * 3,
+                _rect.Y + _rect.Height / 4 + (int)_direction.Y * 3,
+                2 * _rect.Width / 3,
+                2 * _rect.Height / 3);
+        }
+        private void AnimateKeeno(GameTime gt)
         {
             _updateTrigger += (float)gt.ElapsedGameTime.TotalSeconds * _framesPerSecond;
 
@@ -192,10 +215,10 @@ namespace Keeno
             }
 
             _wasWalking = _isWalking;           // Update for next frame
-            _position += _velocity * (float)gt.ElapsedGameTime.TotalSeconds;
-            _rect.Location = _position.ToPoint();
-
-            _testRectangle.Location = _rect.Location;
+        }
+        public Rectangle HandleMovement()
+        {
+            return _targetDestinationBounds;
         }
         public virtual void MoveMe(Vector2 direction)
         {
@@ -205,9 +228,11 @@ namespace Keeno
                 direction.Normalize();
 
                 _velocity = direction * _moveSpeed;
-                // Trying to make collisions work
-                _targetDestinationBounds = new Rectangle(_rect.X + (int)direction.X * 5,
-                    _rect.Y + (int)direction.Y * 5, _rect.Width, _rect.Height);
+
+
+                //// Trying to make collisions work
+                //_targetDestinationBounds = new Rectangle(_rect.X + (int)direction.X * 5,
+                //    _rect.Y + (int)direction.Y * 5, _rect.Width, _rect.Height);
 
                 //if moving towards the right
                 if (direction.X > 0)
@@ -223,9 +248,11 @@ namespace Keeno
             else
             {
                 _velocity = Vector2.Zero;
-                // Trying to make collisions work
-                _targetDestinationBounds = new Rectangle(_rect.X + (int)direction.X * 5,
-                    _rect.Y + (int)direction.Y * 5, _rect.Width, _rect.Height);
+
+
+                //// Trying to make collisions work
+                //_targetDestinationBounds = new Rectangle(_rect.X + (int)direction.X * 5,
+                //    _rect.Y + (int)direction.Y * 5, _rect.Width, _rect.Height);
             }
         }
         public override void drawme(SpriteBatch sb)
@@ -237,7 +264,6 @@ namespace Keeno
             // Draw test pixel
             if (_drawBounds)
                 sb.Draw(_testPixel, Bounds, Color.Blue * 1);
-            sb.Draw(_testPixel, _targetDestinationBounds, Color.Red * .75f);
 
 
             // determine when to flip the sprite (making it look to the RIGHT)
@@ -247,8 +273,7 @@ namespace Keeno
             sb.Draw(_txr, _rect, _srcRect, Color.White, 0f, 
                 Vector2.Zero, flip, 0f);
 
-
-
+            sb.Draw(_testPixel, _targetDestinationBounds, Color.Red * .75f);
         }
 
     }

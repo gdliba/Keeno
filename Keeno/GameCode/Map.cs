@@ -105,19 +105,40 @@ namespace Keeno
                 }
             }
         }
+        public bool IsWalkable(Rectangle destinationRect)
+        {
+            // Loop through the map
+            for (int y = 0; y < _mapHeight; y++)
+            {
+                for (int x = 0; x < _mapWidth; x++)
+                {
+                    int tileIndex = _mapData[y, x];             //Store the tile index
+                    if (tileIndex == Globals.OccupiedTileIndex)    // if the tile index is 0 (OccupiedTileIndex)
+                    {
+                        // create a rect to store the tile's bounds
+                        Rectangle tileBounds = new Rectangle(x * _tileWidth, y * _tileHeight, _tileWidth, _tileHeight);
+                        // check if they intersect
+                        if(destinationRect.Intersects(tileBounds))
+                            return false;
+                    }
+                }
+            }
+            // default to true (as in walkable)
+            return true;
+        }
         private void AddTree(int x, int y, Texture2D fallenTreeTxr)
         {
             _worldObjects.Add(new Tree(_tileset, _tileWidth, _tileHeight,
                                 _tilesetColumns, new Point(x, y), fallenTreeTxr, _testPixel));
 
-            _mapData[y, x] = Globals.EmptyTileIndex;
+            _mapData[y, x] = Globals.OccupiedTileIndex;
         }
         private void AddTownCentre(int x, int y)
         {
             _worldObjects.Add(new TownCentre(_tileset, _tileWidth, _tileHeight,
                                 _tilesetColumns, new Point(x, y), _testPixel));
 
-            _mapData[y, x] = Globals.EmptyTileIndex;
+            _mapData[y, x] = Globals.OccupiedTileIndex;
         }
 
         public void Update(GameTime gt)

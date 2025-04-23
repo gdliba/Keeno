@@ -239,36 +239,60 @@ namespace Keeno
 
             }
 
-            for (int i = 0; i < testMap.WorldObjects.Count; i++)
+            if (testMap.IsWalkable(testPlayer.HandleInput()))
             {
-                if (testPlayer._targetDestinationBounds.Intersects(testMap.WorldObjects[i].Bounds))
-                {
-                    testPlayer.MoveMe(Vector2.Zero);
-                }
-                
+                testPlayer.MoveMe(testPlayer.Direction);
             }
+            else
+            {
+                testPlayer.MoveMe(Vector2.Zero);
+            }
+
+
+
+            // Loop through the list of WoldObjects
+            //for (int i = 0; i < testMap.WorldObjects.Count; i++)
+            //{
+            //    // If the player's next movement would intersect with the Object's bounds
+            //    if (testPlayer._targetDestinationBounds.Intersects(testMap.WorldObjects[i].Bounds))
+            //    {
+            //        testMap.WorldObjects[i].Tint = Color.Red;
+            //        testPlayer.MoveMe(Vector2.Zero);
+
+            //    }
+            //    else
+            //    {
+            //        testPlayer.MoveMe(testPlayer.HandleInput());
+            //    }
+
+            //}
 
             //     list = list.OrderBy(x => x.AVC ? 0 : 1)
             //.ToList();
 
 
 
+            //for (var j = 0; j < keenos.Count; j++)
+            //{
+            //    for (var i = 0; i < testMap.WorldObjects.Count; i++)
+            //    {
+            //        if (keenos[j].Bounds.Intersects(testMap.WorldObjects[i].Bounds))
+            //        {
+            //            testMap.WorldObjects[i].OnInteract();
+
+            //            //if (testMap.WorldObjects[i] is Tree)
+            //            //{
+            //            //    var treeObject = (Tree)testMap.WorldObjects[i];
+
+
+            //            //}
+            //        }
+            //    }
+            //}
             for (var j = 0; j < keenos.Count; j++)
             {
-                for (var i = 0; i < testMap.WorldObjects.Count; i++)
-                {
-                    if (keenos[j].Bounds.Intersects(testMap.WorldObjects[i].Bounds))
-                    {
-                        testMap.WorldObjects[i].OnInteract();
-
-                        //if (testMap.WorldObjects[i] is Tree)
-                        //{
-                        //    var treeObject = (Tree)testMap.WorldObjects[i];
-
-
-                        //}
-                    }
-                }
+                if (testMap.IsWalkable(keenos[j].HandleMovement()))
+                    keenos[j].TryToMove(gt);
             }
 
 
@@ -279,9 +303,9 @@ namespace Keeno
 
 
             //testMobileSwarmPoint.updateme(gt);
-            testPlayer.updateme(gt,kb);
+            //testPlayer.updateme(gt);
 
-            if (Keyboard.GetState().IsKeyDown(Keys.K))
+            if (Keyboard.GetState().IsKeyDown(Keys.K) && keenos.Count == 0)
             {
                 int x = RNG.Next(0, _renderTarget.Width);
                 int y = RNG.Next(0, _renderTarget.Height);
@@ -293,7 +317,7 @@ namespace Keeno
             // Keeno
             foreach (var keeno in keenos)
             {
-                keeno.updateme(gt,kb);
+                keeno.updateme(gt);
             }
 
         }
@@ -326,7 +350,7 @@ namespace Keeno
 
             //testSwarmPoint.drawme(_spriteBatch);
             //testMobileSwarmPoint.drawme(_spriteBatch);
-            testPlayer.drawme(_spriteBatch);
+            //testPlayer.drawme(_spriteBatch);
 
 
             // Keenos

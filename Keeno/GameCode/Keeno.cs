@@ -9,7 +9,6 @@ namespace Keeno
     {
         private float _moveTimer;
         private float _moveTimerReset;
-        private Vector2 _moveDir;
 
         public Keeno(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
             : base (spriteSheet, fps, rect, pixel)
@@ -20,9 +19,13 @@ namespace Keeno
             _drawBounds = false;
         }
 
-        public void updateme(GameTime gt, KeyboardState kb)
+        public override void updateme(GameTime gt)
         {
-             _moveDir = Vector2.Zero;
+            base.updateme(gt);
+        }
+        public void TryToMove(GameTime gt)
+        {
+            _direction = Vector2.Zero;
 
             if (_moveTimer >= 0)
             {
@@ -31,16 +34,15 @@ namespace Keeno
             }
             else
             {
-                _moveDir = new Vector2(Game1.RNG.Next(-1, 2), Game1.RNG.Next(-1, 2));
-                MoveMe(_moveDir);
+                _direction = new Vector2(Game1.RNG.Next(-1, 2), Game1.RNG.Next(-1, 2));
+                MoveMe(_direction);
                 _moveTimer = _moveTimerReset;
             }
-
-            base.updateme(gt);
         }
     }
     class Player : MobileSwarmPoint
     {
+
         private Rectangle _interactionRange;
         public Rectangle InteractionRange { get { return _interactionRange; } }
         public Vector2 Position { get { return new(_position.X + _rect.Width / 2, _position.Y + _rect.Height / 2); } }
@@ -52,18 +54,29 @@ namespace Keeno
             _drawBounds = true;
             _interactionRange = new Rectangle((int)_position.X - rect.Width, (int)_position.Y - rect.Height, rect.Width * 3, rect.Height * 3);
         }
-        public void updateme(GameTime gt, KeyboardState kb)
+        public override void updateme(GameTime gt)
         {
-            Vector2 moveDir = Vector2.Zero;
-
-            if (Globals.MoveUP) moveDir.Y -= 1;
-            if (Globals.MoveDOWN) moveDir.Y += 1;
-            if (Globals.MoveLEFT) moveDir.X -= 1;
-            if (Globals.MoveRIGHT) moveDir.X += 1;
-
-            MoveMe(moveDir); // Call the base class method with the final direction
+            //// Update the player's "would be" bounds in relation to
+            //// the direction they are moving in
+            //_targetDestinationBounds = new Rectangle(
+            //    _rect.X + _rect.Width / 4 + (int)_direction.X * 5,
+            //    _rect.Y + _rect.Height / 4 + (int)_direction.Y * 5,
+            //    2 * _rect.Width / 3,
+            //    2 * _rect.Height / 3);
 
             base.updateme(gt);
+        }
+
+        public Rectangle HandleInput()
+        {
+             _direction = Vector2.Zero;
+
+            if (Globals.MoveUP) _direction.Y -= 1;
+            if (Globals.MoveDOWN) _direction.Y += 1;
+            if (Globals.MoveLEFT) _direction.X -= 1;
+            if (Globals.MoveRIGHT) _direction.X += 1;
+
+            return _targetDestinationBounds;
         }
         public override void drawme(SpriteBatch sb)
         {
