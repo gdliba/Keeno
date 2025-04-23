@@ -281,7 +281,7 @@ namespace Keeno
             if(_isSelected)
                 _tint = Color.White;
             else 
-                _tint = Color.White*.8f;
+                _tint = Color.White;
             sb.Draw(_txr, _rect, _srcRect, _tint, 0f, 
                     Vector2.Zero, flip, 0f);
 

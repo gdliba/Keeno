@@ -21,7 +21,7 @@ namespace Keeno
 
         public Color Tint;
         public Rectangle Bounds { get{ return _rect; } }
-        public Vector2 Position { get { return new Vector2(_tilePosition.X + _tileWidth / 2, _tilePosition.Y + _tileHeight / 2-3); } }
+        public Vector2 Position { get { return new Vector2(_tilePosition.X + _tileWidth / 2, _tilePosition.Y + _tileHeight / 2 - 3); } }
 
 
         protected WorldObject(Texture2D texture, Rectangle bounds, Rectangle sourceRect, int tilesetColumns, int tileWidth, int tileHeight, Texture2D testPixel)

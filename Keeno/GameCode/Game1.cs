@@ -83,7 +83,7 @@ namespace Keeno
             _graphics.PreferredBackBufferHeight = 
                 GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             // Set screen to Fullscreen
-            _graphics.IsFullScreen = false;
+            _graphics.IsFullScreen = true;
             _graphics.ApplyChanges();
 
 
@@ -102,7 +102,7 @@ namespace Keeno
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _renderTarget = new RenderTarget2D(_spriteBatch.GraphicsDevice,
-                _graphics.PreferredBackBufferWidth/2, _graphics.PreferredBackBufferHeight/2);
+                _graphics.PreferredBackBufferWidth/4, _graphics.PreferredBackBufferHeight/4);
 
 
             debugPixel = Content.Load<Texture2D>("Pixel");
@@ -112,7 +112,6 @@ namespace Keeno
 
             //testMobileSwarmPoint = new MobileSwarmPoint(Content.Load<Texture2D>("Characters\\Keeno"), 3, new Rectangle(200, 200, 16, 16), debugPixel);
 
-            testPlayer = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(200, 200, 16, 16), debugPixel);
 
             // Keeno
             keenoTexture = Content.Load<Texture2D>("Characters\\Keeno");
@@ -126,6 +125,8 @@ namespace Keeno
 #endif
             tilesetTxr = Content.Load<Texture2D>("SpriteSheets\\color_t");
             testMap = new Map("Content/MapData/testLevel_Map.csv", tilesetTxr, 16, 16, 49, choppedTree, debugPixel);
+            testPlayer = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(200, 200, 16, 16),
+                debugPixel, testMap, keenos);
         }
 
         protected override void Update(GameTime gt)
@@ -178,7 +179,7 @@ namespace Keeno
 
             // Completing Scale effect on the screen
             GraphicsDevice.SetRenderTarget(null);
-            _spriteBatch.Begin();
+            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
             _spriteBatch.Draw(_renderTarget, GraphicsDevice.Viewport.Bounds, null, Color.White, 0, Vector2.Zero, SpriteEffects.None, 1);
             _spriteBatch.End();
 
@@ -187,19 +188,13 @@ namespace Keeno
         #region STATE UPDATES
         private void StartUpdate(GameTime gt, KeyboardState kb)
         {
-
-
-            //foreach (var obj in testMap.WorldObjects)
-            //    obj.Update(gt);
             testMap.Update(gt);
             // Keeno
             foreach (var keeno in keenos)
             {
                 keeno.updateme(gt);
             }
-
-
-
+            #region Old Code
             // PLAYER - WorldObject INTERACTION
             //if (kb_curr.IsKeyDown(Keys.E))
             //{
@@ -213,14 +208,14 @@ namespace Keeno
             //}
 
             // Clear the List of worldObjects that the are in range with the player
-            objectsNearPlayer.Clear();
-            for (var i = 0; i < testMap.WorldObjects.Count; i++)
-            {
-                if (testPlayer.InteractionRange.Intersects(testMap.WorldObjects[i].Bounds))
-                {
-                    objectsNearPlayer.Add(testMap.WorldObjects[i]);
-                }
-            }
+            //objectsNearPlayer.Clear();
+            //for (var i = 0; i < testMap.WorldObjects.Count; i++)
+            //{
+            //    if (testPlayer.InteractionRange.Intersects(testMap.WorldObjects[i].Bounds))
+            //    {
+            //        objectsNearPlayer.Add(testMap.WorldObjects[i]);
+            //    }
+            //}
             //if (player_objectDistances.Count > 0)
             //{
             //    Debug.WriteLine($"Sorting prox: {player_objectDistances.Count}");
@@ -229,7 +224,7 @@ namespace Keeno
             //}
 
             // Sort the list
-            var sortedList = objectsNearPlayer.OrderBy(x => x.DistanceTo(testPlayer.Position)).ToList();
+            //var sortedList = objectsNearPlayer.OrderBy(x => x.DistanceTo(testPlayer.Position)).ToList();
 
             //if (sortedList.Count > 0)
             //{
@@ -238,41 +233,41 @@ namespace Keeno
             //        Debug.WriteLine(i.DistanceTo(testPlayer.Position).ToString());
             //}
 
-            if (sortedList.Count > 0)
-            {
-                sortedList[0].Selected();
-                if (kb_curr.IsKeyDown(Keys.E))
-                    sortedList[0].OnInteract();
-            }
+            //if (sortedList.Count > 0)
+            //{
+            //    sortedList[0].Selected();
+            //    if (kb_curr.IsKeyDown(Keys.E))
+            //        sortedList[0].OnInteract();
+            //}
 
-            // Player - movement
-            if (testMap.IsWalkable(testPlayer.HandleInput()))
-            {
-                testPlayer.MoveMe(testPlayer.Direction);
-            }
-            else
-            {
-                testPlayer.MoveMe(Vector2.Zero);
-            }
+            //// Player - movement
+            //if (testMap.IsWalkable(testPlayer.HandleInput()))
+            //{
+            //    testPlayer.MoveMe(testPlayer.Direction);
+            //}
+            //else
+            //{
+            //    testPlayer.MoveMe(Vector2.Zero);
+            //}
 
 
-            keenosNearPlayer.Clear();
-            for (var i = 0; i < keenos.Count; i++) 
-            {
-                if (testPlayer.InteractionRange.Intersects(keenos[i].Bounds))
-                    keenosNearPlayer.Add(keenos[i]);
-            }
-            var sortedKeenoList = keenosNearPlayer.OrderBy(x => x.DistanceTo(testPlayer.Position)).ToList();
-            if (sortedKeenoList.Count > 0)
-            {
-                sortedKeenoList[0].Selected();
-                if (kb_curr.IsKeyDown(Keys.Q))
-                {
-                    Vector2 distanceToPlayer = new Vector2(testPlayer.Position.X-sortedKeenoList[0].Position.X, testPlayer.Position.Y-sortedKeenoList[0].Position.Y);
-                    distanceToPlayer.Normalize();
-                    sortedKeenoList[0].MoveMe(distanceToPlayer);
-                }
-            }
+            //keenosNearPlayer.Clear();
+            //for (var i = 0; i < keenos.Count; i++) 
+            //{
+            //    if (testPlayer.InteractionRange.Intersects(keenos[i].Bounds))
+            //        keenosNearPlayer.Add(keenos[i]);
+            //}
+            //var sortedKeenoList = keenosNearPlayer.OrderBy(x => x.DistanceTo(testPlayer.Position)).ToList();
+            //if (sortedKeenoList.Count > 0)
+            //{
+            //    sortedKeenoList[0].Selected();
+            //    if (kb_curr.IsKeyDown(Keys.Q))
+            //    {
+            //        Vector2 distanceToPlayer = new Vector2(testPlayer.Position.X - sortedKeenoList[0].Position.X, testPlayer.Position.Y - sortedKeenoList[0].Position.Y);
+            //        distanceToPlayer.Normalize();
+            //        sortedKeenoList[0].MoveMe(distanceToPlayer);
+            //    }
+            //}
 
 
 
@@ -315,19 +310,14 @@ namespace Keeno
             //        }
             //    }
             //}
-
-
-
             //for (var j = 0; j < keenos.Count; j++)
             //{
-
+            //    keenos[j].
             //}
-
-
-
-            //testMobileSwarmPoint.updateme(gt);
+            #endregion
             testPlayer.updateme(gt);
 
+            // temp testing code
             if (Keyboard.GetState().IsKeyDown(Keys.K))
             {
                 int x = RNG.Next(0, _renderTarget.Width);
@@ -355,20 +345,7 @@ namespace Keeno
 
             // TEST MAP
             testMap.Draw(_spriteBatch);
-
-
-            //// CURREBNTLY DRAWING TREES 
-            //foreach (var obj in testMap.WorldObjects)
-            //    obj.Draw(_spriteBatch);
-
-
-
-
-
-            //testSwarmPoint.drawme(_spriteBatch);
-            //testMobileSwarmPoint.drawme(_spriteBatch);
             testPlayer.drawme(_spriteBatch);
-
 
             // Keenos
             foreach (var keeno in keenos)
@@ -376,7 +353,7 @@ namespace Keeno
                 keeno.drawme(_spriteBatch);
             }
 #if DEBUG
-            _spriteBatch.DrawString(debugFont, _graphics.PreferredBackBufferWidth + "x " + _graphics.PreferredBackBufferHeight
+            _spriteBatch.DrawString(debugFont, _renderTarget.Width + "x " + _renderTarget.Height
                 + "\nKeenos: " + keenos.Count,
                 new Vector2(10, 10), Color.White);
 #endif
