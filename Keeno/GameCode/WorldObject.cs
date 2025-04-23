@@ -56,7 +56,7 @@ namespace Keeno
 
         public virtual void Draw(SpriteBatch sb)
         {
-            sb.Draw(_testPixel, Bounds, Color.Red*.75f);
+            //sb.Draw(_testPixel, Bounds, Color.Red*.75f);
             if (_isSelected )
                 sb.Draw(_txr, _rect, _selectedTileSrcRect, Tint);
             sb.Draw(_txr, _rect, _srcRect, Tint);
@@ -71,7 +71,7 @@ namespace Keeno
         public virtual void Selected()
         {
             _isSelected = true;
-            Tint = Color.White;
+            Tint = Color.Red;
         }
 
     }

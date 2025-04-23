@@ -27,11 +27,16 @@ namespace Keeno
 
     class MobileSwarmPoint : AnimatedKeeno2D
     {
-
+        
         public MobileSwarmPoint(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
             : base ( spriteSheet, fps, rect, pixel)
         {
 
+        }
+
+        public override void updateme(GameTime gt)
+        {
+            base.updateme(gt);
         }
     }
 }

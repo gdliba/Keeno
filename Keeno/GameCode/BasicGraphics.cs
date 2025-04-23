@@ -113,11 +113,13 @@ namespace Keeno
     {
         protected Vector2 _direction;
         public Vector2 Direction { get { return _direction; } }
+        public Vector2 Position { get { return new(_position.X + _rect.Width / 2, _position.Y + _rect.Height / 2); } }
 
         protected bool _isWalking { get { return _velocity.Length() > 0; } }
         protected bool _wasWalking;
         protected bool _facingRight;
         protected bool _drawBounds;
+        protected bool _isSelected;
 
         protected float _moveSpeed;
         protected int _defaultFps;
@@ -126,6 +128,7 @@ namespace Keeno
         public Rectangle _targetDestinationBounds;
         public Rectangle Bounds { get { return _rect; } }
 
+        protected Color _tint;
 
 
         // test related
@@ -135,6 +138,7 @@ namespace Keeno
         public AnimatedKeeno2D(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
             : base(spriteSheet, fps, rect)
         {
+            //_rect = new Rectangle(_rect.X + _rect.Width / 2, _rect.Y + _rect.Height / 2, _rect.Width / 2, _rect.Height / 2);
             _idleFPS = 1;
 
             _srcRect = new Rectangle(32, 0, rect.Width, rect.Height);
@@ -145,6 +149,9 @@ namespace Keeno
             _testRectangle = rect;
             _drawBounds = false;
             _targetDestinationBounds = _rect;
+
+            _tint = Color.White;
+
         }
         public override void updateme(GameTime gt)
         {
@@ -155,6 +162,7 @@ namespace Keeno
             // Debug Pixel related
             _testRectangle.Location = _rect.Location;
 
+            _isSelected = false;
 
             // Update the player's "would be" bounds in relation to
             // the direction they are moving in
@@ -270,10 +278,13 @@ namespace Keeno
             var flip = _facingRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             
             // Draw actual sprite
-            sb.Draw(_txr, _rect, _srcRect, Color.White, 0f, 
-                Vector2.Zero, flip, 0f);
+            if(_isSelected)
+                _tint = Color.White;
+            else 
+                _tint = Color.White*.8f;
+            sb.Draw(_txr, _rect, _srcRect, _tint, 0f, 
+                    Vector2.Zero, flip, 0f);
 
-            sb.Draw(_testPixel, _targetDestinationBounds, Color.Red * .75f);
         }
 
     }

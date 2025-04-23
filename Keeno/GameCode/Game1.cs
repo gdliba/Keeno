@@ -49,7 +49,8 @@ namespace Keeno
 
         // Player
         Player testPlayer;
-        List<WorldObject> player_objectDistances;
+        List<WorldObject> objectsNearPlayer;
+        List<Keeno> keenosNearPlayer;
 
         // Keeno
         List<Keeno> keenos;
@@ -90,7 +91,8 @@ namespace Keeno
 
             #region List Initialisations
             keenos = new List<Keeno>();
-            player_objectDistances = new List<WorldObject>();
+            objectsNearPlayer = new List<WorldObject>();
+            keenosNearPlayer = new List<Keeno>();
             #endregion
 
             base.Initialize();
@@ -190,6 +192,11 @@ namespace Keeno
             //foreach (var obj in testMap.WorldObjects)
             //    obj.Update(gt);
             testMap.Update(gt);
+            // Keeno
+            foreach (var keeno in keenos)
+            {
+                keeno.updateme(gt);
+            }
 
 
 
@@ -206,12 +213,12 @@ namespace Keeno
             //}
 
             // Clear the List of worldObjects that the are in range with the player
-            player_objectDistances.Clear();
+            objectsNearPlayer.Clear();
             for (var i = 0; i < testMap.WorldObjects.Count; i++)
             {
                 if (testPlayer.InteractionRange.Intersects(testMap.WorldObjects[i].Bounds))
                 {
-                    player_objectDistances.Add(testMap.WorldObjects[i]);
+                    objectsNearPlayer.Add(testMap.WorldObjects[i]);
                 }
             }
             //if (player_objectDistances.Count > 0)
@@ -222,7 +229,7 @@ namespace Keeno
             //}
 
             // Sort the list
-            var sortedList = player_objectDistances.OrderBy(x => x.DistanceTo(testPlayer.Position)).ToList();
+            var sortedList = objectsNearPlayer.OrderBy(x => x.DistanceTo(testPlayer.Position)).ToList();
 
             //if (sortedList.Count > 0)
             //{
@@ -236,9 +243,9 @@ namespace Keeno
                 sortedList[0].Selected();
                 if (kb_curr.IsKeyDown(Keys.E))
                     sortedList[0].OnInteract();
-
             }
 
+            // Player - movement
             if (testMap.IsWalkable(testPlayer.HandleInput()))
             {
                 testPlayer.MoveMe(testPlayer.Direction);
@@ -246,6 +253,25 @@ namespace Keeno
             else
             {
                 testPlayer.MoveMe(Vector2.Zero);
+            }
+
+
+            keenosNearPlayer.Clear();
+            for (var i = 0; i < keenos.Count; i++) 
+            {
+                if (testPlayer.InteractionRange.Intersects(keenos[i].Bounds))
+                    keenosNearPlayer.Add(keenos[i]);
+            }
+            var sortedKeenoList = keenosNearPlayer.OrderBy(x => x.DistanceTo(testPlayer.Position)).ToList();
+            if (sortedKeenoList.Count > 0)
+            {
+                sortedKeenoList[0].Selected();
+                if (kb_curr.IsKeyDown(Keys.Q))
+                {
+                    Vector2 distanceToPlayer = new Vector2(testPlayer.Position.X-sortedKeenoList[0].Position.X, testPlayer.Position.Y-sortedKeenoList[0].Position.Y);
+                    distanceToPlayer.Normalize();
+                    sortedKeenoList[0].MoveMe(distanceToPlayer);
+                }
             }
 
 
@@ -289,35 +315,26 @@ namespace Keeno
             //        }
             //    }
             //}
-            for (var j = 0; j < keenos.Count; j++)
-            {
-                if (testMap.IsWalkable(keenos[j].HandleMovement()))
-                    keenos[j].TryToMove(gt);
-            }
 
 
 
+            //for (var j = 0; j < keenos.Count; j++)
+            //{
 
-
+            //}
 
 
 
             //testMobileSwarmPoint.updateme(gt);
-            //testPlayer.updateme(gt);
+            testPlayer.updateme(gt);
 
-            if (Keyboard.GetState().IsKeyDown(Keys.K) && keenos.Count == 0)
+            if (Keyboard.GetState().IsKeyDown(Keys.K))
             {
                 int x = RNG.Next(0, _renderTarget.Width);
                 int y = RNG.Next(0, _renderTarget.Height);
 
                 var newKeeno = new Keeno(keenoTexture,4,new Rectangle(x,y,16,16),debugPixel);
                 keenos.Add(newKeeno);
-            }
-
-            // Keeno
-            foreach (var keeno in keenos)
-            {
-                keeno.updateme(gt);
             }
 
         }
@@ -350,7 +367,7 @@ namespace Keeno
 
             //testSwarmPoint.drawme(_spriteBatch);
             //testMobileSwarmPoint.drawme(_spriteBatch);
-            //testPlayer.drawme(_spriteBatch);
+            testPlayer.drawme(_spriteBatch);
 
 
             // Keenos

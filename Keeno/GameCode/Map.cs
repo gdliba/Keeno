@@ -184,9 +184,9 @@ namespace Keeno
                     sb.Draw(_tileset, position, sourceRect, Color.White);
 
                     //Draw the tileIndexes on screen
-                    string tempText = tileIndex.ToString();
-                    sb.DrawString(Game1.debugFont, tempText, position +
-                    new Vector2(0, (_tileHeight / 2)), Color.White);
+                    //string tempText = tileIndex.ToString();
+                    //sb.DrawString(Game1.debugFont, tempText, position +
+                    //new Vector2(0, (_tileHeight / 2)), Color.White);
                 }
             }
         }
