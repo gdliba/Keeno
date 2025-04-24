@@ -41,6 +41,7 @@ namespace Keeno
         private MobileSwarmPoint testMobileSwarmPoint;
         Map testMap;
         Texture2D tilesetTxr;
+        HourGlass testHourGlass;
 
 
 
@@ -83,7 +84,7 @@ namespace Keeno
             _graphics.PreferredBackBufferHeight = 
                 GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             // Set screen to Fullscreen
-            _graphics.IsFullScreen = true;
+            _graphics.IsFullScreen = false;
             _graphics.ApplyChanges();
 
 
@@ -127,6 +128,8 @@ namespace Keeno
             testMap = new Map("Content/MapData/testLevel_Map.csv", tilesetTxr, 16, 16, 49, choppedTree, debugPixel);
             testPlayer = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(200, 200, 16, 16),
                 debugPixel, testMap, keenos);
+
+            testHourGlass = new HourGlass(tilesetTxr, new Rectangle(50, 50, 16, 16));
         }
 
         protected override void Update(GameTime gt)
@@ -192,7 +195,7 @@ namespace Keeno
             // Keeno
             foreach (var keeno in keenos)
             {
-                keeno.updateme(gt);
+                keeno.Update(gt);
             }
             #region Old Code
             // PLAYER - WorldObject INTERACTION
@@ -315,7 +318,7 @@ namespace Keeno
             //    keenos[j].
             //}
             #endregion
-            testPlayer.updateme(gt);
+            testPlayer.Update(gt);
 
             // temp testing code
             if (Keyboard.GetState().IsKeyDown(Keys.K))
@@ -326,6 +329,10 @@ namespace Keeno
                 var newKeeno = new Keeno(keenoTexture,4,new Rectangle(x,y,16,16),debugPixel);
                 keenos.Add(newKeeno);
             }
+
+
+            testHourGlass.Update();
+
 
         }
 
@@ -345,13 +352,18 @@ namespace Keeno
 
             // TEST MAP
             testMap.Draw(_spriteBatch);
-            testPlayer.drawme(_spriteBatch);
+            testPlayer.Draw(_spriteBatch);
 
             // Keenos
             foreach (var keeno in keenos)
             {
-                keeno.drawme(_spriteBatch);
+                keeno.Draw(_spriteBatch);
             }
+
+
+
+
+            testHourGlass.Draw(_spriteBatch);
 #if DEBUG
             _spriteBatch.DrawString(debugFont, _renderTarget.Width + "x " + _renderTarget.Height
                 + "\nKeenos: " + keenos.Count,

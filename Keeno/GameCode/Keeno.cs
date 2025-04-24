@@ -20,11 +20,11 @@ namespace Keeno
             _drawBounds = false;
         }
 
-        public override void updateme(GameTime gt)
+        public override void Update(GameTime gt)
         {
             //MoveMe(MoveInThisDirection(gt));
 
-            base.updateme(gt);
+            base.Update(gt);
         }
         public Vector2 MoveInThisDirection(GameTime gt)
         {

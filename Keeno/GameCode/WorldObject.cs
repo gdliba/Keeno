@@ -51,7 +51,7 @@ namespace Keeno
         public virtual void Update(GameTime gt)
         {
             _isSelected = false;
-            Tint = Color.White;
+            //Tint = Color.White;
         }
 
         public virtual void Draw(SpriteBatch sb)
@@ -71,7 +71,7 @@ namespace Keeno
         public virtual void Selected()
         {
             _isSelected = true;
-            Tint = Color.Red;
+            //Tint = Color.Red;
         }
 
     }

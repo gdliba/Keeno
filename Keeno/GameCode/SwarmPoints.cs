@@ -17,11 +17,11 @@ namespace Keeno
             _testRectangle = destinationRect;
         }
 
-        public override void drawme(SpriteBatch sb)
+        public override void Draw(SpriteBatch sb)
         {
             sb.Draw(_testPixel, _testRectangle, Color.Red * .75f);
 
-            base.drawme(sb);
+            base.Draw(sb);
         }
 
     }
@@ -35,9 +35,9 @@ namespace Keeno
 
         }
 
-        public override void updateme(GameTime gt)
+        public override void Update(GameTime gt)
         {
-            base.updateme(gt);
+            base.Update(gt);
         }
         //public List<Keeno> KeenoSwarm()
         //{

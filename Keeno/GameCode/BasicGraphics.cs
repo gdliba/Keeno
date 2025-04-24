@@ -37,7 +37,7 @@ namespace Keeno
             _rect = destinationRect;
         }
 
-        public virtual void drawme(SpriteBatch sBatch)
+        public virtual void Draw(SpriteBatch sBatch)
         {
             sBatch.Draw(_txr, _rect, _staticSrcRect, Color.White);
         }
@@ -55,7 +55,7 @@ namespace Keeno
             _velocity = Vector2.Zero;
         }
 
-        public override void drawme(SpriteBatch sBatch)
+        public override void Draw(SpriteBatch sBatch)
         {
             _rect.X = (int)_position.X;
             _rect.Y = (int)_position.Y;
@@ -81,7 +81,7 @@ namespace Keeno
             _velocity = Vector2.Zero;
         }
 
-        public virtual void updateme(GameTime gt)
+        public virtual void Update(GameTime gt)
         {
             _updateTrigger += (float)gt.ElapsedGameTime.TotalSeconds * _framesPerSecond;
 
@@ -96,7 +96,7 @@ namespace Keeno
             _position += _velocity * (float)gt.ElapsedGameTime.TotalSeconds;
         }
 
-        public override void drawme(SpriteBatch sBatch)
+        public override void Draw(SpriteBatch sBatch)
         {
             _rect.X = (int)_position.X;
             _rect.Y = (int)_position.Y;
@@ -153,7 +153,7 @@ namespace Keeno
             _tint = Color.White;
 
         }
-        public override void updateme(GameTime gt)
+        public override void Update(GameTime gt)
         {
             AnimateKeeno(gt);
             _position += _velocity * (float)gt.ElapsedGameTime.TotalSeconds;
@@ -263,7 +263,7 @@ namespace Keeno
                 //    _rect.Y + (int)direction.Y * 5, _rect.Width, _rect.Height);
             }
         }
-        public override void drawme(SpriteBatch sb)
+        public override void Draw(SpriteBatch sb)
         {
             // Make sure the rectangle moves and is drawn in the right position
             _rect.X = (int)_position.X;

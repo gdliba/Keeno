@@ -32,14 +32,14 @@ namespace Keeno
             _keenos = keenos;
             keenosNearPlayer = new List<Keeno>();
         }
-        public override void updateme(GameTime gt)
+        public override void Update(GameTime gt)
         {
             Player_Object_Interaction();
             ColisionDependantMovement();
 
             Player_Keeno_Interaction();
             
-            base.updateme(gt);
+            base.Update(gt);
         }
         private void Player_Keeno_Interaction()
         {
@@ -110,7 +110,7 @@ namespace Keeno
 
             return _targetDestinationBounds;
         }
-        public override void drawme(SpriteBatch sb)
+        public override void Draw(SpriteBatch sb)
         {
             // Make sure the rectangle moves and is drawn in the right position
             _interactionRange.X = (int)_position.X - _rect.Width;
