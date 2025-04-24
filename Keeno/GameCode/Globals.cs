@@ -28,7 +28,7 @@ namespace Keeno
         public const int TileSelectedIndex = 624;
 
         public const int EmptyHourGlassIndex = 628;
-        public const int FullHourGlassIndex = 627;
+        public const int FullHourGlassIndex = 630;
 
 
         public static Rectangle TileSelectSrcRect { get { return new Rectangle(1, 1, 1, 1); } }
