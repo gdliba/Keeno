@@ -43,7 +43,7 @@ namespace Keeno
         /// <param name="tileWidth"></param>
         /// <param name="tileHeight"></param>
         /// <param name="tilesetColumns"></param>
-        public Map(string csvPath, Texture2D tilesetTexture, int tileWidth,
+        public Map(string csvPath, Texture2D tilesetTexture, Texture2D monochromaticTilesetTxr, Texture2D inputsTileset, int tileWidth,
             int tileHeight, int tilesetColumns, Texture2D choppedTree, Texture2D testPixel)
         {
             _tileWidth = tileWidth;
@@ -66,7 +66,7 @@ namespace Keeno
                     switch (_mapData[y, x])
                     {
                         case Globals.TreeTileIndex:
-                            AddTree(x,y, choppedTree);
+                            AddTree(x,y, choppedTree, monochromaticTilesetTxr, inputsTileset);
                             break;
                         case Globals.TownCentreTileIndex:
                             AddTownCentre(x,y);
@@ -126,10 +126,10 @@ namespace Keeno
             // default to true (as in walkable)
             return true;
         }
-        private void AddTree(int x, int y, Texture2D fallenTreeTxr)
+        private void AddTree(int x, int y, Texture2D fallenTreeTxr, Texture2D monochromaticTileset, Texture2D inputsTileset)
         {
             _worldObjects.Add(new Tree(_tileset, _tileWidth, _tileHeight,
-                                _tilesetColumns, new Point(x, y), fallenTreeTxr, _testPixel));
+                                _tilesetColumns, new Point(x, y), fallenTreeTxr, _testPixel, monochromaticTileset, inputsTileset));
 
             _mapData[y, x] = Globals.OccupiedTileIndex;
         }

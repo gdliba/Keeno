@@ -78,13 +78,15 @@ namespace Keeno
 
     class Tree : WorldObject
     {
+        private HourGlass _hourglass;
+        private ButtonPrompt _buttonPrompt_E;
         private bool _isChopped;
         private Texture2D _fallenTreeTxr;
         private Texture2D _choppedTreeTxr;
 
 
         public Tree(Texture2D tileset, int tileWidth, int tileHeight,
-            int tilesetColumns, Point tilePosition, Texture2D choppedTree, Texture2D testpixel)
+            int tilesetColumns, Point tilePosition, Texture2D choppedTree, Texture2D testpixel, Texture2D monochromaticTileset, Texture2D buttonsTileset)
             : base(
                 tileset,
                 // world‐space bounds: tilePosition * tileSize
@@ -108,8 +110,28 @@ namespace Keeno
             _tilePosition.Y = tilePosition.Y * tileHeight;
             _tilesetColumns = tilesetColumns;
             _choppedTreeTxr = choppedTree;
+
+            _hourglass = new HourGlass(monochromaticTileset,
+                new Rectangle(_tilePosition.X, 
+                _tilePosition.Y, 
+                tileWidth, 
+                tileHeight));
+
+            _buttonPrompt_E = new ButtonPrompt(buttonsTileset,
+                new Rectangle(_tilePosition.X,
+                _tilePosition.Y,
+                _tileWidth,
+                _tileHeight),Globals.InputsTilesetIndex_E);
+
         }
 
+        public override void Selected()
+        {
+            base.Selected();
+            _hourglass.Update();
+
+
+        }
         public override void OnInteract()
         {
             if (!_isChopped)
@@ -127,7 +149,15 @@ namespace Keeno
                 sb.Draw(_choppedTreeTxr, _rect, Color.White);
             }
             else
+            {
                 base.Draw(sb);
+
+                if (_isSelected)
+                {
+                    _hourglass.Draw(sb);
+                    _buttonPrompt_E.Draw(sb);
+                }
+            }
         }
     }
     class TownCentre : WorldObject

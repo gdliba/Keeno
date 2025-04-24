@@ -6,6 +6,7 @@ namespace Keeno
     class HourGlass : StaticGraphic
     {
         private float _fill;
+        private Color _tint;
 
         private Rectangle _emptySrcRect;
         private Rectangle _fullSrcRect;
@@ -20,12 +21,13 @@ namespace Keeno
             _rect = rect;
             _spritesheet = Spritesheet;
 
-            _emptySrcRect = new Rectangle(Globals.EmptyHourGlassIndex % Globals.TilemapColumns * Globals.TileWidth_andHeight,
-                                (Globals.EmptyHourGlassIndex / Globals.TilemapColumns) * Globals.TileWidth_andHeight,
-                                Globals.TileWidth_andHeight, Globals.TileWidth_andHeight);
-            _fullSrcRect = new Rectangle(Globals.FullHourGlassIndex % Globals.TilemapColumns * Globals.TileWidth_andHeight,
-                               (Globals.FullHourGlassIndex / Globals.TilemapColumns) * Globals.TileWidth_andHeight,
-                               Globals.TileWidth_andHeight, Globals.TileWidth_andHeight);
+            _emptySrcRect = new Rectangle(Globals.EmptyHourGlassIndex % Globals.TilemapColumns * Globals.Tile_Width_Height,
+                                (Globals.EmptyHourGlassIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                                Globals.Tile_Width_Height, Globals.Tile_Width_Height);
+            _fullSrcRect = new Rectangle(Globals.FullHourGlassIndex % Globals.TilemapColumns * Globals.Tile_Width_Height,
+                               (Globals.FullHourGlassIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                               Globals.Tile_Width_Height, Globals.Tile_Width_Height);
+            _tint = Color.Yellow;
         }
         public void Update()
         {
@@ -35,7 +37,10 @@ namespace Keeno
                     _fill += .01f;
             }
             else
+            {
                 _fill = 1f;
+                _tint = Color.White;
+            }
         }
         public override void Draw(SpriteBatch sb)
         {
@@ -58,11 +63,32 @@ namespace Keeno
                                             _fullSrcRect.Width, yUsed);
             // Draw the "Filling"
             sb.Draw(_spritesheet, updatedDrawRect, 
-                    updatedSrcRect, Color.White);
+                    updatedSrcRect, _tint);
             // Draw the "Outline"
-            sb.Draw(_spritesheet, _rect, 
-                    _emptySrcRect, Color.White);
+            //sb.Draw(_spritesheet, _rect, 
+            //        _emptySrcRect, Color.White);
 
+        }
+    }
+    class ButtonPrompt : StaticGraphic
+    {
+
+        public ButtonPrompt(Texture2D tileset, Rectangle rect, int tileIndex)
+            : base(rect, tileset)
+        {
+            _rect = rect;
+            _txr = tileset;
+            _staticSrcRect = new Rectangle(tileIndex % Globals.InputsTilesetColumns * Globals.InputsTileset_Width_Height,
+                                (tileIndex / Globals.InputsTilesetColumns) * Globals.InputsTileset_Width_Height,
+                                Globals.InputsTileset_Width_Height, Globals.InputsTileset_Width_Height);
+
+            //_emptySrcRect = new Rectangle(Globals.EmptyHourGlassIndex % Globals.TilemapColumns * Globals.Tile_Width_Height,
+            //        (Globals.EmptyHourGlassIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
+            //        Globals.Tile_Width_Height, Globals.Tile_Width_Height);
+        }
+        public override void Draw(SpriteBatch sb)
+        {
+            sb.Draw(_txr, new Vector2(_rect.X, _rect.Y), _staticSrcRect, Color.White, 0f, Vector2.Zero, .5f, SpriteEffects.None, 0);
         }
     }
 }

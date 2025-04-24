@@ -41,6 +41,10 @@ namespace Keeno
         private MobileSwarmPoint testMobileSwarmPoint;
         Map testMap;
         Texture2D tilesetTxr;
+        Texture2D monochromaticTilesetTxr;
+        Texture2D inputsTilesetTxr;
+
+
         HourGlass testHourGlass;
 
 
@@ -125,7 +129,10 @@ namespace Keeno
             debugFont = Content.Load<SpriteFont>("Fonts\\debugFont");
 #endif
             tilesetTxr = Content.Load<Texture2D>("SpriteSheets\\color_t");
-            testMap = new Map("Content/MapData/testLevel_Map.csv", tilesetTxr, 16, 16, 49, choppedTree, debugPixel);
+            monochromaticTilesetTxr = Content.Load<Texture2D>("SpriteSheets\\mono_t");
+            inputsTilesetTxr = Content.Load<Texture2D>("SpriteSheets\\inputs_t");
+
+            testMap = new Map("Content/MapData/testLevel_Map.csv", tilesetTxr, monochromaticTilesetTxr, inputsTilesetTxr, 16, 16, 49, choppedTree, debugPixel);
             testPlayer = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(200, 200, 16, 16),
                 debugPixel, testMap, keenos);
 
