@@ -88,7 +88,8 @@ namespace Keeno
         }
         public override void Draw(SpriteBatch sb)
         {
-            sb.Draw(_txr, new Vector2(_rect.X, _rect.Y), _staticSrcRect, Color.White, 0f, Vector2.Zero, .5f, SpriteEffects.None, 0);
+            sb.Draw(_txr, new Vector2(_rect.X, _rect.Y), _staticSrcRect, 
+                Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0);
         }
     }
 }

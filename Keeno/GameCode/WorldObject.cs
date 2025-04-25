@@ -119,7 +119,7 @@ namespace Keeno
 
             _buttonPrompt_E = new ButtonPrompt(buttonsTileset,
                 new Rectangle(_tilePosition.X,
-                _tilePosition.Y,
+                _tilePosition.Y-_tileHeight,
                 _tileWidth,
                 _tileHeight),Globals.InputsTilesetIndex_E);
 
@@ -128,9 +128,8 @@ namespace Keeno
         public override void Selected()
         {
             base.Selected();
+
             _hourglass.Update();
-
-
         }
         public override void OnInteract()
         {
