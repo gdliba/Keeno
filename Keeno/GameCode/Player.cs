@@ -11,7 +11,9 @@ namespace Keeno
         private Map _map;
         private Rectangle _interactionRange;
         private readonly List<Keeno> _keenos;
-        private readonly List<Keeno> keenosNearPlayer;
+        private readonly List<Keeno> _keenosNearPlayer;
+        private readonly List<Keeno> _keenosFollowingPlayer;
+
         private readonly List<WorldObject> _worldObjects;
         private readonly List<WorldObject> _objectsNearPlayer;
 
@@ -30,38 +32,45 @@ namespace Keeno
             _objectsNearPlayer = new List<WorldObject>();
 
             _keenos = keenos;
-            keenosNearPlayer = new List<Keeno>();
+            _keenosNearPlayer = new List<Keeno>();
+            _keenosFollowingPlayer = new List<Keeno>();
+
         }
         public override void Update(GameTime gt)
         {
             Player_Object_Interaction();
             ColisionDependantMovement();
-
-            Player_Keeno_Interaction();
+            Player_Keeno_Interaction(gt);
             
             base.Update(gt);
         }
-        private void Player_Keeno_Interaction()
+        private void Player_Keeno_Interaction(GameTime gt)
         {
             // clear the list
-            keenosNearPlayer.Clear();
+            _keenosNearPlayer.Clear();
             // loop through all keenos in game
             for (var i = 0; i < _keenos.Count; i++)
             {
                 if (InteractionRange.Intersects(_keenos[i].Bounds)) // check if they are inside the player's Interaction range
-                    keenosNearPlayer.Add(_keenos[i]);               // if they are, add them to the "near player" list
+                    _keenosNearPlayer.Add(_keenos[i]);               // if they are, add them to the "near player" list
             }
-            var sortedKeenoList = keenosNearPlayer.OrderBy(x => x.DistanceTo(Position)).ToList();   // sort the list by closest first
+
+            // sort the list by closest first
+            var sortedKeenoList = _keenosNearPlayer.OrderBy(x => x.DistanceTo(Position)).ToList();   
             // if the list is populated
             if (sortedKeenoList.Count > 0)
             {
-                sortedKeenoList[0].Selected();                                                      // trigger the Keeno's "Selected" method          
-                if (Globals.PickUpKeeno)                                                            // if the relevant key is pressed
+                sortedKeenoList[0].Selected();                           // trigger the Keeno's "Selected" method
+                                    
+                if (Globals.Input_Q)                                     // if the relevant key is pressed
                 {
                     Vector2 distanceToPlayer = new Vector2(Position.X - sortedKeenoList[0].Position.X, 
                         Position.Y - sortedKeenoList[0].Position.Y);
                     distanceToPlayer.Normalize();
-                    sortedKeenoList[0].MoveMe(distanceToPlayer);                                    // move the selected Keeno towards the player (kinda)
+                    _keenosFollowingPlayer.Add(sortedKeenoList[0]);
+                    sortedKeenoList.RemoveAt(0);
+                    //sortedKeenoList[0].MoveMe(distanceToPlayer);        // move the selected Keeno towards the player (kinda)
+                    //sortedKeenoList[0].MoveTo(Position.ToPoint());
                 }
             }
         }
@@ -69,13 +78,9 @@ namespace Keeno
         {
             // Player - movement
             if (_map.IsWalkable(HandleInput()))
-            {
                 MoveMe(Direction);
-            }
             else
-            {
                 MoveMe(Vector2.Zero);
-            }
         }
         private void Player_Object_Interaction()
         {
@@ -84,9 +89,7 @@ namespace Keeno
             for (var i = 0; i < _map.WorldObjects.Count; i++)
             {
                 if (InteractionRange.Intersects(_map.WorldObjects[i].Bounds))
-                {
                     _objectsNearPlayer.Add(_map.WorldObjects[i]);
-                }
             }
             // Sort the list
             var sortedList = _objectsNearPlayer.OrderBy(x => x.DistanceTo(Position)).ToList();
@@ -94,7 +97,7 @@ namespace Keeno
             if (sortedList.Count > 0)
             {
                 sortedList[0].Selected();
-                if (Globals.Interact)
+                if (Globals.Input_E)
                     sortedList[0].OnInteract();
             }
         }
@@ -103,10 +106,10 @@ namespace Keeno
         {
             _direction = Vector2.Zero;
 
-            if (Globals.MoveUP) _direction.Y -= 1;
-            if (Globals.MoveDOWN) _direction.Y += 1;
-            if (Globals.MoveLEFT) _direction.X -= 1;
-            if (Globals.MoveRIGHT) _direction.X += 1;
+            if (Globals.Input_W) _direction.Y -= 1; // UP
+            if (Globals.Input_S) _direction.Y += 1; // Down
+            if (Globals.Input_A) _direction.X -= 1; // Left
+            if (Globals.Input_D) _direction.X += 1; // Right
 
             return _targetDestinationBounds;
         }
@@ -135,7 +138,6 @@ namespace Keeno
                 sb.Draw(_testPixel, _targetDestinationBounds, Color.White * .75f);      // Draw _targetDestinationBound
                 sb.Draw(_testPixel, new Vector2(Position.X, Position.Y), Color.Black);  // Draw Player Position
             }
-            //base.drawme(sb);
         }
     }
 }

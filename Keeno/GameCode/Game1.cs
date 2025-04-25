@@ -338,7 +338,7 @@ namespace Keeno
             }
 
 
-            testHourGlass.Update();
+            testHourGlass.Update(Globals.Input_Q);
 
 
         }

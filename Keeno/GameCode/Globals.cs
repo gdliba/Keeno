@@ -8,12 +8,12 @@ namespace Keeno
         static KeyboardState _keyboard;
         public static void UpdateInput() => _keyboard = Keyboard.GetState();
 
-        public static bool MoveUP => _keyboard.IsKeyDown(Keys.W);
-        public static bool MoveLEFT => _keyboard.IsKeyDown(Keys.A);
-        public static bool MoveDOWN => _keyboard.IsKeyDown(Keys.S);
-        public static bool MoveRIGHT => _keyboard.IsKeyDown(Keys.D);
-        public static bool PickUpKeeno => _keyboard.IsKeyDown(Keys.Q);
-        public static bool Interact => _keyboard.IsKeyDown(Keys.E);
+        public static bool Input_W => _keyboard.IsKeyDown(Keys.W);
+        public static bool Input_A => _keyboard.IsKeyDown(Keys.A);
+        public static bool Input_S => _keyboard.IsKeyDown(Keys.S);
+        public static bool Input_D => _keyboard.IsKeyDown(Keys.D);
+        public static bool Input_Q => _keyboard.IsKeyDown(Keys.Q);
+        public static bool Input_E => _keyboard.IsKeyDown(Keys.E);
 
 
         //public static bool NoMovementKeysPressed { get { return !MoveUP && !MoveLEFT && !MoveDOWN && !MoveRIGHT; } }
@@ -40,10 +40,15 @@ namespace Keeno
 
         public static Rectangle TileSelectSrcRect { get { return new Rectangle(1, 1, 1, 1); } }
 
-
+        // Player
         public static int PlayerMovementSpeed = 50;
+
+        // Keeno
         public static int KeenoMovementSpeed = 20;
 
+
+        // Tree
+        public static int TreeHealth = 3;
 
 
 

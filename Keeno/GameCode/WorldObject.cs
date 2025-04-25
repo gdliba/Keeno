@@ -6,15 +6,19 @@ namespace Keeno
 {
     public abstract class WorldObject
     {
-        protected Rectangle _rect;
         protected Texture2D _txr;
+        protected Texture2D _testPixel;
+
+        protected Rectangle _rect;
         protected Rectangle _srcRect;
         protected Rectangle _selectedTileSrcRect;
+
         protected Point _tilePosition;
+
         protected int _tileWidth;
         protected int _tileHeight;
         protected int _tilesetColumns;
-        protected Texture2D _testPixel;
+        protected int _health;
 
         protected bool _isSelected;
         protected bool _impassable;
@@ -46,6 +50,11 @@ namespace Keeno
         public float DistanceTo(Vector2 destination)
         {
             return (destination - Position).Length();
+        }
+        public virtual void TakeAHit()
+        {
+            _health--;
+
         }
 
         public virtual void Update(GameTime gt)
@@ -80,9 +89,13 @@ namespace Keeno
     {
         private HourGlass _hourglass;
         private ButtonPrompt _buttonPrompt_E;
-        private bool _isChopped;
+
         private Texture2D _fallenTreeTxr;
         private Texture2D _choppedTreeTxr;
+
+        private bool _isChopped;
+        private bool _canTakeHit;
+        private bool _canChop;
 
 
         public Tree(Texture2D tileset, int tileWidth, int tileHeight,
@@ -103,7 +116,11 @@ namespace Keeno
 
               )
         {
+            _canChop = false;
+            _canTakeHit = false;
             _isChopped = false;
+            _health = Globals.TreeHealth;
+
             _tileHeight = tileHeight;
             _tileWidth = tileWidth;
             _tilePosition.X = tilePosition.X * tileWidth;
@@ -119,9 +136,9 @@ namespace Keeno
 
             _buttonPrompt_E = new ButtonPrompt(buttonsTileset,
                 new Rectangle(_tilePosition.X,
-                _tilePosition.Y-_tileHeight,
+                _tilePosition.Y - _tileHeight,
                 _tileWidth,
-                _tileHeight),Globals.InputsTilesetIndex_E);
+                _tileHeight), Globals.InputsTilesetIndex_E);
 
         }
 
@@ -129,15 +146,23 @@ namespace Keeno
         {
             base.Selected();
 
-            _hourglass.Update();
+            _canTakeHit = _hourglass.Update(Globals.Input_E);
         }
         public override void OnInteract()
         {
             if (!_isChopped)
             {
+                if (_canTakeHit)
+                    TakeAHit();
+                if (_health == 0)
+                    _isChopped = true;
                 // play chop animation / sound
-                _isChopped = true;
             }
+        }
+        public override void TakeAHit()
+        {
+            base.TakeAHit();
+            _hourglass.Reset();
         }
 
         public override void Draw(SpriteBatch sb)

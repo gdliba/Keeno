@@ -29,18 +29,49 @@ namespace Keeno
                                Globals.Tile_Width_Height, Globals.Tile_Width_Height);
             _tint = Color.Yellow;
         }
-        public void Update()
+        public bool Update(bool input)
+        {
+            if (input)
+                return Increment();
+
+            Decrement();
+            return false;
+
+        }
+        public bool Increment()
         {
             if (_fill < 1f)
             {
-                if (Globals.PickUpKeeno)
-                    _fill += .01f;
+                _fill += .01f;
+            }
+            else
+            {
+                _fill = 1f;
+                _tint = Color.White;
+                return true;
+            }
+            return false;
+        }
+        public void Decrement()
+        {
+            if (_fill > 0 && _fill < 1f)
+            {
+                _fill -= .01f;
+            }
+            else if (_fill <= 0)
+            {
+                _fill = 0f;
             }
             else
             {
                 _fill = 1f;
                 _tint = Color.White;
             }
+
+        }
+        public void Reset()
+        {
+            _fill = 0f;
         }
         public override void Draw(SpriteBatch sb)
         {
