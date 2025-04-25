@@ -38,6 +38,16 @@ namespace Keeno
         }
         public override void Update(GameTime gt)
         {
+
+            // clear the list
+            //_keenosNearPlayer.Clear();
+            //_keenosFollowingPlayer.Clear();
+
+            //for (int i = 0; i < _keenosNearPlayer.Count; i++)
+            //{
+            //    _keenosNearPlayer[i].Update(gt);
+            //}
+
             Player_Object_Interaction();
             ColisionDependantMovement();
             Player_Keeno_Interaction(gt);
@@ -46,13 +56,15 @@ namespace Keeno
         }
         private void Player_Keeno_Interaction(GameTime gt)
         {
-            // clear the list
             _keenosNearPlayer.Clear();
             // loop through all keenos in game
             for (var i = 0; i < _keenos.Count; i++)
             {
-                if (InteractionRange.Intersects(_keenos[i].Bounds)) // check if they are inside the player's Interaction range
-                    _keenosNearPlayer.Add(_keenos[i]);               // if they are, add them to the "near player" list
+                if (InteractionRange.Intersects(_keenos[i].Bounds) && _keenos[i].State != KeenoState.Following) // check if they are inside the player's Interaction range
+                {
+                    _keenosNearPlayer.Add(_keenos[i]);              // if they are, add them to the "near player" list
+                    //_keenos.RemoveAt(i);
+                }
             }
 
             // sort the list by closest first
@@ -60,18 +72,18 @@ namespace Keeno
             // if the list is populated
             if (sortedKeenoList.Count > 0)
             {
-                sortedKeenoList[0].Selected();                           // trigger the Keeno's "Selected" method
+                sortedKeenoList[0].Selected();              // trigger the Keeno's "Selected" method
                                     
-                if (Globals.Input_Q)                                     // if the relevant key is pressed
+                if (Globals.Q_KeyPress)                     // if the relevant key is pressed
                 {
-                    Vector2 distanceToPlayer = new Vector2(Position.X - sortedKeenoList[0].Position.X, 
-                        Position.Y - sortedKeenoList[0].Position.Y);
-                    distanceToPlayer.Normalize();
-                    _keenosFollowingPlayer.Add(sortedKeenoList[0]);
-                    sortedKeenoList.RemoveAt(0);
-                    //sortedKeenoList[0].MoveMe(distanceToPlayer);        // move the selected Keeno towards the player (kinda)
-                    //sortedKeenoList[0].MoveTo(Position.ToPoint());
+                    sortedKeenoList[0].SwitchToFollowing(); // Switch the closest keeno's state to "Following"
+                    _keenosFollowingPlayer.Add(sortedKeenoList[0]); // add it to the list of followers
                 }
+            }
+            // tell all followers to follow the player
+            foreach (var keeno in _keenosFollowingPlayer)
+            {
+                keeno.FollowPlayer(_position.ToPoint());
             }
         }
         private void ColisionDependantMovement()
@@ -97,7 +109,7 @@ namespace Keeno
             if (sortedList.Count > 0)
             {
                 sortedList[0].Selected();
-                if (Globals.Input_E)
+                if (Globals.E_KeyDown)
                     sortedList[0].OnInteract();
             }
         }
@@ -106,10 +118,10 @@ namespace Keeno
         {
             _direction = Vector2.Zero;
 
-            if (Globals.Input_W) _direction.Y -= 1; // UP
-            if (Globals.Input_S) _direction.Y += 1; // Down
-            if (Globals.Input_A) _direction.X -= 1; // Left
-            if (Globals.Input_D) _direction.X += 1; // Right
+            if (Globals.W_KeyDown) _direction.Y -= 1; // UP
+            if (Globals.S_KeyDown) _direction.Y += 1; // Down
+            if (Globals.A_KeyDown) _direction.X -= 1; // Left
+            if (Globals.D_KeyDown) _direction.X += 1; // Right
 
             return _targetDestinationBounds;
         }

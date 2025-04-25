@@ -15,6 +15,7 @@ namespace Keeno
         protected Vector2 _direction;
         public Vector2 Direction { get { return _direction; } }
         public Vector2 Position { get { return new(_position.X + _rect.Width / 2, _position.Y + _rect.Height / 2); } }
+        protected Vector2 _previousPosition;
 
         protected bool _isWalking { get { return _velocity.Length() > 0; } }
         protected bool _wasWalking;
@@ -25,11 +26,16 @@ namespace Keeno
         protected float _moveSpeed;
         protected int _defaultFps;
         protected int _idleFPS;
+        protected int _playerLocationOffsetX;
+        protected int _playerLocationOffsetY;
+
 
         public Rectangle _targetDestinationBounds;
         public Rectangle Bounds { get { return _rect; } }
 
         protected Color _tint;
+        protected Color _defaultTint;
+
 
 
         // test related
@@ -52,7 +58,22 @@ namespace Keeno
             _targetDestinationBounds = _rect;
 
             _tint = Color.White;
+            _defaultTint = _tint;
 
+
+            // Offset where you sit in relation to the player's location
+            // when following the player
+            _playerLocationOffsetX += Globals.RNG.Next(-20, 21);
+            _playerLocationOffsetY += Globals.RNG.Next(-20, 21);
+
+            // Centre the position to the sprite's centre, as it's not used
+            // to Draw the sprite like it could be in the parent classes
+            _position = new Vector2(_rect.X + _rect.Width / 2, _rect.Y + _rect.Height / 2);
+
+            // Set the previous position to be the same as the current one.
+            // This allows to later randomise what direction the Keeno
+            // face when they first spawn
+            _previousPosition.X = _position.X;
         }
         public override void Update(GameTime gt)
         {
@@ -77,6 +98,7 @@ namespace Keeno
         {
             _updateTrigger += (float)gt.ElapsedGameTime.TotalSeconds * _framesPerSecond;
 
+            #region Walking/Idle Animations
             // Detect transitions between walking and idle
             if (_isWalking != _wasWalking)  // if they don't match up it means it's transitioning
             {
@@ -122,8 +144,24 @@ namespace Keeno
                         _srcRect.X = _srcRect.Width;
                 }
             }
-
-            _wasWalking = _isWalking;           // Update for next frame
+            #endregion
+            #region Adjust Facing
+            //if moving towards the right
+            if (_position.X > _previousPosition.X)
+            {
+                _facingRight = true;
+            }
+            // else if moving towards the left
+            else if (_position.X < _previousPosition.X)
+            {
+                _facingRight = false;
+            }
+            #endregion
+            // Update for next frame
+            _wasWalking = _isWalking;
+            // Track if the player is moving to the right
+            // (used to flip the sprite accordingly)
+            _previousPosition.X = _position.X;
         }
         public Rectangle HandleMovement()
         {
@@ -137,17 +175,6 @@ namespace Keeno
                 direction.Normalize();
 
                 _velocity = direction * _moveSpeed;
-
-                //if moving towards the right
-                if (direction.X > 0)
-                {
-                    _facingRight = true;
-                }
-                // else if moving towards the left
-                else if (direction.X < 0)
-                {
-                    _facingRight = false;
-                }
             }
             else
             {
@@ -156,10 +183,9 @@ namespace Keeno
         }
         public virtual void MoveTo(Point destination)
         {
-
             Vector2 vectorDistance = destination.ToVector2() - _position;
 
-            if (vectorDistance.Length() > 1)
+            if (vectorDistance.Length() > .5f)
             {
                 vectorDistance.Normalize();
                 _velocity = vectorDistance * _moveSpeed;
@@ -169,8 +195,6 @@ namespace Keeno
                 _position = destination.ToVector2();
                 _velocity = Vector2.Zero;
             }
-
-
         }
         public virtual float DistanceTo(Vector2 destination)
         {
@@ -184,7 +208,7 @@ namespace Keeno
 
             // Draw test pixel
             if (_drawBounds)
-                sb.Draw(_testPixel, Bounds, Color.Blue * 1);
+                sb.Draw(_testPixel, Bounds, Color.Blue * 1f);
 
 
             // determine when to flip the sprite (making it look to the RIGHT)
@@ -194,26 +218,39 @@ namespace Keeno
             if (_isSelected)
                 _tint = Color.White;
             else
-                _tint = Color.White;
+                _tint = _defaultTint;
             sb.Draw(_txr, _rect, _srcRect, _tint, 0f,
                     Vector2.Zero, flip, 0f);
-
         }
-
+    }
+    public enum KeenoState
+    {
+        Idle,
+        Following,
+        Dead
     }
 
     class Keeno : AnimatedKeeno2D
     {
         private float _moveTimer;
         private float _moveTimerReset;
+        private KeenoState _state;
+        public KeenoState State { get{  return _state; } }
 
         public Keeno(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
             : base (spriteSheet, fps, rect, pixel)
         {
+            _state = KeenoState.Idle;
             _moveTimer = 3;
             _moveTimerReset = _moveTimer;
-            _moveSpeed = Globals.KeenoMovementSpeed;
             _drawBounds = false;
+
+            _defaultTint =_tint = new Color(Globals.RNG.Next(0, 256),
+                Globals.RNG.Next(0, 256), Globals.RNG.Next(0, 256));
+
+            _moveSpeed = Globals.RNG.Next(15, 26) + (float)Globals.RNG.NextDouble();
+
+            _facingRight = Globals.RNG.Next(2) == 0; 
         }
 
         public override void Update(GameTime gt)
@@ -222,9 +259,25 @@ namespace Keeno
             //if(destination!=_position.ToPoint())
             //    MoveTo(destination);
 
+            switch (_state)
+            {
+                case KeenoState.Idle:
+                    break;
+                case KeenoState.Following:
+                    break;
+                case KeenoState.Dead:
+                    break;
+            }
+
             base.Update(gt);
         }
-        public Vector2 PickRandomDirection(GameTime gt)
+        public virtual void FollowPlayer(Point destination)
+        {
+            destination.X += _playerLocationOffsetX;
+            destination.Y += _playerLocationOffsetY;
+            MoveTo(destination);
+        }
+        public Vector2 UseRandomDirection(GameTime gt)
         {
             if (_moveTimer >= 0)
             {
@@ -239,7 +292,11 @@ namespace Keeno
         }
         public void RollRandomDirection()
         {
-            _direction = new Vector2(Game1.RNG.Next(-1, 2), Game1.RNG.Next(-1, 2));
+            _direction = new Vector2(Globals.RNG.Next(-1, 2), Globals.RNG.Next(-1, 2));
+        }
+        public void SwitchToFollowing()
+        {
+            _state = KeenoState.Following;
         }
         public void Selected()
         {

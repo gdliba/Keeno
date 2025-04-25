@@ -146,7 +146,7 @@ namespace Keeno
         {
             base.Selected();
 
-            _canTakeHit = _hourglass.Update(Globals.Input_E);
+            _canTakeHit = _hourglass.Update(Globals.E_KeyDown);
         }
         public override void OnInteract()
         {
@@ -208,8 +208,8 @@ namespace Keeno
         }
         public override void OnInteract()
         {
-            Tint = new Color(Game1.RNG.Next(0, 256), 
-                Game1.RNG.Next(0, 256), Game1.RNG.Next(0, 256));
+            Tint = new Color(Globals.RNG.Next(0, 256), 
+                Globals.RNG.Next(0, 256), Globals.RNG.Next(0, 256));
         }
     }
 }

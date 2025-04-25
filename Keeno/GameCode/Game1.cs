@@ -25,7 +25,7 @@ namespace Keeno
         private RenderTarget2D _renderTarget;
 
         // RNG
-        public static readonly Random RNG = new Random();
+        //public static readonly Random RNG = new Random();
 
 
         #region VARIABLES
@@ -50,7 +50,7 @@ namespace Keeno
 
 
         // Keyboard
-        KeyboardState kb_curr;
+        //KeyboardState kb_curr;
 
         // Player
         Player testPlayer;
@@ -141,16 +141,15 @@ namespace Keeno
 
         protected override void Update(GameTime gt)
         {
+            Globals.Update(gt);
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            kb_curr = Keyboard.GetState();
-            Globals.UpdateInput();
 
             // GameState Switch
             switch (currentGameState)
             {
                 case GameState.Start:
-                    StartUpdate(gt, kb_curr);
+                    StartUpdate(gt, Globals.KbCurr);
                     break;
                 case GameState.Playing:
                     PlayingUpdate();
@@ -199,6 +198,7 @@ namespace Keeno
         private void StartUpdate(GameTime gt, KeyboardState kb)
         {
             testMap.Update(gt);
+
             // Keeno
             foreach (var keeno in keenos)
             {
@@ -330,15 +330,15 @@ namespace Keeno
             // temp testing code
             if (Keyboard.GetState().IsKeyDown(Keys.K))
             {
-                int x = RNG.Next(0, _renderTarget.Width);
-                int y = RNG.Next(0, _renderTarget.Height);
+                int x = Globals.RNG.Next(0, _renderTarget.Width);
+                int y = Globals.RNG.Next(0, _renderTarget.Height);
 
                 var newKeeno = new Keeno(keenoTexture,4,new Rectangle(x,y,16,16),debugPixel);
                 keenos.Add(newKeeno);
             }
 
 
-            testHourGlass.Update(Globals.Input_Q);
+            testHourGlass.Update(Globals.Q_KeyDown);
 
 
         }
@@ -359,7 +359,6 @@ namespace Keeno
 
             // TEST MAP
             testMap.Draw(_spriteBatch);
-            testPlayer.Draw(_spriteBatch);
 
             // Keenos
             foreach (var keeno in keenos)
@@ -367,10 +366,11 @@ namespace Keeno
                 keeno.Draw(_spriteBatch);
             }
 
-
-
-
             testHourGlass.Draw(_spriteBatch);
+
+
+
+            testPlayer.Draw(_spriteBatch);
 #if DEBUG
             _spriteBatch.DrawString(debugFont, _renderTarget.Width + "x " + _renderTarget.Height
                 + "\nKeenos: " + keenos.Count,
