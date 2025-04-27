@@ -69,7 +69,7 @@ namespace Keeno
                             AddTree(x,y, choppedTree, monochromaticTilesetTxr, inputsTileset);
                             break;
                         case Globals.TownCentreTileIndex:
-                            AddTownCentre(x,y, monochromaticTilesetTxr);
+                            AddTownCentre(x,y, monochromaticTilesetTxr, inputsTileset);
                             break;
                         default:
                             break;
@@ -105,25 +105,25 @@ namespace Keeno
                 }
             }
         }
+        /// <summary>
+        /// Determines if the player can move into the specified area without colliding
+        /// with any existing world objects that are tagged as Impassable.
+        /// </summary>
+        /// <param name="destinationRect"></param>
+        /// <returns>
+        /// TRUE if player movement is permitted
+        /// otherwise, FALSE.
+        /// </returns>
         public bool IsWalkable(Rectangle destinationRect)
-        {
-            // Loop through the map
-            for (int y = 0; y < _mapHeight; y++)
+        {    
+            // Loop through WorldObjects
+            for (int i = 0; i < _worldObjects.Count; i++)
             {
-                for (int x = 0; x < _mapWidth; x++)
-                {
-                    int tileIndex = _mapData[y, x];             //Store the tile index
-                    if (tileIndex == Globals.OccupiedTileIndex)    // if the tile index is 0 (OccupiedTileIndex)
-                    {
-                        // create a rect to store the tile's bounds
-                        Rectangle tileBounds = new Rectangle(x * _tileWidth, y * _tileHeight, _tileWidth, _tileHeight);
-                        // check if they intersect
-                        if(destinationRect.Intersects(tileBounds))
-                            return false;
-                    }
-                }
+                // Check if destinationRect would interact
+                if (destinationRect.Intersects(_worldObjects[i].Bounds)
+                    && _worldObjects[i].Impassable)
+                    return false;
             }
-            // default to true (as in walkable)
             return true;
         }
         private void AddTree(int x, int y, Texture2D fallenTreeTxr, Texture2D monochromaticTileset, Texture2D inputsTileset)
@@ -133,10 +133,10 @@ namespace Keeno
 
             _mapData[y, x] = Globals.OccupiedTileIndex;
         }
-        private void AddTownCentre(int x, int y, Texture2D monochromaticTileset)
+        private void AddTownCentre(int x, int y, Texture2D monochromaticTileset, Texture2D inputsTileset)
         {
             _worldObjects.Add(new TownCentre(_tileset, monochromaticTileset, _tileWidth, _tileHeight,
-                                _tilesetColumns, new Point(x, y), _testPixel));
+                                _tilesetColumns, new Point(x, y), _testPixel, inputsTileset));
 
             _mapData[y, x] = Globals.OccupiedTileIndex;
         }
@@ -147,7 +147,10 @@ namespace Keeno
             {
                 _worldObjects[i].Update(gt);
                 if (_worldObjects[i].State == ObjectState.Dead)
+                {
                     _worldObjects.RemoveAt(i);
+
+                }
             }
         }
 

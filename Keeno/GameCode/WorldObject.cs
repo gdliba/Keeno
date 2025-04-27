@@ -43,9 +43,11 @@ namespace Keeno
         protected int _health;
 
         protected bool _isSelected;
-        protected bool _impassable;
         protected bool _canDropOff;
+        protected bool _canUse;
         protected bool _destroyMe;
+        protected bool _impassable;
+        public bool Impassable { get { return _impassable;} protected set { _impassable = value; } }
 
         protected float _destroySpeed;
 
@@ -69,6 +71,7 @@ namespace Keeno
             _isSelected = false;
             _canDropOff = false;
             _destroyMe = false;
+            _canUse = false;
 
             _txr = texture;
             _rect = bounds;
@@ -247,6 +250,7 @@ namespace Keeno
             _canTakeHit = false;
             _isChopped = false;
             _canDropOff = false;
+            _impassable = true;
 
 
             _tileHeight = tileHeight;
@@ -361,9 +365,15 @@ namespace Keeno
     class TownCentre : WorldObject
     {
         private Color _tint;
-        public TownCentre(Texture2D tileset, Texture2D monochromaticTileset, int tileWidth, int tileHeight,
-            int tilesetColumns, Point tilePosition, Texture2D testpixel)
-            : base(
+        public TownCentre(Texture2D tileset,
+            Texture2D monochromaticTileset,
+            int tileWidth, 
+            int tileHeight,
+            int tilesetColumns,
+            Point tilePosition,
+            Texture2D testpixel,
+            Texture2D buttonsTileset
+            ) : base(
                 tileset,
                 // world‐space bounds: tilePosition * tileSize
                 new Rectangle(tilePosition.X * tileWidth,
@@ -378,13 +388,56 @@ namespace Keeno
                   tileHeight), tilesetColumns, tileWidth, tileHeight, monochromaticTileset, testpixel
               )
         {
+            _impassable = true;
+            _canUse = false;
             _state = ObjectState.Default;
             Tint = Color.White;
+
+            _tileHeight = tileHeight;
+            _tileWidth = tileWidth;
+            _tilePosition.X = tilePosition.X * tileWidth;
+            _tilePosition.Y = tilePosition.Y * tileHeight;
+            _tilesetColumns = tilesetColumns;
+
+            _buttonPrompt_E = new ButtonPrompt(buttonsTileset,
+                new Rectangle(_tilePosition.X + _tileWidth / 2,
+                _tilePosition.Y - _tileHeight,
+                _tileWidth,
+                _tileHeight), Globals.InputsTilesetIndex_E);
+
+            _HGInteract = new HourGlass(monochromaticTileset,
+                new Rectangle(_tilePosition.X + _tileWidth / 2,
+                _tilePosition.Y - _tileHeight,
+                _tileWidth,
+                _tileHeight));
+        }
+        public override void Selected(bool playerHasFollowers,
+            float playerWorkSpeed,
+            float dropOffSpeed)
+        {
+            base.Selected(playerHasFollowers, playerWorkSpeed, dropOffSpeed);
+
+            _canUse = _HGInteract.Update(Globals.E_KeyDown, playerWorkSpeed);
         }
         public override void OnInteract()
         {
-            Tint = new Color(Globals.RNG.Next(0, 256), 
-                Globals.RNG.Next(0, 256), Globals.RNG.Next(0, 256));
+            if (_canUse)
+            {
+                SpawnKeeno();
+            }
+        }
+        private void SpawnKeeno()
+        {
+
+        }
+        public override void Draw(SpriteBatch sb)
+        {
+            base.Draw(sb);
+            if (_isSelected)
+            {
+                _HGInteract.Draw(sb);
+                _buttonPrompt_E.Draw(sb);
+            }
         }
     }
 }
