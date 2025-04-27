@@ -167,7 +167,7 @@ namespace Keeno
         {
             return _targetDestinationBounds;
         }
-        public virtual void MoveMe(Vector2 direction)
+        public virtual void MoveInDirection(Vector2 direction)
         {
             if (direction != Vector2.Zero)
             {
@@ -259,15 +259,15 @@ namespace Keeno
             //if(destination!=_position.ToPoint())
             //    MoveTo(destination);
 
-            switch (_state)
-            {
-                case KeenoState.Idle:
-                    break;
-                case KeenoState.Following:
-                    break;
-                case KeenoState.Dead:
-                    break;
-            }
+            //switch (_state)
+            //{
+            //    case KeenoState.Idle:
+            //        break;
+            //    case KeenoState.Following:
+            //        break;
+            //    case KeenoState.Dead:
+            //        break;
+            //}
 
             base.Update(gt);
         }

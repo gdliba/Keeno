@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace Keeno
 {
@@ -45,7 +47,7 @@ namespace Keeno
                 new Rectangle   (Globals.TileSelectedIndex % _tilesetColumns * _tileWidth,
                                 (Globals.TileSelectedIndex / _tilesetColumns) * _tileHeight,
                                 _tileWidth, _tileHeight);
-
+            _health = 1;
         }
         public float DistanceTo(Vector2 destination)
         {
@@ -54,7 +56,6 @@ namespace Keeno
         public virtual void TakeAHit()
         {
             _health--;
-
         }
 
         public virtual void Update(GameTime gt)
@@ -69,8 +70,6 @@ namespace Keeno
             if (_isSelected )
                 sb.Draw(_txr, _rect, _selectedTileSrcRect, Tint);
             sb.Draw(_txr, _rect, _srcRect, Tint);
-            
-
         }
 
         /// <summary>
@@ -82,10 +81,49 @@ namespace Keeno
             _isSelected = true;
             //Tint = Color.Red;
         }
-
     }
 
-    class Tree : WorldObject
+    class WorkStation : WorldObject
+    {
+        protected List<Keeno> _workers;
+        protected int _workerSlots;
+
+        public WorkStation(
+            Texture2D texture,
+            Rectangle bounds,
+            Rectangle sourceRect,
+            int tilesetColumns,
+            int tileWidth,
+            int tileHeight,
+            Texture2D testPixel
+        ) : base(texture, bounds, sourceRect, tilesetColumns, tileWidth, tileHeight, testPixel)
+        {
+            _workers = new List<Keeno>();
+            _workerSlots = 5;
+            _health = 5;
+        }
+
+        public override void OnInteract()
+        {
+            Console.WriteLine("WorkStation interacted with!");
+        }
+        public virtual void ReduceWorkerSlots()
+        {
+            if (_workerSlots > 0)
+                _workerSlots--;
+        }
+        public virtual void IncreaseWorkerSlots()
+        {
+            _workerSlots++;
+        }
+        public virtual void TakeWorker(Keeno worker)
+        {
+            _workers.Add(worker);
+        }
+    }
+
+
+    class Tree : WorkStation
     {
         private HourGlass _hourglass;
         private ButtonPrompt _buttonPrompt_E;
@@ -98,9 +136,16 @@ namespace Keeno
         private bool _canChop;
 
 
-        public Tree(Texture2D tileset, int tileWidth, int tileHeight,
-            int tilesetColumns, Point tilePosition, Texture2D choppedTree, Texture2D testpixel, Texture2D monochromaticTileset, Texture2D buttonsTileset)
-            : base(
+        public Tree(Texture2D tileset,
+            int tileWidth,
+            int tileHeight,
+            int tilesetColumns,
+            Point tilePosition,
+            Texture2D choppedTree, 
+            Texture2D testpixel, 
+            Texture2D monochromaticTileset,
+            Texture2D buttonsTileset
+            ): base(
                 tileset,
                 // world‐space bounds: tilePosition * tileSize
                 new Rectangle(tilePosition.X * tileWidth,
@@ -120,6 +165,8 @@ namespace Keeno
             _canTakeHit = false;
             _isChopped = false;
             _health = Globals.TreeHealth;
+            _workerSlots = 5;
+
 
             _tileHeight = tileHeight;
             _tileWidth = tileWidth;
@@ -139,7 +186,7 @@ namespace Keeno
                 _tilePosition.Y - _tileHeight,
                 _tileWidth,
                 _tileHeight), Globals.InputsTilesetIndex_E);
-
+            
         }
 
         public override void Selected()

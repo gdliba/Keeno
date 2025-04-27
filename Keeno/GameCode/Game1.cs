@@ -47,7 +47,8 @@ namespace Keeno
 
         HourGlass testHourGlass;
 
-
+        //Camera
+        Camera camera;
 
         // Keyboard
         //KeyboardState kb_curr;
@@ -93,6 +94,9 @@ namespace Keeno
 
 
             currentGameState = GameState.Start;
+            camera.Position = Vector2.Zero;
+            camera.Zoom = 8;
+
 
             #region List Initialisations
             keenos = new List<Keeno>();
@@ -164,11 +168,13 @@ namespace Keeno
         protected override void Draw(GameTime gt)
         {
             // screen scaling
-            GraphicsDevice.SetRenderTarget(_renderTarget);
+            //GraphicsDevice.SetRenderTarget(_renderTarget);
 
             GraphicsDevice.Clear(Color.Black);
 
-            _spriteBatch.Begin();
+            //_spriteBatch.Begin();
+            _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, camera.getCam());
+
 
             switch (currentGameState)
             {
@@ -186,11 +192,11 @@ namespace Keeno
             _spriteBatch.End();
 
 
-            // Completing Scale effect on the screen
-            GraphicsDevice.SetRenderTarget(null);
-            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-            _spriteBatch.Draw(_renderTarget, GraphicsDevice.Viewport.Bounds, null, Color.White, 0, Vector2.Zero, SpriteEffects.None, 1);
-            _spriteBatch.End();
+            //Completing Scale effect on the screen
+            //GraphicsDevice.SetRenderTarget(null);
+            //_spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            //_spriteBatch.Draw(_renderTarget, GraphicsDevice.Viewport.Bounds, null, Color.White, 0, Vector2.Zero, SpriteEffects.None, 1);
+            //_spriteBatch.End();
 
             base.Draw(gt);
         }
@@ -333,12 +339,15 @@ namespace Keeno
                 int x = Globals.RNG.Next(0, _renderTarget.Width);
                 int y = Globals.RNG.Next(0, _renderTarget.Height);
 
-                var newKeeno = new Keeno(keenoTexture,4,new Rectangle(x,y,16,16),debugPixel);
+                var newKeeno = new Keeno(keenoTexture,5,new Rectangle(x,y,16,16),debugPixel);
                 keenos.Add(newKeeno);
             }
 
 
             testHourGlass.Update(Globals.Q_KeyDown);
+            camera.Position.X = (-testPlayer.Bounds.X + _graphics.PreferredBackBufferWidth / (2 * camera.Zoom));
+            camera.Position.Y = (-testPlayer.Bounds.Y + _graphics.PreferredBackBufferHeight / (2 * camera.Zoom));
+
 
 
         }
@@ -376,8 +385,6 @@ namespace Keeno
                 + "\nKeenos: " + keenos.Count,
                 new Vector2(10, 10), Color.White);
 #endif
-
-
         }
 
         private void PlayingDraw()

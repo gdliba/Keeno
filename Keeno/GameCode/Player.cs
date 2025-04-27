@@ -90,9 +90,9 @@ namespace Keeno
         {
             // Player - movement
             if (_map.IsWalkable(HandleInput()))
-                MoveMe(Direction);
+                MoveInDirection(Direction);
             else
-                MoveMe(Vector2.Zero);
+                MoveInDirection(Vector2.Zero);
         }
         private void Player_Object_Interaction()
         {
@@ -111,6 +111,14 @@ namespace Keeno
                 sortedList[0].Selected();
                 if (Globals.E_KeyDown)
                     sortedList[0].OnInteract();
+
+                // When pressing Q, if there are keenos following the player
+                // Go to that location
+                if (Globals.Q_KeyPress && _keenosFollowingPlayer.Count > 0)
+                {
+                    _keenosFollowingPlayer[0].MoveTo(sortedList[0].Position.ToPoint());
+                }
+
             }
         }
 
