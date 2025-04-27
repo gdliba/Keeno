@@ -1,6 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Reflection.Metadata;
 
 namespace Keeno
 {
@@ -106,6 +109,19 @@ namespace Keeno
             LeftClick = MsCurr.LeftButton == ButtonState.Pressed && MsOld.LeftButton == ButtonState.Released;
             RightClick = MsCurr.RightButton == ButtonState.Pressed && MsOld.RightButton == ButtonState.Released;
             MiddleClick = MsCurr.MiddleButton == ButtonState.Pressed && MsOld.MiddleButton == ButtonState.Released;
+        }
+    }
+    static class Assets
+    {
+        public static Texture2D KeenoTxr {  get; private set; }
+        public static Texture2D DebugPixel { get; private set; }
+
+
+
+        public static void Load(ContentManager content)
+        {
+            KeenoTxr = content.Load<Texture2D>("Characters\\Keeno");
+            DebugPixel = content.Load<Texture2D>("Pixel");
         }
     }
 }

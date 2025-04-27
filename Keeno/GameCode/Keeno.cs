@@ -239,7 +239,7 @@ namespace Keeno
         private KeenoState _state;
         public KeenoState State { get{  return _state; } }
 
-        public Keeno(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
+        public Keeno(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D?pixel)
             : base (spriteSheet, fps, rect, pixel)
         {
             _state = KeenoState.Idle;
@@ -254,7 +254,6 @@ namespace Keeno
 
             _facingRight = Globals.RNG.Next(2) == 0; 
         }
-
         public override void Update(GameTime gt)
         {
             //MoveMe(MoveInThisDirection(gt));

@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using System.Diagnostics;
 
 namespace Keeno
 {
@@ -26,7 +27,6 @@ namespace Keeno
 
 
         protected List<Keeno> _workers;
-        protected int _workerSlots;
 
         protected Texture2D _txr;
         protected Texture2D _testPixel;
@@ -40,7 +40,9 @@ namespace Keeno
         protected int _tileWidth;
         protected int _tileHeight;
         protected int _tilesetColumns;
+
         protected int _health;
+        protected int _workerSlots;
 
         protected bool _isSelected;
         protected bool _canDropOff;
@@ -365,6 +367,10 @@ namespace Keeno
     class TownCentre : WorldObject
     {
         private Color _tint;
+        private List<Keeno> _keenoInGame;
+        public event Action<Keeno> KeenoSpawned;
+        public List<Keeno> KeenoInGame { get { return _keenoInGame; } }
+
         public TownCentre(Texture2D tileset,
             Texture2D monochromaticTileset,
             int tileWidth, 
@@ -388,6 +394,7 @@ namespace Keeno
                   tileHeight), tilesetColumns, tileWidth, tileHeight, monochromaticTileset, testpixel
               )
         {
+            _keenoInGame = new List<Keeno>();
             _impassable = true;
             _canUse = false;
             _state = ObjectState.Default;
@@ -424,11 +431,15 @@ namespace Keeno
             if (_canUse)
             {
                 SpawnKeeno();
+                _HGInteract.Reset();
             }
         }
         private void SpawnKeeno()
         {
-
+            var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(_tilePosition.X, _tilePosition.Y, 16, 16), Assets.DebugPixel);
+            _keenoInGame.Add(newKeeno);
+            Debug.WriteLine("Spawning Keeno: firing event");
+            KeenoSpawned?.Invoke(newKeeno);
         }
         public override void Draw(SpriteBatch sb)
         {

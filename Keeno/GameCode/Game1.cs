@@ -114,6 +114,11 @@ namespace Keeno
                 _graphics.PreferredBackBufferWidth/4, _graphics.PreferredBackBufferHeight/4);
 
 
+            Assets.Load(this.Content);
+
+
+
+
             debugPixel = Content.Load<Texture2D>("Pixel");
 
             //testSwarmPoint = new StaticSwarmPoint(Content.Load<Texture2D>("SpriteSheets\\color_t")
@@ -141,6 +146,14 @@ namespace Keeno
                 debugPixel, testMap, keenos);
 
             testHourGlass = new HourGlass(tilesetTxr, new Rectangle(50, 50, 16, 16));
+
+            // TODO: FIND OUT
+            // Does this update according to the number of TCS???
+            foreach (var townCentre in testMap.WorldObjects.OfType<TownCentre>())
+            {
+                townCentre.KeenoSpawned += keeno => keenos.Add(keeno);
+                Debug.WriteLine("Subscribed to KeenoSpawned on TownCentre");
+            }
         }
 
         protected override void Update(GameTime gt)
@@ -210,127 +223,21 @@ namespace Keeno
             {
                 keeno.Update(gt);
             }
-            #region Old Code
-            // PLAYER - WorldObject INTERACTION
-            //if (kb_curr.IsKeyDown(Keys.E))
-            //{
-            //    for(var i = 0; i < testMap.WorldObjects.Count; i++)
-            //    {
-            //        if (testPlayer.Bounds.Intersects(testMap.WorldObjects[i].Bounds))
-            //        {
-            //            testMap.WorldObjects[i].OnInteract();
-            //        }
-            //    }
-            //}
 
-            // Clear the List of worldObjects that the are in range with the player
-            //objectsNearPlayer.Clear();
-            //for (var i = 0; i < testMap.WorldObjects.Count; i++)
-            //{
-            //    if (testPlayer.InteractionRange.Intersects(testMap.WorldObjects[i].Bounds))
-            //    {
-            //        objectsNearPlayer.Add(testMap.WorldObjects[i]);
-            //    }
-            //}
-            //if (player_objectDistances.Count > 0)
-            //{
-            //    Debug.WriteLine($"Sorting prox: {player_objectDistances.Count}");
-            //    foreach (var i in player_objectDistances)
-            //        Debug.WriteLine(i.DistanceTo(testPlayer.Position).ToString());
-            //}
-
-            // Sort the list
-            //var sortedList = objectsNearPlayer.OrderBy(x => x.DistanceTo(testPlayer.Position)).ToList();
-
-            //if (sortedList.Count > 0)
-            //{
-            //    Debug.WriteLine($"Now prox: {sortedList.Count}");
-            //    foreach (var i in sortedList)
-            //        Debug.WriteLine(i.DistanceTo(testPlayer.Position).ToString());
-            //}
-
-            //if (sortedList.Count > 0)
-            //{
-            //    sortedList[0].Selected();
-            //    if (kb_curr.IsKeyDown(Keys.E))
-            //        sortedList[0].OnInteract();
-            //}
-
-            //// Player - movement
-            //if (testMap.IsWalkable(testPlayer.HandleInput()))
-            //{
-            //    testPlayer.MoveMe(testPlayer.Direction);
-            //}
-            //else
-            //{
-            //    testPlayer.MoveMe(Vector2.Zero);
-            //}
-
-
-            //keenosNearPlayer.Clear();
-            //for (var i = 0; i < keenos.Count; i++) 
-            //{
-            //    if (testPlayer.InteractionRange.Intersects(keenos[i].Bounds))
-            //        keenosNearPlayer.Add(keenos[i]);
-            //}
-            //var sortedKeenoList = keenosNearPlayer.OrderBy(x => x.DistanceTo(testPlayer.Position)).ToList();
-            //if (sortedKeenoList.Count > 0)
-            //{
-            //    sortedKeenoList[0].Selected();
-            //    if (kb_curr.IsKeyDown(Keys.Q))
-            //    {
-            //        Vector2 distanceToPlayer = new Vector2(testPlayer.Position.X - sortedKeenoList[0].Position.X, testPlayer.Position.Y - sortedKeenoList[0].Position.Y);
-            //        distanceToPlayer.Normalize();
-            //        sortedKeenoList[0].MoveMe(distanceToPlayer);
-            //    }
-            //}
-
-
-
-            // Loop through the list of WoldObjects
+            // TownCentre - Spawning Keeno
             //for (int i = 0; i < testMap.WorldObjects.Count; i++)
             //{
-            //    // If the player's next movement would intersect with the Object's bounds
-            //    if (testPlayer._targetDestinationBounds.Intersects(testMap.WorldObjects[i].Bounds))
-            //    {
-            //        testMap.WorldObjects[i].Tint = Color.Red;
-            //        testPlayer.MoveMe(Vector2.Zero);
-
-            //    }
-            //    else
-            //    {
-            //        testPlayer.MoveMe(testPlayer.HandleInput());
-            //    }
-
+            //    for (int j = 0; j < testMap.WorldObjects[i].KeenoInGame.Count; j++)
+            //        keenos.Add(testMap.WorldObjects[i].KeenoInGame[j]);
             //}
-
-            //     list = list.OrderBy(x => x.AVC ? 0 : 1)
-            //.ToList();
-
-
-
-            //for (var j = 0; j < keenos.Count; j++)
+            //foreach (var townCentre in testMap.WorldObjects.OfType<TownCentre>())
             //{
-            //    for (var i = 0; i < testMap.WorldObjects.Count; i++)
+            //    foreach (var k in townCentre.KeenoInGame)
             //    {
-            //        if (keenos[j].Bounds.Intersects(testMap.WorldObjects[i].Bounds))
-            //        {
-            //            testMap.WorldObjects[i].OnInteract();
-
-            //            //if (testMap.WorldObjects[i] is Tree)
-            //            //{
-            //            //    var treeObject = (Tree)testMap.WorldObjects[i];
-
-
-            //            //}
-            //        }
+            //        keenos.Add(k);
             //    }
             //}
-            //for (var j = 0; j < keenos.Count; j++)
-            //{
-            //    keenos[j].
-            //}
-            #endregion
+
             testPlayer.Update(gt);
 
             // temp testing code
