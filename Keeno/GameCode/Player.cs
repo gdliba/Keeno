@@ -9,13 +9,17 @@ namespace Keeno
     class Player : MobileSwarmPoint
     {
         private Map _map;
+
         private Rectangle _interactionRange;
+
         private readonly List<Keeno> _keenos;
         private readonly List<Keeno> _keenosNearPlayer;
-        private readonly List<Keeno> _keenosFollowingPlayer;
+        private readonly List<Keeno> _followers;
 
         private readonly List<WorldObject> _worldObjects;
         private readonly List<WorldObject> _objectsNearPlayer;
+
+        private float _workSpeed;
 
         public Rectangle InteractionRange { get { return _interactionRange; } }
 
@@ -33,7 +37,8 @@ namespace Keeno
 
             _keenos = keenos;
             _keenosNearPlayer = new List<Keeno>();
-            _keenosFollowingPlayer = new List<Keeno>();
+            _followers = new List<Keeno>();
+            _workSpeed = .02f;
 
         }
         public override void Update(GameTime gt)
@@ -77,11 +82,11 @@ namespace Keeno
                 if (Globals.Q_KeyPress)                     // if the relevant key is pressed
                 {
                     sortedKeenoList[0].SwitchToFollowing(); // Switch the closest keeno's state to "Following"
-                    _keenosFollowingPlayer.Add(sortedKeenoList[0]); // add it to the list of followers
+                    _followers.Add(sortedKeenoList[0]); // add it to the list of followers
                 }
             }
             // tell all followers to follow the player
-            foreach (var keeno in _keenosFollowingPlayer)
+            foreach (var keeno in _followers)
             {
                 keeno.FollowPlayer(_position.ToPoint());
             }
@@ -108,15 +113,16 @@ namespace Keeno
 
             if (sortedList.Count > 0)
             {
-                sortedList[0].Selected();
+                sortedList[0].Selected(_followers.Count > 0, _workSpeed, Globals.DropOffKeenoSpeed);
                 if (Globals.E_KeyDown)
                     sortedList[0].OnInteract();
 
                 // When pressing Q, if there are keenos following the player
                 // Go to that location
-                if (Globals.Q_KeyPress && _keenosFollowingPlayer.Count > 0)
+                if (_followers.Count > 0 && Globals.Q_KeyDown)
                 {
-                    _keenosFollowingPlayer[0].MoveTo(sortedList[0].Position.ToPoint());
+                    if (sortedList[0].CanDropOffWorker(_followers[0]))
+                        _followers.RemoveAt(0);
                 }
 
             }

@@ -344,7 +344,7 @@ namespace Keeno
             }
 
 
-            testHourGlass.Update(Globals.Q_KeyDown);
+            //testHourGlass.Update(Globals.Q_KeyDown);
             camera.Position.X = (-testPlayer.Bounds.X + _graphics.PreferredBackBufferWidth / (2 * camera.Zoom));
             camera.Position.Y = (-testPlayer.Bounds.Y + _graphics.PreferredBackBufferHeight / (2 * camera.Zoom));
 

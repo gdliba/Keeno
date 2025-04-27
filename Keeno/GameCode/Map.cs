@@ -8,7 +8,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Keeno
 {
-    public class Map
+    class Map
     {
 
         private List<WorldObject> _worldObjects;
@@ -69,7 +69,7 @@ namespace Keeno
                             AddTree(x,y, choppedTree, monochromaticTilesetTxr, inputsTileset);
                             break;
                         case Globals.TownCentreTileIndex:
-                            AddTownCentre(x,y);
+                            AddTownCentre(x,y, monochromaticTilesetTxr);
                             break;
                         default:
                             break;
@@ -133,9 +133,9 @@ namespace Keeno
 
             _mapData[y, x] = Globals.OccupiedTileIndex;
         }
-        private void AddTownCentre(int x, int y)
+        private void AddTownCentre(int x, int y, Texture2D monochromaticTileset)
         {
-            _worldObjects.Add(new TownCentre(_tileset, _tileWidth, _tileHeight,
+            _worldObjects.Add(new TownCentre(_tileset, monochromaticTileset, _tileWidth, _tileHeight,
                                 _tilesetColumns, new Point(x, y), _testPixel));
 
             _mapData[y, x] = Globals.OccupiedTileIndex;
@@ -146,6 +146,8 @@ namespace Keeno
             for (int i = 0; i < _worldObjects.Count; i++)
             {
                 _worldObjects[i].Update(gt);
+                if (_worldObjects[i].State == ObjectState.Dead)
+                    _worldObjects.RemoveAt(i);
             }
         }
 

@@ -27,9 +27,13 @@ namespace Keeno
         public static bool D_KeyDown => KeyDown(Keys.D);
         public static bool Q_KeyDown => KeyDown(Keys.Q);
         public static bool E_KeyDown => KeyDown(Keys.E);
+        public static bool X_KeyDown => KeyDown(Keys.X);
+
 
         public static bool Q_KeyPress => KeyPress(Keys.Q);
         public static bool E_KeyPress => KeyPress(Keys.E);
+        public static bool X_KeyPress => KeyPress(Keys.X);
+
 
         /// <summary>
         /// Key is newly pressed this frame.
@@ -72,16 +76,19 @@ namespace Keeno
         public const int InputsTileset_Width_Height = 16;
 
         public const int InputsTilesetIndex_E = 87;
-        public const int InputsTilesetIndex_Q = 630;
+        public const int InputsTilesetIndex_Q = 85;
+        public const int InputsTilesetIndex_X = 156;
+
         #endregion
 
         //public static Rectangle TileSelectSrcRect { get { return new Rectangle(1, 1, 1, 1); } }
 
         // Player
         public static int PlayerMovementSpeed = 50;
+        public static float DropOffKeenoSpeed = .05f;
 
         // Keeno
-        public static float KeenoMovementSpeed = 20;
+        //public static float KeenoMovementSpeed = 20;
 
         // Tree
         public static int TreeHealth = 3;

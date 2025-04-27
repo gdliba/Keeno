@@ -24,6 +24,8 @@ namespace Keeno
         protected bool _isSelected;
 
         protected float _moveSpeed;
+        protected float _workSpeed;
+
         protected int _defaultFps;
         protected int _idleFPS;
         protected int _playerLocationOffsetX;

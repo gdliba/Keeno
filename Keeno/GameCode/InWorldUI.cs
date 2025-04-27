@@ -13,6 +13,7 @@ namespace Keeno
 
         private Texture2D _spritesheet;
 
+
         public HourGlass(Texture2D Spritesheet, Rectangle rect)
             : base(rect, Spritesheet)
         {
@@ -29,20 +30,20 @@ namespace Keeno
                                Globals.Tile_Width_Height, Globals.Tile_Width_Height);
             _tint = Color.Yellow;
         }
-        public bool Update(bool input)
+        public bool Update(bool input, float deltaFill)
         {
             if (input)
-                return Increment();
+                return Increment(deltaFill);
 
-            Decrement();
+            Decrement(deltaFill);
             return false;
 
         }
-        public bool Increment()
+        public bool Increment(float deltaFill)
         {
             if (_fill < 1f)
             {
-                _fill += .01f;
+                _fill += deltaFill;
             }
             else
             {
@@ -52,11 +53,11 @@ namespace Keeno
             }
             return false;
         }
-        public void Decrement()
+        public void Decrement(float deltaFill)
         {
             if (_fill > 0 && _fill < 1f)
             {
-                _fill -= .01f;
+                _fill -= deltaFill;
             }
             else if (_fill <= 0)
             {
