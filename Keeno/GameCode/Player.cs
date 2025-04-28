@@ -101,6 +101,7 @@ namespace Keeno
         }
         private void Player_Object_Interaction()
         {
+            #region Sort By Distance
             // Clear the List of worldObjects that the are in range with the player
             _objectsNearPlayer.Clear();
             for (var i = 0; i < _map.WorldObjects.Count; i++)
@@ -110,10 +111,12 @@ namespace Keeno
             }
             // Sort the list
             var sortedList = _objectsNearPlayer.OrderBy(x => x.DistanceTo(Position)).ToList();
-
+            #endregion
             if (sortedList.Count > 0)
             {
-                sortedList[0].Selected(_followers.Count > 0, _workSpeed, Globals.DropOffKeenoSpeed);
+                // Call the Selected method of the closest World Object
+                sortedList[0].Selected(_followers.Count > 0,
+                    _workSpeed, Globals.DropOffKeenoSpeed);
                 if (Globals.E_KeyDown)
                     sortedList[0].OnInteract();
 

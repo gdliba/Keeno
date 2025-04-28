@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection.Metadata;
 
 namespace Keeno
@@ -122,6 +124,81 @@ namespace Keeno
         {
             KeenoTxr = content.Load<Texture2D>("Characters\\Keeno");
             DebugPixel = content.Load<Texture2D>("Pixel");
+        }
+    }
+    public enum ResourceType
+    {
+        Gold,
+        Wood,
+        Stone,
+        Food
+    }
+
+    static class ResourceTracker
+    {
+        // Store resource Type and Amount
+        private static readonly Dictionary<ResourceType, int> _amounts;
+
+        // fired whenever any resource changes
+        public static event Action<ResourceType, int> ResourceChanged;
+
+
+        static ResourceTracker()
+        {
+            _amounts = Enum
+                .GetValues<ResourceType>()
+                .ToDictionary(rt => rt, rt => 0);
+        }
+
+        /// <summary>
+        /// Returns the current amount of the given resource.
+        /// </summary>
+        public static int GetAmount(ResourceType type)
+            => _amounts[type];
+
+        /// <summary>
+        /// Increases the given resource by a positive amount.
+        /// </summary>
+        public static void Add(ResourceType type, int amount)
+        {
+            // debugging
+            //if (amount <= 0)
+            //    throw new ArgumentException(
+            //        "Must add a positive amount", nameof(amount));
+
+            _amounts[type] += amount;
+            ResourceChanged?.Invoke(type, _amounts[type]);
+        }
+
+        /// <summary>
+        /// Tries to spend (subtract) the given cost from the specified resource.
+        /// Returns true if successful, false if insufficient funds.
+        /// </summary>
+        public static bool TrySpend(ResourceType type, int cost)
+        {
+            // debugging
+            //if (cost <= 0)
+            //    throw new ArgumentException(
+            //        "Cost must be positive", nameof(cost));
+
+            if (_amounts[type] < cost)
+                return false;
+
+            _amounts[type] -= cost;
+            ResourceChanged?.Invoke(type, _amounts[type]);
+            return true;
+        }
+
+        /// <summary>
+        /// Resets all resources back to zero.
+        /// </summary>
+        public static void Reset()
+        {
+            foreach (var key in _amounts.Keys.ToList())
+            {
+                _amounts[key] = 0;
+                ResourceChanged?.Invoke(key, 0);
+            }
         }
     }
 }

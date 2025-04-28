@@ -255,8 +255,9 @@ namespace Keeno
             camera.Position.X = (-testPlayer.Bounds.X + _graphics.PreferredBackBufferWidth / (2 * camera.Zoom));
             camera.Position.Y = (-testPlayer.Bounds.Y + _graphics.PreferredBackBufferHeight / (2 * camera.Zoom));
 
-
-
+            // Testing ResourceTracker
+            //if (Globals.Q_KeyPress)
+            //    ResourceTracker.Add(ResourceType.Wood, 10);
         }
 
         private void PlayingUpdate()
@@ -288,8 +289,10 @@ namespace Keeno
 
             testPlayer.Draw(_spriteBatch);
 #if DEBUG
-            _spriteBatch.DrawString(debugFont, _renderTarget.Width + "x " + _renderTarget.Height
-                + "\nKeenos: " + keenos.Count,
+            _spriteBatch.DrawString(debugFont, 
+                _renderTarget.Width + "x " + _renderTarget.Height
+                + "\nKeenos: " + keenos.Count 
+                + "\nWood: " + ResourceTracker.GetAmount(ResourceType.Wood),
                 new Vector2(10, 10), Color.White);
 #endif
         }
