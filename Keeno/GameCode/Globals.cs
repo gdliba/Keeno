@@ -97,6 +97,7 @@ namespace Keeno
 
         // Tree
         public static int TreeHealth = 10;
+        public static int TreeWoodAmount = 1;
 
         // Layer Depths
         public static float ButtonPromptLD = .09f;

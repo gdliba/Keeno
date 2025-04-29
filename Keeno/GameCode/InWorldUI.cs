@@ -22,6 +22,8 @@ namespace Keeno
             _fill = 0f;
 
             _rect = rect;
+            _rect.X = rect.X - 1;
+            _rect.Width = rect.Width+1;
             _spritesheet = Spritesheet;
 
             _emptySrcRect = new Rectangle(Globals.EmptyHourGlassIndex % Globals.TilemapColumns * Globals.Tile_Width_Height,

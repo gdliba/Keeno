@@ -290,7 +290,7 @@ namespace Keeno
             _resourceType = ResourceType.Wood;
             _workerSlots = 3;
             _destroySpeed = .01f;
-            _resourceAmount = 10;
+            _resourceAmount = Globals.TreeWoodAmount;
             _health = Globals.TreeHealth;
             _canChop = false;
             _canHarvestResource = false;
@@ -329,7 +329,7 @@ namespace Keeno
                 new Rectangle(_tilePosition.X + _tileWidth / 2,
                 _tilePosition.Y - _tileHeight,
                 _tileWidth,
-                _tileHeight), Color.White);
+                _tileHeight), Color.Yellow);
 
             _HGDropOff = new HourGlass(Assets.MonochromaticTilesetTxr,
                 new Rectangle(_tilePosition.X - _tileWidth / 2,
@@ -386,8 +386,7 @@ namespace Keeno
             if (!_isChopped)
             {
                 if (_canHarvestResource)
-                    HarvestResource(ResourceType.Wood,10);
-                // play chop animation / sound
+                    HarvestResource(ResourceType.Wood, _resourceAmount);
             }
         }
         public override void HarvestResource(ResourceType type, int amount)
