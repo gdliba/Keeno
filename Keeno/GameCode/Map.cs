@@ -71,6 +71,12 @@ namespace Keeno
                         case Globals.TownCentreTileIndex:
                             AddTownCentre(x,y);
                             break;
+                        case Globals.FarmTileIndex1:
+                            AddFarm(x,y);
+                            break;
+                        case Globals.FarmTileIndex2:
+                                AddFarm(x,y);
+                            break;
                         default:
                             break;
                     }
@@ -129,6 +135,13 @@ namespace Keeno
         private void AddTree(int x, int y)
         {
             _worldObjects.Add(new Tree(_tileset, _tileWidth, _tileHeight,
+                                _tilesetColumns, new Point(x, y)));
+
+            _mapData[y, x] = Globals.OccupiedTileIndex;
+        }
+        private void AddFarm(int x, int y)
+        {
+            _worldObjects.Add(new Farm(_tileset, _tileWidth, _tileHeight,
                                 _tilesetColumns, new Point(x, y)));
 
             _mapData[y, x] = Globals.OccupiedTileIndex;

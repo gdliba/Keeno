@@ -144,7 +144,7 @@ namespace Keeno
             var flip = _facingRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             // Draw Player
             sb.Draw(_txr, _rect, _srcRect, _tint, 0f,
-                    Vector2.Zero, flip, 0f);
+                    Vector2.Zero, flip, .1f);
 
             // Draw test pixel
             if (_drawBounds)

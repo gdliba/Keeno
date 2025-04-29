@@ -71,6 +71,12 @@ namespace Keeno
         public const int OccupiedTileIndex = 0;
         public const int TownCentreTileIndex = 983;
         public const int TileSelectedIndex = 624;
+        public const int FarmTileIndex1 = 309;
+        public const int FarmTileIndex2 = 310;
+        public const int HarvestedFarmTileIndex = 307;
+        public const int FarmLandTileIndex = 306;
+
+
 
         // HourGlass
         public const int EmptyHourGlassIndex = 628;
@@ -98,6 +104,10 @@ namespace Keeno
         // Tree
         public static int TreeHealth = 10;
         public static int TreeWoodAmount = 1;
+
+        // Farm
+        public static int FarmHealth = 5;
+        public static int FarmFoodAmount = 1;
 
         // Layer Depths
         public static float ButtonPromptLD = .09f;
@@ -160,6 +170,8 @@ namespace Keeno
 
     static class ResourceTracker
     {
+        public const int KeenoCost = 5;
+
         // Store resource Type and Amount
         private static readonly Dictionary<ResourceType, int> _amounts;
 
@@ -210,6 +222,13 @@ namespace Keeno
 
             _amounts[type] -= cost;
             ResourceChanged?.Invoke(type, _amounts[type]);
+            return true;
+        }
+        public static bool CanSpend(ResourceType type, int cost)
+        {
+            if (_amounts[type] < cost)
+                return false;
+
             return true;
         }
 

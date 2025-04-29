@@ -34,6 +34,7 @@ namespace Keeno
         protected HourGlass _HGDropOff;
         protected HourGlass _HGDestroy;
         protected HourGlass _HGWorkProgress;
+        protected HourGlass _HGCantInteract;
 
 
 
@@ -49,6 +50,7 @@ namespace Keeno
         protected Point _tilePosition;
 
         protected float _workSpeed;
+        protected float _workDuration;
 
         protected int _tileWidth;
         protected int _tileHeight;
@@ -62,6 +64,7 @@ namespace Keeno
         protected bool _isSelected;
         protected bool _canDropOff;
         protected bool _canUse;
+        protected bool _cannotUse;
         protected bool _destroyMe;
         protected bool _impassable;
         public bool Impassable { get { return _impassable;} protected set { _impassable = value; } }
@@ -105,6 +108,7 @@ namespace Keeno
             _workers = new List<Keeno>();
             _workSpeed = 0f;
             _workerSlots = 3;
+            _workDuration = 10f;
             _health = 1;
             _resourceType = ResourceType.None;
             _resourceAmount = 0;
@@ -124,8 +128,11 @@ namespace Keeno
         {
             _isSelected = false;
 
+            float deltaTime = (float)gt.ElapsedGameTime.TotalSeconds;
+            float deltaFill = _workSpeed * (deltaTime / _workDuration);
+
             if (_state == ObjectState.Default)
-                _canHarvestResource = _HGWorkProgress.Update(true, _workSpeed);
+                _canHarvestResource = _HGWorkProgress.Update(true, deltaFill);
 
             if(_health == 0)
             {
@@ -261,7 +268,6 @@ namespace Keeno
         private Texture2D _fallenTreeTxr;
         private Texture2D _choppedTreeTxr;
 
-        private bool _isChopped;
         private bool _canChop;
 
 
@@ -294,7 +300,6 @@ namespace Keeno
             _health = Globals.TreeHealth;
             _canChop = false;
             _canHarvestResource = false;
-            _isChopped = false;
             _canDropOff = false;
             _impassable = true;
 
@@ -360,7 +365,7 @@ namespace Keeno
 
             _canHarvestResource = _HGInteract.Update(Globals.E_KeyDown, playerWorkSpeed);
 
-            if (_isChopped)
+            if (_state == ObjectState.NotHarvestable)
                 _destroyMe = _HGDestroy.Update(Globals.X_KeyDown, _destroySpeed);
             if (_destroyMe) 
                 DestroyMe();
@@ -376,14 +381,12 @@ namespace Keeno
         public override void Update(GameTime gt)
         {
             if (_state == ObjectState.NotHarvestable)
-                _isChopped = true;
-            if (_isChopped)
                 ClearWorkerList();
             base.Update(gt);
         }
         public override void OnInteract()
         {
-            if (!_isChopped)
+            if (_state != ObjectState.NotHarvestable)
             {
                 if (_canHarvestResource)
                     HarvestResource(ResourceType.Wood, _resourceAmount);
@@ -397,7 +400,7 @@ namespace Keeno
 
         public override void Draw(SpriteBatch sb)
         {
-            if (!_isChopped)
+            if (_state != ObjectState.NotHarvestable)
             {
                 base.Draw(sb);
                 if (_isSelected)
@@ -410,7 +413,7 @@ namespace Keeno
                     _buttonPrompt_Q.Draw(sb);
                 }
             }
-            else if (_isChopped)
+            else if (_state == ObjectState.NotHarvestable)
             {
                 sb.Draw(_choppedTreeTxr, _rect, Color.White);
                 if (_isSelected)
@@ -419,6 +422,169 @@ namespace Keeno
                     _HGDestroy.Draw(sb);
                 }
             }
+        }
+    }
+    class Farm : WorldObject
+    {
+        private Rectangle _farmLandSrc;
+        public Farm(Texture2D tileset,
+            int tileWidth,
+            int tileHeight,
+            int tilesetColumns,
+            Point tilePosition
+            ) : base(
+                tileset,
+                // world‐space bounds: tilePosition * tileSize
+                new Rectangle(tilePosition.X * tileWidth,
+                              tilePosition.Y * tileHeight,
+                              tileWidth,
+                              tileHeight),
+                // sourceRect inside the tileset
+                new Rectangle(
+                  (Globals.FarmTileIndex1 % tilesetColumns) * tileWidth,
+                  (Globals.FarmTileIndex1/ tilesetColumns) * tileHeight,
+                  tileWidth,
+                  tileHeight), tilesetColumns, tileWidth, tileHeight
+
+              )
+        {
+            _state = ObjectState.Default;
+            _resourceType = ResourceType.Food;
+            _workerSlots = 1;
+            _destroySpeed = .01f;
+            _resourceAmount = Globals.FarmFoodAmount;
+            _health = Globals.FarmHealth;
+            _canHarvestResource = false;
+            _canDropOff = false;
+            _impassable = false;
+
+
+            _tileHeight = tileHeight;
+            _tileWidth = tileWidth;
+            _tilePosition.X = tilePosition.X * tileWidth;
+            _tilePosition.Y = tilePosition.Y * tileHeight;
+            _tilesetColumns = tilesetColumns;
+
+            #region ButtonPrompts and HG
+            _farmLandSrc= new Rectangle(
+                  (Globals.FarmLandTileIndex % _tilesetColumns) * _tileWidth,
+                  (Globals.FarmLandTileIndex / _tilesetColumns) * _tileHeight,
+                  _tileWidth,
+                  _tileHeight);
+            _buttonPrompt_E = new ButtonPrompt(Assets.InputsTilesetTxr,
+                new Rectangle(_tilePosition.X + _tileWidth / 2,
+                _tilePosition.Y - _tileHeight,
+                _tileWidth,
+                _tileHeight), Globals.InputsTilesetIndex_E);
+
+            _buttonPrompt_Q = new ButtonPrompt(Assets.InputsTilesetTxr,
+                new Rectangle(_tilePosition.X - _tileWidth / 2,
+                _tilePosition.Y - _tileHeight,
+                _tileWidth,
+                _tileHeight), Globals.InputsTilesetIndex_Q);
+
+            _buttonPrompt_X = new ButtonPrompt(Assets.InputsTilesetTxr,
+                new Rectangle(_tilePosition.X,
+                _tilePosition.Y + _tileHeight,
+                _tileWidth,
+                _tileHeight), Globals.InputsTilesetIndex_X);
+
+            _HGInteract = new HourGlass(Assets.MonochromaticTilesetTxr,
+                new Rectangle(_tilePosition.X + _tileWidth / 2,
+                _tilePosition.Y - _tileHeight,
+                _tileWidth,
+                _tileHeight), Color.Yellow);
+
+            _HGDropOff = new HourGlass(Assets.MonochromaticTilesetTxr,
+                new Rectangle(_tilePosition.X - _tileWidth / 2,
+                _tilePosition.Y - _tileHeight,
+                _tileWidth,
+                _tileHeight), Color.White);
+
+            _HGDestroy = new HourGlass(Assets.MonochromaticTilesetTxr,
+                new Rectangle(_tilePosition.X,
+                _tilePosition.Y + _tileHeight,
+                _tileWidth,
+                _tileHeight), Color.Red);
+
+            _HGWorkProgress = new HourGlass(Assets.MonochromaticTilesetTxr,
+                new Rectangle(_tilePosition.X,
+                _tilePosition.Y,
+                tileWidth,
+                tileHeight),
+                Color.Yellow);
+            #endregion
+        }
+        public override void Selected(bool playerHasFollowers,
+     float playerWorkSpeed,
+     float dropOffSpeed)
+        {
+            base.Selected(playerHasFollowers, playerWorkSpeed, dropOffSpeed);
+
+            _canHarvestResource = _HGInteract.Update(Globals.E_KeyDown, playerWorkSpeed);
+
+            if (_state == ObjectState.NotHarvestable)
+                _destroyMe = _HGDestroy.Update(Globals.X_KeyDown, _destroySpeed);
+            if (_destroyMe)
+                DestroyMe();
+
+            // Check if player has followers
+            // And if there are available workerSlots
+            if (playerHasFollowers && _workerSlots > 0)
+            {
+                _canDropOff = _HGDropOff.Update(Globals.Q_KeyDown, dropOffSpeed);
+            }
+
+        }
+        public override void Update(GameTime gt)
+        {
+            if (_state == ObjectState.NotHarvestable)
+                ClearWorkerList();
+            base.Update(gt);
+        }
+        public override void OnInteract()
+        {
+            if (_state != ObjectState.NotHarvestable)
+            {
+                if (_canHarvestResource)
+                    HarvestResource(ResourceType.Food, _resourceAmount);
+            }
+        }
+        public override void HarvestResource(ResourceType type, int amount)
+        {
+            base.HarvestResource(type, amount);
+            _HGInteract.Reset();
+        }
+
+        public override void Draw(SpriteBatch sb)
+        {
+            if (_state != ObjectState.NotHarvestable)
+            {
+                if (_isSelected)
+                {
+                    // HourGlasses
+                    _HGInteract.Draw(sb);
+                    _HGDropOff.Draw(sb);
+                    // Input Promts
+                    _buttonPrompt_E.Draw(sb);
+                    _buttonPrompt_Q.Draw(sb);
+                }
+            }
+            else if (_state == ObjectState.NotHarvestable)
+            {
+                _srcRect = new Rectangle(
+                  (Globals.HarvestedFarmTileIndex % _tilesetColumns) * _tileWidth,
+                  (Globals.HarvestedFarmTileIndex / _tilesetColumns) * _tileHeight,
+                  _tileWidth,
+                  _tileHeight);
+                if (_isSelected)
+                {
+                    _buttonPrompt_X.Draw(sb);
+                    _HGDestroy.Draw(sb);
+                }
+            }
+            //sb.Draw(_txr, _rect, _farmLandSrc, Color.White);
+            base.Draw(sb);
         }
     }
     class TownCentre : WorldObject
@@ -470,29 +636,47 @@ namespace Keeno
                 new Rectangle(_tilePosition.X + _tileWidth / 2,
                 _tilePosition.Y - _tileHeight,
                 _tileWidth,
-                _tileHeight), Color.White);
+                _tileHeight), Color.Yellow);
+
+            _HGCantInteract = new HourGlass(Assets.MonochromaticTilesetTxr,
+                new Rectangle(_tilePosition.X + _tileWidth / 2,
+                _tilePosition.Y - _tileHeight,
+                _tileWidth,
+                _tileHeight), Color.Red);
         }
         public override void Selected(bool playerHasFollowers,
             float playerWorkSpeed,
             float dropOffSpeed)
         {
             base.Selected(playerHasFollowers, playerWorkSpeed, dropOffSpeed);
-
-            _canUse = _HGInteract.Update(Globals.E_KeyDown, playerWorkSpeed);
+            if (ResourceTracker.CanSpend(ResourceType.Food, 
+                ResourceTracker.KeenoCost))
+                _canUse = _HGInteract.Update(Globals.E_KeyDown, playerWorkSpeed);
+            else
+                _canUse = _HGCantInteract.Update(Globals.E_KeyDown, playerWorkSpeed);
+        }
+        public override void Update(GameTime gt)
+        {
+            base.Update(gt);
         }
         public override void OnInteract()
         {
             if (_canUse)
             {
-                SpawnKeeno();
-                _HGInteract.Reset();
+                if (ResourceTracker.TrySpend(ResourceType.Food,
+                ResourceTracker.KeenoCost))
+                {
+                    SpawnKeeno();
+                    _HGInteract.Reset();
+                }
+                _HGCantInteract.Reset();
             }
         }
         private void SpawnKeeno()
         {
             var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(_tilePosition.X, _tilePosition.Y, 16, 16), Assets.DebugPixelTxr);
             _keenoInGame.Add(newKeeno);
-            Debug.WriteLine("Spawning Keeno: firing event");
+            //Debug.WriteLine("Spawning Keeno: firing event");
             KeenoSpawned?.Invoke(newKeeno);
         }
         public override void Draw(SpriteBatch sb)
@@ -500,6 +684,7 @@ namespace Keeno
             base.Draw(sb);
             if (_isSelected)
             {
+                _HGCantInteract.Draw(sb);
                 _HGInteract.Draw(sb);
                 _buttonPrompt_E.Draw(sb);
             }

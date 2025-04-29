@@ -92,7 +92,7 @@ namespace Keeno
 
             currentGameState = GameState.Start;
             camera.Position = Vector2.Zero;
-            camera.Zoom = 8;
+            camera.Zoom = 6;
 
 
             #region List Initialisations
@@ -248,7 +248,9 @@ namespace Keeno
             _spriteBatch.DrawString(debugFont,
                 _renderTarget.Width + "x " + _renderTarget.Height
                 + "\nKeenos: " + keenos.Count
-                + "\nWood: " + ResourceTracker.GetAmount(ResourceType.Wood),
+                + "\nWood: " + ResourceTracker.GetAmount(ResourceType.Wood)
+                + "\nFood: " + ResourceTracker.GetAmount(ResourceType.Food),
+                
                 new Vector2(10, 10), Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);
 #endif
             _spriteBatch.End();

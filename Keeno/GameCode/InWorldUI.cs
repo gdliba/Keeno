@@ -60,7 +60,7 @@ namespace Keeno
         }
         public void Decrement(float deltaFill)
         {
-            _tint = Color.White;
+            _tint = _defaultTint;
 
             if (_fill > 0 && _fill < 1f)
             {
