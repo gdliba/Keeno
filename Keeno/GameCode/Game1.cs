@@ -34,18 +34,18 @@ namespace Keeno
         private GameState currentGameState;
 
         // Debug Pixel
-        private Texture2D debugPixel;
+        //private Texture2D debugPixel;
 
         // TESTS
-        private StaticSwarmPoint testSwarmPoint;
-        private MobileSwarmPoint testMobileSwarmPoint;
+        //private StaticSwarmPoint testSwarmPoint;
+        //private MobileSwarmPoint testMobileSwarmPoint;
         Map testMap;
-        Texture2D tilesetTxr;
-        Texture2D monochromaticTilesetTxr;
-        Texture2D inputsTilesetTxr;
+        //Texture2D tilesetTxr;
+        //Texture2D monochromaticTilesetTxr;
+        //Texture2D inputsTilesetTxr;
 
 
-        HourGlass testHourGlass;
+        //HourGlass testHourGlass;
 
         //Camera
         Camera camera;
@@ -55,16 +55,13 @@ namespace Keeno
 
         // Player
         Player testPlayer;
-        List<WorldObject> objectsNearPlayer;
-        List<Keeno> keenosNearPlayer;
 
         // Keeno
         List<Keeno> keenos;
-        Texture2D keenoTexture;
-
+        //Texture2D keenoTexture;
 
         // WorldObjects
-        Texture2D choppedTree;
+        //Texture2D choppedTree;
 
         // Fonts
 #if DEBUG
@@ -100,8 +97,6 @@ namespace Keeno
 
             #region List Initialisations
             keenos = new List<Keeno>();
-            objectsNearPlayer = new List<WorldObject>();
-            keenosNearPlayer = new List<Keeno>();
             #endregion
 
             base.Initialize();
@@ -113,39 +108,18 @@ namespace Keeno
             _renderTarget = new RenderTarget2D(_spriteBatch.GraphicsDevice,
                 _graphics.PreferredBackBufferWidth/4, _graphics.PreferredBackBufferHeight/4);
 
-
             Assets.Load(this.Content);
-
-
-
-
-            debugPixel = Content.Load<Texture2D>("Pixel");
-
-            //testSwarmPoint = new StaticSwarmPoint(Content.Load<Texture2D>("SpriteSheets\\color_t")
-            //    , 2, 19, 16, 16, new Rectangle(100, 100, 16, 16), debugPixel);
-
-            //testMobileSwarmPoint = new MobileSwarmPoint(Content.Load<Texture2D>("Characters\\Keeno"), 3, new Rectangle(200, 200, 16, 16), debugPixel);
-
-
-            // Keeno
-            keenoTexture = Content.Load<Texture2D>("Characters\\Keeno");
-
-            // World Objects
-            choppedTree = Content.Load<Texture2D>("WorldObjects\\Flora\\choppedTree2");
 
             // Fonts
 #if DEBUG
             debugFont = Content.Load<SpriteFont>("Fonts\\debugFont");
 #endif
-            tilesetTxr = Content.Load<Texture2D>("SpriteSheets\\color_t");
-            monochromaticTilesetTxr = Content.Load<Texture2D>("SpriteSheets\\mono_t");
-            inputsTilesetTxr = Content.Load<Texture2D>("SpriteSheets\\inputs_t");
 
-            testMap = new Map("Content/MapData/testLevel_Map.csv", tilesetTxr, monochromaticTilesetTxr, inputsTilesetTxr, 16, 16, 49, choppedTree, debugPixel);
+            testMap = new Map("Content/MapData/testLevel_Map.csv", Assets.TilesetTxr, Assets.MonochromaticTilesetTxr, Assets.InputsTilesetTxr, 16, 16, 49, Assets.ChoppedTreeTxr, Assets.DebugPixelTxr);
             testPlayer = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(200, 200, 16, 16),
-                debugPixel, testMap, keenos);
+                Assets.DebugPixelTxr, testMap, keenos);
 
-            testHourGlass = new HourGlass(tilesetTxr, new Rectangle(50, 50, 16, 16));
+            //testHourGlass = new HourGlass(tilesetTxr, new Rectangle(50, 50, 16, 16));
 
             // TODO: FIND OUT
             // Does this update according to the number of TCS???
@@ -186,7 +160,6 @@ namespace Keeno
             GraphicsDevice.Clear(Color.Black);
 
             //_spriteBatch.Begin();
-            _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, camera.getCam());
 
 
             switch (currentGameState)
@@ -202,8 +175,9 @@ namespace Keeno
                     break;
             }
 
-            _spriteBatch.End();
-
+            //_spriteBatch.End();
+            //_spriteBatch.Begin();
+            //_spriteBatch.End();
 
             //Completing Scale effect on the screen
             //GraphicsDevice.SetRenderTarget(null);
@@ -224,20 +198,6 @@ namespace Keeno
                 keeno.Update(gt);
             }
 
-            // TownCentre - Spawning Keeno
-            //for (int i = 0; i < testMap.WorldObjects.Count; i++)
-            //{
-            //    for (int j = 0; j < testMap.WorldObjects[i].KeenoInGame.Count; j++)
-            //        keenos.Add(testMap.WorldObjects[i].KeenoInGame[j]);
-            //}
-            //foreach (var townCentre in testMap.WorldObjects.OfType<TownCentre>())
-            //{
-            //    foreach (var k in townCentre.KeenoInGame)
-            //    {
-            //        keenos.Add(k);
-            //    }
-            //}
-
             testPlayer.Update(gt);
 
             // temp testing code
@@ -246,12 +206,10 @@ namespace Keeno
                 int x = Globals.RNG.Next(0, _renderTarget.Width);
                 int y = Globals.RNG.Next(0, _renderTarget.Height);
 
-                var newKeeno = new Keeno(keenoTexture,5,new Rectangle(x,y,16,16),debugPixel);
+                var newKeeno = new Keeno(Assets.KeenoTxr,5,new Rectangle(x,y,16,16),Assets.DebugPixelTxr);
                 keenos.Add(newKeeno);
             }
 
-
-            //testHourGlass.Update(Globals.Q_KeyDown);
             camera.Position.X = (-testPlayer.Bounds.X + _graphics.PreferredBackBufferWidth / (2 * camera.Zoom));
             camera.Position.Y = (-testPlayer.Bounds.Y + _graphics.PreferredBackBufferHeight / (2 * camera.Zoom));
 
@@ -273,6 +231,7 @@ namespace Keeno
         #region STATE DRAWS
         private void StartDraw(GameTime gt)
         {
+            _spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, camera.getCam());
 
             // TEST MAP
             testMap.Draw(_spriteBatch);
@@ -282,19 +241,17 @@ namespace Keeno
             {
                 keeno.Draw(_spriteBatch);
             }
-
-            testHourGlass.Draw(_spriteBatch);
-
-
-
             testPlayer.Draw(_spriteBatch);
+            _spriteBatch.End();
+            _spriteBatch.Begin();
 #if DEBUG
-            _spriteBatch.DrawString(debugFont, 
+            _spriteBatch.DrawString(debugFont,
                 _renderTarget.Width + "x " + _renderTarget.Height
-                + "\nKeenos: " + keenos.Count 
+                + "\nKeenos: " + keenos.Count
                 + "\nWood: " + ResourceTracker.GetAmount(ResourceType.Wood),
-                new Vector2(10, 10), Color.White);
+                new Vector2(10, 10), Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);
 #endif
+            _spriteBatch.End();
         }
 
         private void PlayingDraw()

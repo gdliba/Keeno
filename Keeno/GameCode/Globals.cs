@@ -96,7 +96,19 @@ namespace Keeno
         //public static float KeenoMovementSpeed = 20;
 
         // Tree
-        public static int TreeHealth = 3;
+        public static int TreeHealth = 10;
+
+        // Layer Depths
+        public static float ButtonPromptLD = .09f;
+        public static float HourGlassLD = .085f;
+        public static float KeenoLD = .081f;
+        public static float SelectedTxrLD = .08f;
+        public static float WolrdObjectLD = .01f;
+        public static float MapLD = 0f;
+
+
+
+
 
         public static void Update(GameTime gt)
         {
@@ -116,21 +128,32 @@ namespace Keeno
     static class Assets
     {
         public static Texture2D KeenoTxr {  get; private set; }
-        public static Texture2D DebugPixel { get; private set; }
-
+        public static Texture2D DebugPixelTxr { get; private set; }
+        public static Texture2D TilesetTxr { get; private set; }
+        public static Texture2D MonochromaticTilesetTxr { get; private set; }
+        public static Texture2D InputsTilesetTxr { get; private set; }
+        public static Texture2D ChoppedTreeTxr {  get; private set; }
 
 
         public static void Load(ContentManager content)
         {
             KeenoTxr = content.Load<Texture2D>("Characters\\Keeno");
-            DebugPixel = content.Load<Texture2D>("Pixel");
+
+            DebugPixelTxr = content.Load<Texture2D>("Pixel");
+
+            // TileSets
+            TilesetTxr = content.Load<Texture2D>("SpriteSheets\\color_t");
+            MonochromaticTilesetTxr = content.Load<Texture2D>("SpriteSheets\\mono_t");
+            InputsTilesetTxr = content.Load<Texture2D>("SpriteSheets\\inputs_t");
+
+            ChoppedTreeTxr = content.Load<Texture2D>("WorldObjects\\Flora\\choppedTree2");
         }
     }
     public enum ResourceType
     {
+        None,
         Gold,
         Wood,
-        Stone,
         Food
     }
 

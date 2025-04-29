@@ -42,7 +42,6 @@ namespace Keeno
 
         // test related
         protected Texture2D _testPixel;
-        protected Rectangle _testRectangle;
 
         public AnimatedKeeno2D(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
             : base(spriteSheet, fps, rect)
@@ -55,7 +54,6 @@ namespace Keeno
 
             // test related
             _testPixel = pixel;
-            _testRectangle = rect;
             _drawBounds = false;
             _targetDestinationBounds = _rect;
 
@@ -82,9 +80,6 @@ namespace Keeno
             AnimateKeeno(gt);
             _position += _velocity * (float)gt.ElapsedGameTime.TotalSeconds;
             _rect.Location = _position.ToPoint();
-
-            // Debug Pixel related
-            _testRectangle.Location = _rect.Location;
 
             _isSelected = false;
 
@@ -202,6 +197,10 @@ namespace Keeno
         {
             return (destination - _position).Length();
         }
+        public virtual float GetWorkSpeed()
+        {
+            return _workSpeed;
+        }
         public override void Draw(SpriteBatch sb)
         {
             // Make sure the rectangle moves and is drawn in the right position
@@ -222,19 +221,22 @@ namespace Keeno
             else
                 _tint = _defaultTint;
             sb.Draw(_txr, _rect, _srcRect, _tint, 0f,
-                    Vector2.Zero, flip, 0f);
+                    Vector2.Zero, flip, Globals.KeenoLD);
         }
     }
     public enum KeenoState
     {
         Idle,
         Following,
+        Working,
+        Dying,
         Dead
     }
 
     class Keeno : AnimatedKeeno2D
     {
         private float _moveTimer;
+        private float _idleTimer;
         private float _moveTimerReset;
         private KeenoState _state;
         public KeenoState State { get{  return _state; } }
@@ -244,6 +246,7 @@ namespace Keeno
         {
             _state = KeenoState.Idle;
             _moveTimer = 3;
+            _idleTimer = 3;
             _moveTimerReset = _moveTimer;
             _drawBounds = false;
 
@@ -252,7 +255,9 @@ namespace Keeno
 
             _moveSpeed = Globals.RNG.Next(15, 26) + (float)Globals.RNG.NextDouble();
 
-            _facingRight = Globals.RNG.Next(2) == 0; 
+            _facingRight = Globals.RNG.Next(2) == 0;
+
+            _workSpeed = .001f;
         }
         public override void Update(GameTime gt)
         {
@@ -260,17 +265,18 @@ namespace Keeno
             //if(destination!=_position.ToPoint())
             //    MoveTo(destination);
 
-            //switch (_state)
-            //{
-            //    case KeenoState.Idle:
-            //        break;
-            //    case KeenoState.Following:
-            //        break;
-            //    case KeenoState.Dead:
-            //        break;
-            //}
-
+            switch (_state)
+            {
+                case KeenoState.Idle:
+                    MoveInDirection(IdleAndMove(gt));
+                    break;
+                case KeenoState.Following:
+                    break;
+                case KeenoState.Dead:
+                    break;
+            }
             base.Update(gt);
+
         }
         public virtual void FollowPlayer(Point destination)
         {
@@ -278,18 +284,32 @@ namespace Keeno
             destination.Y += _playerLocationOffsetY;
             MoveTo(destination);
         }
-        public Vector2 UseRandomDirection(GameTime gt)
+        public Vector2 IdleAndMove(GameTime gt)
         {
-            if (_moveTimer >= 0)
+            float deltaTime = (float)gt.ElapsedGameTime.TotalSeconds;
+
+            if (_moveTimer > 0)
             {
-                _moveTimer -= (float)gt.ElapsedGameTime.TotalSeconds;
+                // Movement phase
+                _moveTimer -= deltaTime;
+                return _direction;
+            }
+            else if (_idleTimer > 0)
+            {
+                // Idle phase
+                _idleTimer -= deltaTime;
+                return Vector2.Zero;
             }
             else
             {
+                // Transition: reset timers and pick a new direction
                 RollRandomDirection();
+
                 _moveTimer = _moveTimerReset;
+                _idleTimer = _moveTimerReset;
+
+                return _direction;
             }
-            return _direction;
         }
         public void RollRandomDirection()
         {
@@ -298,6 +318,14 @@ namespace Keeno
         public void SwitchToFollowing()
         {
             _state = KeenoState.Following;
+        }
+        public void SwitchToWorking()
+        {
+            _state = KeenoState.Working;
+        }
+        public void SwitchToIdle()
+        {
+            _state = KeenoState.Idle;
         }
         public void Selected()
         {

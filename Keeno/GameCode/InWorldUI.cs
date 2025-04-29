@@ -7,6 +7,8 @@ namespace Keeno
     {
         private float _fill;
         private Color _tint;
+        private Color _defaultTint;
+
 
         private Rectangle _emptySrcRect;
         private Rectangle _fullSrcRect;
@@ -14,7 +16,7 @@ namespace Keeno
         private Texture2D _spritesheet;
 
 
-        public HourGlass(Texture2D Spritesheet, Rectangle rect)
+        public HourGlass(Texture2D Spritesheet, Rectangle rect, Color tint)
             : base(rect, Spritesheet)
         {
             _fill = 0f;
@@ -28,7 +30,8 @@ namespace Keeno
             _fullSrcRect = new Rectangle(Globals.FullHourGlassIndex % Globals.TilemapColumns * Globals.Tile_Width_Height,
                                (Globals.FullHourGlassIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
                                Globals.Tile_Width_Height, Globals.Tile_Width_Height);
-            _tint = Color.Yellow;
+            _tint = tint;
+            _defaultTint = tint;
         }
         public bool Update(bool input, float deltaFill)
         {
@@ -41,6 +44,7 @@ namespace Keeno
         }
         public bool Increment(float deltaFill)
         {
+            _tint = _defaultTint;
             if (_fill < 1f)
             {
                 _fill += deltaFill;
@@ -48,13 +52,14 @@ namespace Keeno
             else
             {
                 _fill = 1f;
-                _tint = Color.White;
                 return true;
             }
             return false;
         }
         public void Decrement(float deltaFill)
         {
+            _tint = Color.White;
+
             if (_fill > 0 && _fill < 1f)
             {
                 _fill -= deltaFill;
@@ -66,7 +71,6 @@ namespace Keeno
             else
             {
                 _fill = 1f;
-                _tint = Color.White;
             }
 
         }
@@ -95,7 +99,7 @@ namespace Keeno
                                             _fullSrcRect.Width, yUsed);
             // Draw the "Filling"
             sb.Draw(_spritesheet, updatedDrawRect, 
-                    updatedSrcRect, _tint);
+                    updatedSrcRect, _tint, 0, Vector2.Zero, SpriteEffects.None, 0.089f);
             // Draw the "Outline"
             //sb.Draw(_spritesheet, _rect, 
             //        _emptySrcRect, Color.White);
@@ -121,7 +125,7 @@ namespace Keeno
         public override void Draw(SpriteBatch sb)
         {
             sb.Draw(_txr, new Vector2(_rect.X, _rect.Y), _staticSrcRect, 
-                Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0);
+                Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, .09f);
         }
     }
 }

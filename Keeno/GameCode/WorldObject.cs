@@ -10,12 +10,21 @@ namespace Keeno
     enum ObjectState
     {
         Default,
+        NotHarvestable,
         Dead
     }
+    //enum Resource
+    //{
+    //    None,
+    //    Gold,
+    //    Wood,
+    //    Food
+    //}
     class WorldObject
     {
         public ObjectState State { get { return _state; } protected set { _state = value; } }
         protected ObjectState _state;
+        protected ResourceType _resourceType;
 
         protected ButtonPrompt _buttonPrompt_E;
         protected ButtonPrompt _buttonPrompt_Q;
@@ -24,6 +33,8 @@ namespace Keeno
         protected HourGlass _HGInteract;
         protected HourGlass _HGDropOff;
         protected HourGlass _HGDestroy;
+        protected HourGlass _HGWorkProgress;
+
 
 
         protected List<Keeno> _workers;
@@ -37,13 +48,17 @@ namespace Keeno
 
         protected Point _tilePosition;
 
+        protected float _workSpeed;
+
         protected int _tileWidth;
         protected int _tileHeight;
         protected int _tilesetColumns;
 
         protected int _health;
         protected int _workerSlots;
+        protected int _resourceAmount;
 
+        protected bool _canHarvestResource;
         protected bool _isSelected;
         protected bool _canDropOff;
         protected bool _canUse;
@@ -63,17 +78,16 @@ namespace Keeno
             Rectangle sourceRect, 
             int tilesetColumns,
             int tileWidth, 
-            int tileHeight,
-            Texture2D monochromaticTileset,
-            Texture2D testPixel)
+            int tileHeight)
         {
             _state = ObjectState.Default;
-            _testPixel = testPixel; 
+            _testPixel = Assets.DebugPixelTxr; 
             _impassable = true;
             _isSelected = false;
             _canDropOff = false;
             _destroyMe = false;
             _canUse = false;
+            _canHarvestResource = false;
 
             _txr = texture;
             _rect = bounds;
@@ -89,42 +103,48 @@ namespace Keeno
                                 _tileWidth, _tileHeight);
 
             _workers = new List<Keeno>();
+            _workSpeed = 0f;
             _workerSlots = 3;
             _health = 1;
+            _resourceType = ResourceType.None;
+            _resourceAmount = 0;
 
-            _HGInteract = new HourGlass(monochromaticTileset,
+            _HGWorkProgress = new HourGlass(Assets.MonochromaticTilesetTxr,
                 new Rectangle(_tilePosition.X,
                 _tilePosition.Y,
                 tileWidth,
-                tileHeight));
+                tileHeight),
+                Color.Yellow);
         }
         public float DistanceTo(Vector2 destination)
         {
             return (destination - Position).Length();
         }
-        public virtual void TakeAHit()
-        {
-            _health--;
-        }
-
         public virtual void Update(GameTime gt)
         {
             _isSelected = false;
-            //Tint = Color.White;
+
+            if (_state == ObjectState.Default)
+                _canHarvestResource = _HGWorkProgress.Update(true, _workSpeed);
+
+            if(_health == 0)
+            {
+                _state = ObjectState.NotHarvestable;
+                _health--;
+            }
 
             foreach (Keeno keeno in _workers)
             {
                 keeno.MoveTo(_tilePosition);
             }
-
+            if (_canHarvestResource)
+                HarvestResource(_resourceType, _resourceAmount);
         }
-
-        public virtual void Draw(SpriteBatch sb)
+        public virtual void HarvestResource(ResourceType type, int amount)
         {
-            //sb.Draw(_testPixel, Bounds, Color.Red*.75f);
-            if (_isSelected )
-                sb.Draw(_txr, _rect, _selectedTileSrcRect, Tint);
-            sb.Draw(_txr, _rect, _srcRect, Tint);
+            _health--;
+            ResourceTracker.Add(type, amount);
+            _HGWorkProgress.Reset();
         }
 
         /// <summary>
@@ -140,7 +160,6 @@ namespace Keeno
             float dropOffSpeed)
         {
             _isSelected = true;
-            //Tint = Color.Red;
         }
         public virtual void ReduceWorkerSlots()
         {
@@ -154,7 +173,25 @@ namespace Keeno
         public virtual void TakeThisWorker(Keeno worker)
         {
             _workers.Add(worker);
-            _workerSlots--;
+            worker.SwitchToWorking();
+            ReduceWorkerSlots();
+
+            // Get the worker's workspeed and apply it to the WorldObject
+            float kWorkspeed = worker.GetWorkSpeed();
+            _workSpeed += kWorkspeed;
+        }
+        public void DestroyMe()
+        {
+            ClearWorkerList();
+            _state = ObjectState.Dead;
+        }
+        public void ClearWorkerList()
+        {
+            foreach (var keeno in _workers)
+            {
+                keeno.SwitchToIdle();
+            }
+            _workers.Clear();
         }
 
         public virtual bool CanDropOffWorker(Keeno worker)
@@ -166,6 +203,16 @@ namespace Keeno
                 return true;
             }
             return false;
+        }
+        public virtual void Draw(SpriteBatch sb)
+        {
+            //sb.Draw(_testPixel, Bounds, Color.Red*.75f);
+            if (_isSelected)
+                sb.Draw(_txr, _rect, _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+            sb.Draw(_txr, _rect, _srcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
+
+            if (_state == ObjectState.Default) 
+                _HGWorkProgress.Draw(sb);
         }
     }
 
@@ -215,7 +262,6 @@ namespace Keeno
         private Texture2D _choppedTreeTxr;
 
         private bool _isChopped;
-        private bool _canTakeHit;
         private bool _canChop;
 
 
@@ -223,11 +269,7 @@ namespace Keeno
             int tileWidth,
             int tileHeight,
             int tilesetColumns,
-            Point tilePosition,
-            Texture2D choppedTree, 
-            Texture2D testpixel, 
-            Texture2D monochromaticTileset,
-            Texture2D buttonsTileset
+            Point tilePosition
             ): base(
                 tileset,
                 // world‐space bounds: tilePosition * tileSize
@@ -240,16 +282,18 @@ namespace Keeno
                   (Globals.TreeTileIndex % tilesetColumns) * tileWidth,
                   (Globals.TreeTileIndex/ tilesetColumns) * tileHeight,
                   tileWidth,
-                  tileHeight), tilesetColumns, tileWidth, tileHeight, monochromaticTileset, testpixel
+                  tileHeight), tilesetColumns, tileWidth, tileHeight
 
               )
         {
             _state = ObjectState.Default;
-            _workerSlots = 1;
+            _resourceType = ResourceType.Wood;
+            _workerSlots = 3;
             _destroySpeed = .01f;
+            _resourceAmount = 10;
             _health = Globals.TreeHealth;
             _canChop = false;
-            _canTakeHit = false;
+            _canHarvestResource = false;
             _isChopped = false;
             _canDropOff = false;
             _impassable = true;
@@ -260,45 +304,52 @@ namespace Keeno
             _tilePosition.X = tilePosition.X * tileWidth;
             _tilePosition.Y = tilePosition.Y * tileHeight;
             _tilesetColumns = tilesetColumns;
-            _choppedTreeTxr = choppedTree;
+            _choppedTreeTxr = Assets.ChoppedTreeTxr;
 
-            _buttonPrompt_E = new ButtonPrompt(buttonsTileset,
+            #region ButtonPrompts and HG
+            _buttonPrompt_E = new ButtonPrompt(Assets.InputsTilesetTxr,
                 new Rectangle(_tilePosition.X+_tileWidth/2,
                 _tilePosition.Y - _tileHeight,
                 _tileWidth,
                 _tileHeight), Globals.InputsTilesetIndex_E);
 
-            _buttonPrompt_Q = new ButtonPrompt(buttonsTileset,
+            _buttonPrompt_Q = new ButtonPrompt(Assets.InputsTilesetTxr,
                 new Rectangle(_tilePosition.X-_tileWidth/2,
                 _tilePosition.Y - _tileHeight,
                 _tileWidth,
                 _tileHeight), Globals.InputsTilesetIndex_Q);
 
-            _buttonPrompt_X = new ButtonPrompt(buttonsTileset,
+            _buttonPrompt_X = new ButtonPrompt(Assets.InputsTilesetTxr,
                 new Rectangle(_tilePosition.X,
                 _tilePosition.Y + _tileHeight,
                 _tileWidth,
                 _tileHeight), Globals.InputsTilesetIndex_X);
 
-            _HGInteract = new HourGlass(monochromaticTileset,
+            _HGInteract = new HourGlass(Assets.MonochromaticTilesetTxr,
                 new Rectangle(_tilePosition.X + _tileWidth / 2,
                 _tilePosition.Y - _tileHeight,
                 _tileWidth,
-                _tileHeight));
+                _tileHeight), Color.White);
 
-            _HGDropOff = new HourGlass(monochromaticTileset,
+            _HGDropOff = new HourGlass(Assets.MonochromaticTilesetTxr,
                 new Rectangle(_tilePosition.X - _tileWidth / 2,
                 _tilePosition.Y - _tileHeight,
                 _tileWidth,
-                _tileHeight));
+                _tileHeight), Color.White);
 
-            _HGDestroy = new HourGlass(monochromaticTileset,
+            _HGDestroy = new HourGlass(Assets.MonochromaticTilesetTxr,
                 new Rectangle(_tilePosition.X,
                 _tilePosition.Y + _tileHeight,
                 _tileWidth,
-                _tileHeight));
+                _tileHeight), Color.Red);
 
-            
+            _HGWorkProgress = new HourGlass(Assets.MonochromaticTilesetTxr,
+                new Rectangle(_tilePosition.X,
+                _tilePosition.Y,
+                tileWidth,
+                tileHeight),
+                Color.Yellow);
+            #endregion
         }
 
         public override void Selected(bool playerHasFollowers,
@@ -307,12 +358,13 @@ namespace Keeno
         {
             base.Selected(playerHasFollowers, playerWorkSpeed, dropOffSpeed);
 
-            _canTakeHit = _HGInteract.Update(Globals.E_KeyDown, playerWorkSpeed);
+            _canHarvestResource = _HGInteract.Update(Globals.E_KeyDown, playerWorkSpeed);
 
             if (_isChopped)
                 _destroyMe = _HGDestroy.Update(Globals.X_KeyDown, _destroySpeed);
             if (_destroyMe) 
-                _state=ObjectState.Dead;
+                DestroyMe();
+
             // Check if player has followers
             // And if there are available workerSlots
             if (playerHasFollowers && _workerSlots > 0)
@@ -321,37 +373,34 @@ namespace Keeno
             }
 
         }
+        public override void Update(GameTime gt)
+        {
+            if (_state == ObjectState.NotHarvestable)
+                _isChopped = true;
+            if (_isChopped)
+                ClearWorkerList();
+            base.Update(gt);
+        }
         public override void OnInteract()
         {
             if (!_isChopped)
             {
-                if (_canTakeHit)
-                    TakeAHit();
-                if (_health == 0)
-                    _isChopped = true;
+                if (_canHarvestResource)
+                    HarvestResource(ResourceType.Wood,10);
                 // play chop animation / sound
             }
         }
-        public override void TakeAHit()
+        public override void HarvestResource(ResourceType type, int amount)
         {
-            base.TakeAHit();
+            base.HarvestResource(type, amount);
             _HGInteract.Reset();
         }
 
         public override void Draw(SpriteBatch sb)
         {
-
-            if (_isChopped)
-            {
-                sb.Draw(_choppedTreeTxr, _rect, Color.White);
-                _HGDestroy.Draw(sb);
-                _buttonPrompt_X.Draw(sb);
-
-            }
-            else
+            if (!_isChopped)
             {
                 base.Draw(sb);
-
                 if (_isSelected)
                 {
                     // HourGlasses
@@ -360,6 +409,15 @@ namespace Keeno
                     // Input Promts
                     _buttonPrompt_E.Draw(sb);
                     _buttonPrompt_Q.Draw(sb);
+                }
+            }
+            else if (_isChopped)
+            {
+                sb.Draw(_choppedTreeTxr, _rect, Color.White);
+                if (_isSelected)
+                {
+                    _buttonPrompt_X.Draw(sb);
+                    _HGDestroy.Draw(sb);
                 }
             }
         }
@@ -372,13 +430,10 @@ namespace Keeno
         public List<Keeno> KeenoInGame { get { return _keenoInGame; } }
 
         public TownCentre(Texture2D tileset,
-            Texture2D monochromaticTileset,
             int tileWidth, 
             int tileHeight,
             int tilesetColumns,
-            Point tilePosition,
-            Texture2D testpixel,
-            Texture2D buttonsTileset
+            Point tilePosition
             ) : base(
                 tileset,
                 // world‐space bounds: tilePosition * tileSize
@@ -391,7 +446,7 @@ namespace Keeno
                   (Globals.TownCentreTileIndex % tilesetColumns) * tileWidth,
                   (Globals.TownCentreTileIndex / tilesetColumns) * tileHeight,
                   tileWidth,
-                  tileHeight), tilesetColumns, tileWidth, tileHeight, monochromaticTileset, testpixel
+                  tileHeight), tilesetColumns, tileWidth, tileHeight
               )
         {
             _keenoInGame = new List<Keeno>();
@@ -406,17 +461,17 @@ namespace Keeno
             _tilePosition.Y = tilePosition.Y * tileHeight;
             _tilesetColumns = tilesetColumns;
 
-            _buttonPrompt_E = new ButtonPrompt(buttonsTileset,
+            _buttonPrompt_E = new ButtonPrompt(Assets.InputsTilesetTxr,
                 new Rectangle(_tilePosition.X + _tileWidth / 2,
                 _tilePosition.Y - _tileHeight,
                 _tileWidth,
                 _tileHeight), Globals.InputsTilesetIndex_E);
 
-            _HGInteract = new HourGlass(monochromaticTileset,
+            _HGInteract = new HourGlass(Assets.MonochromaticTilesetTxr,
                 new Rectangle(_tilePosition.X + _tileWidth / 2,
                 _tilePosition.Y - _tileHeight,
                 _tileWidth,
-                _tileHeight));
+                _tileHeight), Color.White);
         }
         public override void Selected(bool playerHasFollowers,
             float playerWorkSpeed,
@@ -436,7 +491,7 @@ namespace Keeno
         }
         private void SpawnKeeno()
         {
-            var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(_tilePosition.X, _tilePosition.Y, 16, 16), Assets.DebugPixel);
+            var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(_tilePosition.X, _tilePosition.Y, 16, 16), Assets.DebugPixelTxr);
             _keenoInGame.Add(newKeeno);
             Debug.WriteLine("Spawning Keeno: firing event");
             KeenoSpawned?.Invoke(newKeeno);

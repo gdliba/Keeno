@@ -19,8 +19,6 @@ namespace Keeno
         private readonly List<WorldObject> _worldObjects;
         private readonly List<WorldObject> _objectsNearPlayer;
 
-        private float _workSpeed;
-
         public Rectangle InteractionRange { get { return _interactionRange; } }
 
 
@@ -43,61 +41,11 @@ namespace Keeno
         }
         public override void Update(GameTime gt)
         {
-
-            // clear the list
-            //_keenosNearPlayer.Clear();
-            //_keenosFollowingPlayer.Clear();
-
-            //for (int i = 0; i < _keenosNearPlayer.Count; i++)
-            //{
-            //    _keenosNearPlayer[i].Update(gt);
-            //}
-
             Player_Object_Interaction();
             ColisionDependantMovement();
             Player_Keeno_Interaction(gt);
             
             base.Update(gt);
-        }
-        private void Player_Keeno_Interaction(GameTime gt)
-        {
-            _keenosNearPlayer.Clear();
-            // loop through all keenos in game
-            for (var i = 0; i < _keenos.Count; i++)
-            {
-                if (InteractionRange.Intersects(_keenos[i].Bounds) && _keenos[i].State != KeenoState.Following) // check if they are inside the player's Interaction range
-                {
-                    _keenosNearPlayer.Add(_keenos[i]);              // if they are, add them to the "near player" list
-                    //_keenos.RemoveAt(i);
-                }
-            }
-
-            // sort the list by closest first
-            var sortedKeenoList = _keenosNearPlayer.OrderBy(x => x.DistanceTo(Position)).ToList();   
-            // if the list is populated
-            if (sortedKeenoList.Count > 0)
-            {
-                sortedKeenoList[0].Selected();              // trigger the Keeno's "Selected" method
-                                    
-                if (Globals.Q_KeyPress)                     // if the relevant key is pressed
-                {
-                    sortedKeenoList[0].SwitchToFollowing(); // Switch the closest keeno's state to "Following"
-                    _followers.Add(sortedKeenoList[0]); // add it to the list of followers
-                }
-            }
-            // tell all followers to follow the player
-            foreach (var keeno in _followers)
-            {
-                keeno.FollowPlayer(_position.ToPoint());
-            }
-        }
-        private void ColisionDependantMovement()
-        {
-            // Player - movement
-            if (_map.IsWalkable(HandleInput()))
-                MoveInDirection(Direction);
-            else
-                MoveInDirection(Vector2.Zero);
         }
         private void Player_Object_Interaction()
         {
@@ -127,7 +75,46 @@ namespace Keeno
                     if (sortedList[0].CanDropOffWorker(_followers[0]))
                         _followers.RemoveAt(0);
                 }
+            }
+        }
+        private void ColisionDependantMovement()
+        {
+            // Player - movement
+            if (_map.IsWalkable(HandleInput()))
+                MoveInDirection(Direction);
+            else
+                MoveInDirection(Vector2.Zero);
+        }
+        private void Player_Keeno_Interaction(GameTime gt)
+        {
+            _keenosNearPlayer.Clear();
+            // loop through all keenos in game
+            for (var i = 0; i < _keenos.Count; i++)
+            {
+                if (InteractionRange.Intersects(_keenos[i].Bounds) && _keenos[i].State == KeenoState.Idle) // check if they are inside the player's Interaction range
+                {
+                    _keenosNearPlayer.Add(_keenos[i]);              // if they are, add them to the "near player" list
+                    //_keenos.RemoveAt(i);
+                }
+            }
 
+            // sort the list by closest first
+            var sortedKeenoList = _keenosNearPlayer.OrderBy(x => x.DistanceTo(Position)).ToList();   
+            // if the list is populated
+            if (sortedKeenoList.Count > 0)
+            {
+                sortedKeenoList[0].Selected();              // trigger the Keeno's "Selected" method
+                                    
+                if (Globals.Q_KeyPress)                     // if the relevant key is pressed
+                {
+                    sortedKeenoList[0].SwitchToFollowing(); // Switch the closest keeno's state to "Following"
+                    _followers.Add(sortedKeenoList[0]); // add it to the list of followers
+                }
+            }
+            // tell all followers to follow the player
+            foreach (var keeno in _followers)
+            {
+                keeno.FollowPlayer(_position.ToPoint());
             }
         }
 

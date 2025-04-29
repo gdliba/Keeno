@@ -66,10 +66,10 @@ namespace Keeno
                     switch (_mapData[y, x])
                     {
                         case Globals.TreeTileIndex:
-                            AddTree(x,y, choppedTree, monochromaticTilesetTxr, inputsTileset);
+                            AddTree(x,y);
                             break;
                         case Globals.TownCentreTileIndex:
-                            AddTownCentre(x,y, monochromaticTilesetTxr, inputsTileset);
+                            AddTownCentre(x,y);
                             break;
                         default:
                             break;
@@ -126,17 +126,17 @@ namespace Keeno
             }
             return true;
         }
-        private void AddTree(int x, int y, Texture2D fallenTreeTxr, Texture2D monochromaticTileset, Texture2D inputsTileset)
+        private void AddTree(int x, int y)
         {
             _worldObjects.Add(new Tree(_tileset, _tileWidth, _tileHeight,
-                                _tilesetColumns, new Point(x, y), fallenTreeTxr, _testPixel, monochromaticTileset, inputsTileset));
+                                _tilesetColumns, new Point(x, y)));
 
             _mapData[y, x] = Globals.OccupiedTileIndex;
         }
-        private void AddTownCentre(int x, int y, Texture2D monochromaticTileset, Texture2D inputsTileset)
+        private void AddTownCentre(int x, int y)
         {
-            _worldObjects.Add(new TownCentre(_tileset, monochromaticTileset, _tileWidth, _tileHeight,
-                                _tilesetColumns, new Point(x, y), _testPixel, inputsTileset));
+            _worldObjects.Add(new TownCentre(_tileset, _tileWidth, _tileHeight,
+                                _tilesetColumns, new Point(x, y)));
 
             _mapData[y, x] = Globals.OccupiedTileIndex;
         }
@@ -186,7 +186,7 @@ namespace Keeno
                     Vector2 position = new Vector2(x * _tileWidth, y * _tileHeight);
 
                     // Draw the tile from tileset onto screen
-                    sb.Draw(_tileset, position, sourceRect, Color.White);
+                    sb.Draw(_tileset, position, sourceRect, Color.White, 0, Vector2.Zero, 1f,SpriteEffects.None,Globals.MapLD);
 
                     //Draw the tileIndexes on screen
                     //string tempText = tileIndex.ToString();
