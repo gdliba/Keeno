@@ -13,13 +13,6 @@ namespace Keeno
         NotHarvestable,
         Dead
     }
-    //enum Resource
-    //{
-    //    None,
-    //    Gold,
-    //    Wood,
-    //    Food
-    //}
     class WorldObject
     {
         public ObjectState State { get { return _state; } protected set { _state = value; } }
@@ -679,7 +672,7 @@ namespace Keeno
             var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(_tilePosition.X, _tilePosition.Y, 16, 16), Assets.DebugPixelTxr);
             _keenosISpawned.Add(newKeeno);
             //Debug.WriteLine("Spawning Keeno: firing event");
-            //KeenoSpawned?.Invoke(newKeeno);
+            KeenoSpawned?.Invoke(newKeeno);
         }
         public override void Draw(SpriteBatch sb)
         {

@@ -29,6 +29,7 @@ namespace Keeno
         private readonly List<WorldObject> _worldObjects;
         private readonly List<WorldObject> _objectsNearPlayer;
         private readonly List<WorldObject> _emptyTilesNearPlayer;
+        private readonly List<BuildingItem> _itemsNearPlayer;
 
         private Rectangle _tileTargetedRect;
 
@@ -80,6 +81,7 @@ namespace Keeno
             }
             ColisionDependantMovement();
             Player_Keeno_Interaction(gt);
+            Player_Item_Interaction();
 
             base.Update(gt);
         }
@@ -95,16 +97,47 @@ namespace Keeno
                     _emptyTilesNearPlayer.Add(tile);
             }
             // Sort the list
-            var sortedList = _emptyTilesNearPlayer.OrderBy(x => x.DistanceTo(Position)).ToList();
+            var sortedList = _emptyTilesNearPlayer.OrderBy(x => x.DistanceTo(
+                _tileTargetedRect.Location.ToVector2())).ToList();
             #endregion
             if (sortedList.Count > 0)
             {
                 // Call the Selected method of the closest World Object
                 sortedList[0].Selected(_state == PlayerState.Building,
                     _workSpeed,Globals.DropOffKeenoSpeed);
-                //if (Globals.E_KeyDown)
-                //    sortedList[0].OnInteract();
 
+            }
+        }
+        private void Player_Item_Interaction()
+        {
+            #region Sort By Distance
+            // Clear the List of worldObjects that the are in range with the player
+            _objectsNearPlayer.Clear();
+            for (var i = 0; i < _map.WorldObjects.Count; i++)
+            {
+                // only consider tiles that aren't empty
+                if (InteractionRange.Intersects(_map.WorldObjects[i].Bounds)
+                    && _map.WorldObjects[i].GetType() != typeof(EmptyTile))
+                    _objectsNearPlayer.Add(_map.WorldObjects[i]);
+            }
+            // Sort the list
+            var sortedList = _objectsNearPlayer.OrderBy(x => x.DistanceTo(Position)).ToList();
+            #endregion
+            if (sortedList.Count > 0)
+            {
+                // Call the Selected method of the closest World Object
+                sortedList[0].Selected(_followers.Count > 0,
+                    _workSpeed, Globals.DropOffKeenoSpeed);
+                if (Globals.E_KeyDown)
+                    sortedList[0].OnInteract();
+
+                // When pressing Q, if there are keenos following the player
+                // Go to that location
+                if (_followers.Count > 0 && Globals.Q_KeyDown)
+                {
+                    if (sortedList[0].CanDropOffWorker(_followers[0]))
+                        _followers.RemoveAt(0);
+                }
             }
         }
 

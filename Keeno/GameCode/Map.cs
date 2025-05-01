@@ -31,9 +31,6 @@ namespace Keeno
         // How many columns (tiles per row) are in the tileset image
         private int _tilesetColumns;
 
-        /////////// TEST PIXEL
-        private Texture2D _testPixel;
-
 
         /// <summary>
         /// takes a CSV path and tile settings, loads the map
@@ -44,13 +41,12 @@ namespace Keeno
         /// <param name="tileHeight"></param>
         /// <param name="tilesetColumns"></param>
         public Map(string csvPath, Texture2D tilesetTexture, Texture2D monochromaticTilesetTxr, Texture2D inputsTileset, int tileWidth,
-            int tileHeight, int tilesetColumns, Texture2D choppedTree, Texture2D testPixel)
+            int tileHeight, int tilesetColumns)
         {
             _tileWidth = tileWidth;
             _tileHeight = tileHeight;
             _tileset = tilesetTexture;
             _tilesetColumns = tilesetColumns;
-            _testPixel = testPixel;
 
 
             // Loads the map data from the CSV

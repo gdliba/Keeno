@@ -44,6 +44,7 @@ namespace Keeno
         //Texture2D monochromaticTilesetTxr;
         //Texture2D inputsTilesetTxr;
         ResourceType debugResource;
+        BuildingItem testBuildingObject;
 
 
         //HourGlass testHourGlass;
@@ -116,11 +117,13 @@ namespace Keeno
             debugFont = Content.Load<SpriteFont>("Fonts\\debugFont");
 #endif
 
-            testMap = new Map("Content/MapData/testLevel_Map.csv", Assets.TilesetTxr, Assets.MonochromaticTilesetTxr, Assets.InputsTilesetTxr, 16, 16, 49, Assets.ChoppedTreeTxr, Assets.DebugPixelTxr);
+            testMap = new Map("Content/MapData/testLevel_Map.csv", Assets.TilesetTxr, Assets.MonochromaticTilesetTxr, Assets.InputsTilesetTxr, 16, 16, 49);
             testPlayer = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(200, 200, 16, 16),
                 Assets.DebugPixelTxr, testMap, keenos);
 
             //testHourGlass = new HourGlass(tilesetTxr, new Rectangle(50, 50, 16, 16));
+
+            testBuildingObject = new BuildingItem(Content.Load<Texture2D>("WorldObjects\\Buildings\\Houses\\tents"), 0, new Rectangle(300, 200, 16, 16));
 
             // TODO: FIND OUT
             // Does this update according to the number of TCS???
@@ -141,7 +144,7 @@ namespace Keeno
             switch (currentGameState)
             {
                 case GameState.Start:
-                    StartUpdate(gt, Globals.KbCurr);
+                    StartUpdate(gt);
                     break;
                 case GameState.Playing:
                     PlayingUpdate();
@@ -189,7 +192,7 @@ namespace Keeno
             base.Draw(gt);
         }
         #region STATE UPDATES
-        private void StartUpdate(GameTime gt, KeyboardState kb)
+        private void StartUpdate(GameTime gt)
         {
             testMap.Update(gt);
 
@@ -267,6 +270,8 @@ namespace Keeno
                 keeno.Draw(_spriteBatch);
             }
             testPlayer.Draw(_spriteBatch);
+
+            testBuildingObject.Draw(_spriteBatch);
             _spriteBatch.End();
             _spriteBatch.Begin();
 #if DEBUG

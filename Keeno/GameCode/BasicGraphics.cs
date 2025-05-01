@@ -22,6 +22,11 @@ namespace Keeno
             : this(new Rectangle(xPos, yPos, width, height), txrImage)
         {
         }
+        public StaticGraphic(Texture2D spriteSheet, Rectangle rect)
+        {
+            _rect = rect;
+            _txr = spriteSheet;
+        }
 
         /// <summary>
         /// This method takes in a SpriteSheet so that I can use it rather than exporting
