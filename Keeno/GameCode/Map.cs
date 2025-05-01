@@ -8,9 +8,9 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Keeno
 {
+
     class Map
     {
-
         private List<WorldObject> _worldObjects;
         public List<WorldObject> WorldObjects {  get { return _worldObjects; } }
 
@@ -52,6 +52,7 @@ namespace Keeno
             _tilesetColumns = tilesetColumns;
             _testPixel = testPixel;
 
+
             // Loads the map data from the CSV
             LoadMap(csvPath);
 
@@ -77,11 +78,15 @@ namespace Keeno
                         case Globals.FarmTileIndex2:
                                 AddFarm(x,y);
                             break;
+                        case Globals.EmptyTileIndex:
+                            AddEmptyTile(x, y);
+                            break;
                         default:
                             break;
                     }
                 }
             }
+           
         }
 
         /// <summary>
@@ -152,6 +157,13 @@ namespace Keeno
                                 _tilesetColumns, new Point(x, y)));
 
             _mapData[y, x] = Globals.OccupiedTileIndex;
+        }
+        private void AddEmptyTile(int x, int y)
+        {
+            _worldObjects.Add(new EmptyTile(_tileset, _tileWidth, _tileHeight,
+                    _tilesetColumns, new Point(x, y)));
+
+            _mapData[y, x] = Globals.EmptyTileIndex;
         }
 
         public void Update(GameTime gt)

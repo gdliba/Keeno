@@ -43,6 +43,7 @@ namespace Keeno
         //Texture2D tilesetTxr;
         //Texture2D monochromaticTilesetTxr;
         //Texture2D inputsTilesetTxr;
+        ResourceType debugResource;
 
 
         //HourGlass testHourGlass;
@@ -216,6 +217,30 @@ namespace Keeno
             // Testing ResourceTracker
             //if (Globals.Q_KeyPress)
             //    ResourceTracker.Add(ResourceType.Wood, 10);
+           
+            switch (debugResource)
+            {
+                case ResourceType.None:
+                    if (Globals.Tab_KeyPress)
+                        debugResource = ResourceType.Food;
+                    break;
+                case ResourceType.Food:
+                    if(Globals.Tab_KeyPress)
+                        debugResource = ResourceType.Wood;
+                    break;
+                case ResourceType.Wood:
+                    if (Globals.Tab_KeyPress)
+                        debugResource = ResourceType.Gold;
+                    break;
+                case ResourceType.Gold:
+                    if (Globals.Tab_KeyPress)
+                        debugResource = ResourceType.Food;
+                    break;
+            }
+            if (Globals.UpArrow_KeyPress)
+                ResourceTracker.Add(debugResource, 10);
+            if (Globals.DownArrow_KeyPress)
+                ResourceTracker.Add(debugResource, -10);
         }
 
         private void PlayingUpdate()
@@ -249,7 +274,9 @@ namespace Keeno
                 _renderTarget.Width + "x " + _renderTarget.Height
                 + "\nKeenos: " + keenos.Count
                 + "\nWood: " + ResourceTracker.GetAmount(ResourceType.Wood)
-                + "\nFood: " + ResourceTracker.GetAmount(ResourceType.Food),
+                + "\nFood: " + ResourceTracker.GetAmount(ResourceType.Food)
+                + "\nGold: " + ResourceTracker.GetAmount(ResourceType.Gold)
+                + "\nSelected Resource" + debugResource,
                 
                 new Vector2(10, 10), Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);
 #endif

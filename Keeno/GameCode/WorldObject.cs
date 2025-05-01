@@ -41,6 +41,7 @@ namespace Keeno
         protected List<Keeno> _workers;
 
         protected Texture2D _txr;
+        protected Texture2D _selectedTileTileset;
         protected Texture2D _testPixel;
 
         protected Rectangle _rect;
@@ -92,6 +93,7 @@ namespace Keeno
             _canUse = false;
             _canHarvestResource = false;
 
+            _selectedTileTileset = Assets.MonochromaticTilesetTxr;
             _txr = texture;
             _rect = bounds;
             _srcRect = sourceRect;
@@ -215,7 +217,7 @@ namespace Keeno
         {
             //sb.Draw(_testPixel, Bounds, Color.Red*.75f);
             if (_isSelected)
-                sb.Draw(_txr, _rect, _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+                sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
             sb.Draw(_txr, _rect, _srcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
 
             if (_state == ObjectState.Default) 
@@ -590,9 +592,9 @@ namespace Keeno
     class TownCentre : WorldObject
     {
         private Color _tint;
-        private List<Keeno> _keenoInGame;
+        private List<Keeno> _keenosISpawned;
         public event Action<Keeno> KeenoSpawned;
-        public List<Keeno> KeenoInGame { get { return _keenoInGame; } }
+        public List<Keeno> KeenosISpwaned { get { return _keenosISpawned; } }
 
         public TownCentre(Texture2D tileset,
             int tileWidth, 
@@ -614,7 +616,7 @@ namespace Keeno
                   tileHeight), tilesetColumns, tileWidth, tileHeight
               )
         {
-            _keenoInGame = new List<Keeno>();
+            _keenosISpawned = new List<Keeno>();
             _impassable = true;
             _canUse = false;
             _state = ObjectState.Default;
@@ -675,9 +677,9 @@ namespace Keeno
         private void SpawnKeeno()
         {
             var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(_tilePosition.X, _tilePosition.Y, 16, 16), Assets.DebugPixelTxr);
-            _keenoInGame.Add(newKeeno);
+            _keenosISpawned.Add(newKeeno);
             //Debug.WriteLine("Spawning Keeno: firing event");
-            KeenoSpawned?.Invoke(newKeeno);
+            //KeenoSpawned?.Invoke(newKeeno);
         }
         public override void Draw(SpriteBatch sb)
         {
@@ -688,6 +690,55 @@ namespace Keeno
                 _HGInteract.Draw(sb);
                 _buttonPrompt_E.Draw(sb);
             }
+        }
+    }
+    class EmptyTile : WorldObject
+    {
+
+        public EmptyTile(Texture2D tileset,
+            int tileWidth,
+            int tileHeight,
+            int tilesetColumns,
+            Point tilePosition
+            ) : base(
+                tileset,
+                // world‐space bounds: tilePosition * tileSize
+                new Rectangle(tilePosition.X * tileWidth,
+                              tilePosition.Y * tileHeight,
+                              tileWidth,
+                              tileHeight),
+                // sourceRect inside the tileset
+                new Rectangle(
+                  (Globals.EmptyTileIndex % tilesetColumns) * tileWidth,
+                  (Globals.EmptyTileIndex / tilesetColumns) * tileHeight,
+                  tileWidth,
+                  tileHeight), tilesetColumns, tileWidth, tileHeight
+              )
+        {
+            _impassable = false;
+            _canUse = false;
+            _state = ObjectState.Default;
+            Tint = Color.White;
+
+            _tileHeight = tileHeight;
+            _tileWidth = tileWidth;
+            _tilePosition.X = tilePosition.X * tileWidth;
+            _tilePosition.Y = tilePosition.Y * tileHeight;
+            _tilesetColumns = tilesetColumns;
+        }
+        public override void Selected(bool playerHasFollowers,
+            float playerWorkSpeed,
+            float dropOffSpeed)
+        {
+            base.Selected(playerHasFollowers, playerWorkSpeed, dropOffSpeed);
+        }
+        public override void Update(GameTime gt)
+        {
+            base.Update(gt);
+        }
+        public override void OnInteract()
+        {
+
         }
     }
 }

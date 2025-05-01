@@ -3,12 +3,22 @@ using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Input;
 using System.Linq;
+using System.Diagnostics;
 
 namespace Keeno
 {
+    enum PlayerState
+    {
+        Normal,
+        Building,
+        Dying,
+        Dead
+    }
     class Player : MobileSwarmPoint
     {
         private Map _map;
+
+        private PlayerState _state;
 
         private Rectangle _interactionRange;
 
@@ -18,6 +28,11 @@ namespace Keeno
 
         private readonly List<WorldObject> _worldObjects;
         private readonly List<WorldObject> _objectsNearPlayer;
+        private readonly List<WorldObject> _emptyTilesNearPlayer;
+
+        private Rectangle _tileTargetedRect;
+
+
 
         public Rectangle InteractionRange { get { return _interactionRange; } }
 
@@ -25,6 +40,7 @@ namespace Keeno
         public Player(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel, Map map, List<Keeno> keenos)
             : base(spriteSheet, fps, rect, pixel)
         {
+            _state = PlayerState.Normal;
             _moveSpeed = Globals.PlayerMovementSpeed;
             _drawBounds = false;
             _interactionRange = new Rectangle((int)_position.X - rect.Width, (int)_position.Y - rect.Height, rect.Width * 3, rect.Height * 3);
@@ -32,6 +48,7 @@ namespace Keeno
 
             _worldObjects = map.WorldObjects;
             _objectsNearPlayer = new List<WorldObject>();
+            _emptyTilesNearPlayer = new List<WorldObject>();
 
             _keenos = keenos;
             _keenosNearPlayer = new List<Keeno>();
@@ -41,12 +58,56 @@ namespace Keeno
         }
         public override void Update(GameTime gt)
         {
-            Player_Object_Interaction();
+            if (_isWalking)
+                _tileTargetedRect = new Rectangle(
+                    _rect.X + _rect.Width / 4 + (int)_direction.X*20,
+                    _rect.Y + _rect.Height / 4 + (int)_direction.Y*20,
+                     _rect.Width / 3,
+                     _rect.Height / 3);
+
+            if (Globals.Tab_KeyPress)
+                _state++;
+            if (_state == PlayerState.Dead)
+                _state = PlayerState.Normal;
+            if(_state == PlayerState.Building)
+            {
+                BuildingMode();
+            }
+            if (_state != PlayerState.Building)
+            {
+                Player_Object_Interaction();
+                
+            }
             ColisionDependantMovement();
             Player_Keeno_Interaction(gt);
-            
+
             base.Update(gt);
         }
+        private void BuildingMode()
+        {
+            #region Sort By Distance
+            // Clear the List of worldObjects that the are in range with the player
+            _emptyTilesNearPlayer.Clear();
+
+            foreach (var tile in _map.WorldObjects.OfType<EmptyTile>())
+            {
+                if (_tileTargetedRect.Intersects(tile.Bounds))
+                    _emptyTilesNearPlayer.Add(tile);
+            }
+            // Sort the list
+            var sortedList = _emptyTilesNearPlayer.OrderBy(x => x.DistanceTo(Position)).ToList();
+            #endregion
+            if (sortedList.Count > 0)
+            {
+                // Call the Selected method of the closest World Object
+                sortedList[0].Selected(_state == PlayerState.Building,
+                    _workSpeed,Globals.DropOffKeenoSpeed);
+                //if (Globals.E_KeyDown)
+                //    sortedList[0].OnInteract();
+
+            }
+        }
+
         private void Player_Object_Interaction()
         {
             #region Sort By Distance
@@ -54,7 +115,9 @@ namespace Keeno
             _objectsNearPlayer.Clear();
             for (var i = 0; i < _map.WorldObjects.Count; i++)
             {
-                if (InteractionRange.Intersects(_map.WorldObjects[i].Bounds))
+                // only consider tiles that aren't empty
+                if (InteractionRange.Intersects(_map.WorldObjects[i].Bounds)
+                    && _map.WorldObjects[i].GetType() != typeof(EmptyTile))
                     _objectsNearPlayer.Add(_map.WorldObjects[i]);
             }
             // Sort the list
@@ -149,9 +212,10 @@ namespace Keeno
             // Draw test pixel
             if (_drawBounds)
             {
-                sb.Draw(_testPixel, _interactionRange, Color.Red * .75f);               // Draw interactionRange
+                sb.Draw(_testPixel, _tileTargetedRect, Color.Green * .8f);      // Draw _tileTargetedRect
+                sb.Draw(_testPixel, _targetDestinationBounds, Color.White * .8f);      // Draw _targetDestinationBound
                 sb.Draw(_testPixel, Bounds, Color.Blue * .7f);                          // Draw Player Bounds
-                sb.Draw(_testPixel, _targetDestinationBounds, Color.White * .75f);      // Draw _targetDestinationBound
+                sb.Draw(_testPixel, _interactionRange, Color.Red * .75f);               // Draw interactionRange
                 sb.Draw(_testPixel, new Vector2(Position.X, Position.Y), Color.Black);  // Draw Player Position
             }
         }

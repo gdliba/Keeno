@@ -38,6 +38,12 @@ namespace Keeno
         public static bool Q_KeyPress => KeyPress(Keys.Q);
         public static bool E_KeyPress => KeyPress(Keys.E);
         public static bool X_KeyPress => KeyPress(Keys.X);
+        public static bool UpArrow_KeyPress=> KeyPress(Keys.Up);
+        public static bool DownArrow_KeyPress => KeyPress(Keys.Down);
+        public static bool Tab_KeyPress => KeyPress(Keys.Tab);
+
+
+
 
 
         /// <summary>
@@ -69,6 +75,7 @@ namespace Keeno
         public const int TreeTileIndex = 51;
         public const int ChoppedTreeTileIndex = 313;
         public const int OccupiedTileIndex = 0;
+        public const int EmptyTileIndex = -1;
         public const int TownCentreTileIndex = 983;
         public const int TileSelectedIndex = 624;
         public const int FarmTileIndex1 = 309;

@@ -101,7 +101,7 @@ namespace Keeno
                                             _fullSrcRect.Width, yUsed);
             // Draw the "Filling"
             sb.Draw(_spritesheet, updatedDrawRect, 
-                    updatedSrcRect, _tint, 0, Vector2.Zero, SpriteEffects.None, 0.089f);
+                    updatedSrcRect, _tint, 0, Vector2.Zero, SpriteEffects.None, Globals.HourGlassLD);
             // Draw the "Outline"
             //sb.Draw(_spritesheet, _rect, 
             //        _emptySrcRect, Color.White);
@@ -127,7 +127,7 @@ namespace Keeno
         public override void Draw(SpriteBatch sb)
         {
             sb.Draw(_txr, new Vector2(_rect.X, _rect.Y), _staticSrcRect, 
-                Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, .09f);
+                Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, Globals.ButtonPromptLD);
         }
     }
 }

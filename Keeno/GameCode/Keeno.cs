@@ -85,9 +85,10 @@ namespace Keeno
 
             // Update the player's "would be" bounds in relation to
             // the direction they are moving in
+
             _targetDestinationBounds = new Rectangle(
-                _rect.X + _rect.Width / 4 + (int)_direction.X * 3,
-                _rect.Y + _rect.Height / 4 + (int)_direction.Y * 3,
+                _rect.X + _rect.Width / 4 + (int)_direction.X,
+                _rect.Y + _rect.Height / 4 + (int)_direction.Y,
                 2 * _rect.Width / 3,
                 2 * _rect.Height / 3);
         }
