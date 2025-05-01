@@ -79,7 +79,7 @@ namespace Keeno
         public const int TownCentreTileIndex = 983;
         public const int TileSelectedIndex = 624;
         public const int ItemSelectedIndex = 625;
-        //public const int ItemSelectedIndex = 760;
+        public const int BlueprintIndex = 767;
 
         public const int FarmTileIndex1 = 309;
         public const int FarmTileIndex2 = 310;

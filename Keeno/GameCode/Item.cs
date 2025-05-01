@@ -4,18 +4,23 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Keeno
 {
-    class Items : Animated2D
+    class Item : Animated2D
     {
         protected bool _isSelected;
-        protected Texture2D _selectedTileTileset;
-        protected Rectangle _selectedTileSrcRect;
+        protected Texture2D _monochromaticTileset;
+        protected Rectangle _blueprintScrRect;
+        protected Rectangle _selectedScrRect;
 
-        public Items(Texture2D spriteSheet, int fps, Rectangle rect)
+        public Item(Texture2D spriteSheet, int fps, Rectangle rect)
             : base(spriteSheet, fps, rect)
         {
             _isSelected = true;
-            _selectedTileTileset = Assets.MonochromaticTilesetTxr;
-            _selectedTileSrcRect =
+            _monochromaticTileset = Assets.MonochromaticTilesetTxr;
+            _blueprintScrRect =
+                new Rectangle(Globals.BlueprintIndex % Globals.TilemapColumns * Globals.Tile_Width_Height,
+                                (Globals.BlueprintIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                                Globals.Tile_Width_Height, Globals.Tile_Width_Height);
+            _selectedScrRect =
                 new Rectangle(Globals.ItemSelectedIndex % Globals.TilemapColumns * Globals.Tile_Width_Height,
                                 (Globals.ItemSelectedIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
                                 Globals.Tile_Width_Height, Globals.Tile_Width_Height);
@@ -29,15 +34,15 @@ namespace Keeno
             if (_isSelected)
             {
                 if (_isSelected)
-                    sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, 
-                        Color.White, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+                    sb.Draw(_monochromaticTileset, _rect, _selectedScrRect,
+                        Color.White, 0, Vector2.Zero, SpriteEffects.None, 0);
             }
         }
     }
-    class BuildingItem : Items
+    class BuildingBlueprint : Item
     {
         protected Rectangle _srcRect2, _srcRect3;
-        public BuildingItem(Texture2D spriteSheet, int fps, Rectangle rect)
+        public BuildingBlueprint(Texture2D spriteSheet, int fps, Rectangle rect)
             : base(spriteSheet, fps, rect)
         {
             _srcRect2 = _srcRect3 = _srcRect;
@@ -49,10 +54,12 @@ namespace Keeno
             _rect.X = (int)_position.X;
             _rect.Y = (int)_position.Y;
 
-            sb.Draw(_txr, _rect, _srcRect, Color.White);
-            sb.Draw(_txr, _rect, _srcRect2, Color.White);
-            sb.Draw(_txr, _rect, _srcRect3, Color.White);
             SelectedDraw(sb);
+            sb.Draw(_txr, _rect, _srcRect, Color.Beige);
+            sb.Draw(_txr, _rect, _srcRect2, Color.Beige);
+            sb.Draw(_txr, _rect, _srcRect3, Color.Beige);
+            sb.Draw(_monochromaticTileset, _rect, _blueprintScrRect,
+                        Color.CornflowerBlue, 0, Vector2.Zero, SpriteEffects.None, 0);
 
         }
     }

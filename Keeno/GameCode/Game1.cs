@@ -44,7 +44,7 @@ namespace Keeno
         //Texture2D monochromaticTilesetTxr;
         //Texture2D inputsTilesetTxr;
         ResourceType debugResource;
-        BuildingItem testBuildingObject;
+        BuildingBlueprint testBuildingObject;
 
 
         //HourGlass testHourGlass;
@@ -123,7 +123,8 @@ namespace Keeno
 
             //testHourGlass = new HourGlass(tilesetTxr, new Rectangle(50, 50, 16, 16));
 
-            testBuildingObject = new BuildingItem(Content.Load<Texture2D>("WorldObjects\\Buildings\\Houses\\tents"), 0, new Rectangle(300, 200, 16, 16));
+            testBuildingObject = new BuildingBlueprint(Content.Load<Texture2D>
+                ("WorldObjects\\Buildings\\Houses\\tents_w"), 0, new Rectangle(300, 200, 16, 16));
 
             // TODO: FIND OUT
             // Does this update according to the number of TCS???

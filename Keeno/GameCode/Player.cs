@@ -29,7 +29,7 @@ namespace Keeno
         private readonly List<WorldObject> _worldObjects;
         private readonly List<WorldObject> _objectsNearPlayer;
         private readonly List<WorldObject> _emptyTilesNearPlayer;
-        private readonly List<BuildingItem> _itemsNearPlayer;
+        private readonly List<BuildingBlueprint> _itemsNearPlayer;
 
         private Rectangle _tileTargetedRect;
 
@@ -81,7 +81,7 @@ namespace Keeno
             }
             ColisionDependantMovement();
             Player_Keeno_Interaction(gt);
-            Player_Item_Interaction();
+            //Player_Item_Interaction();
 
             base.Update(gt);
         }
@@ -111,9 +111,9 @@ namespace Keeno
         private void Player_Item_Interaction()
         {
             #region Sort By Distance
-            // Clear the List of worldObjects that the are in range with the player
-            _objectsNearPlayer.Clear();
-            for (var i = 0; i < _map.WorldObjects.Count; i++)
+
+            _itemsNearPlayer.Clear();
+            for (var i = 0; i < ; i++)
             {
                 // only consider tiles that aren't empty
                 if (InteractionRange.Intersects(_map.WorldObjects[i].Bounds)
