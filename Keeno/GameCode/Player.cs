@@ -19,8 +19,11 @@ namespace Keeno
         private Map _map;
 
         private PlayerState _state;
+        private bool _swapToNormalState;
 
         private Rectangle _interactionRange;
+
+        private Point _itemCarryPoint;
 
         private readonly List<Keeno> _keenos;
         private readonly List<Keeno> _keenosNearPlayer;
@@ -29,7 +32,8 @@ namespace Keeno
         private readonly List<WorldObject> _worldObjects;
         private readonly List<WorldObject> _objectsNearPlayer;
         private readonly List<WorldObject> _emptyTilesNearPlayer;
-        private readonly List<BuildingBlueprint> _itemsNearPlayer;
+        private readonly List<Item> _itemsNearPlayer;
+        private Item? _itemCarrying;
 
         private Rectangle _tileTargetedRect;
 
@@ -44,21 +48,38 @@ namespace Keeno
             _state = PlayerState.Normal;
             _moveSpeed = Globals.PlayerMovementSpeed;
             _drawBounds = false;
+            _swapToNormalState = false;
             _interactionRange = new Rectangle((int)_position.X - rect.Width, (int)_position.Y - rect.Height, rect.Width * 3, rect.Height * 3);
             _map = map;
 
             _worldObjects = map.WorldObjects;
             _objectsNearPlayer = new List<WorldObject>();
             _emptyTilesNearPlayer = new List<WorldObject>();
+            _itemsNearPlayer = new List<Item>();
+
 
             _keenos = keenos;
             _keenosNearPlayer = new List<Keeno>();
             _followers = new List<Keeno>();
             _workSpeed = .02f;
 
+            _itemCarryPoint = new Point(0, 0);
+            _itemCarrying = null;
+
         }
         public override void Update(GameTime gt)
         {
+            // update the point that the items the player is carrying follows
+            _itemCarryPoint = new Point((int)_position.X, (int)_position.Y - 5);
+            // tell the item you are holding to follow you
+            _itemCarrying?.FollowPlayer(_itemCarryPoint);
+
+            // tell all followers to follow the player
+            foreach (var keeno in _followers)
+            {
+                keeno.FollowPlayer(_position.ToPoint());
+            }
+
             if (_isWalking)
                 _tileTargetedRect = new Rectangle(
                     _rect.X + _rect.Width / 4 + (int)_direction.X*20,
@@ -77,17 +98,22 @@ namespace Keeno
             if (_state != PlayerState.Building)
             {
                 Player_Object_Interaction();
-                
+                Player_Item_Interaction();
+                Player_Keeno_Interaction(gt);
             }
             ColisionDependantMovement();
-            Player_Keeno_Interaction(gt);
-            //Player_Item_Interaction();
 
             base.Update(gt);
         }
         private void BuildingMode()
         {
-            #region Sort By Distance
+            if (_swapToNormalState)
+            {
+                _swapToNormalState = false;
+                _state = PlayerState.Normal;
+            }
+
+            #region Select Closes Empty Tile
             // Clear the List of worldObjects that the are in range with the player
             _emptyTilesNearPlayer.Clear();
 
@@ -97,48 +123,48 @@ namespace Keeno
                     _emptyTilesNearPlayer.Add(tile);
             }
             // Sort the list
-            var sortedList = _emptyTilesNearPlayer.OrderBy(x => x.DistanceTo(
+            var sortedEmptyTileList = _emptyTilesNearPlayer.OrderBy(x => x.DistanceTo(
                 _tileTargetedRect.Location.ToVector2())).ToList();
             #endregion
-            if (sortedList.Count > 0)
+            if (sortedEmptyTileList.Count > 0)
             {
                 // Call the Selected method of the closest World Object
-                sortedList[0].Selected(_state == PlayerState.Building,
+                sortedEmptyTileList[0].Selected(_state == PlayerState.Building,
                     _workSpeed,Globals.DropOffKeenoSpeed);
-
+                if(_itemCarrying !=null && Globals.E_KeyPress)
+                {
+                    _itemCarrying.Place(sortedEmptyTileList[0].Bounds);
+                    _itemCarrying = null;
+                    _swapToNormalState = true;
+                }
             }
         }
         private void Player_Item_Interaction()
         {
-            //#region Sort By Distance
+            #region Sort By Distance
 
-            //_itemsNearPlayer.Clear();
-            //for (var i = 0; i < ; i++)
-            //{
-            //    // only consider tiles that aren't empty
-            //    if (InteractionRange.Intersects(.Bounds)
-            //        && _map.WorldObjects[i].GetType() != typeof(EmptyTile))
-            //        _objectsNearPlayer.Add(_map.WorldObjects[i]);
-            //}
-            //// Sort the list
-            //var sortedList = _objectsNearPlayer.OrderBy(x => x.DistanceTo(Position)).ToList();
-            //#endregion
-            //if (sortedList.Count > 0)
-            //{
-            //    // Call the Selected method of the closest World Object
-            //    sortedList[0].Selected(_followers.Count > 0,
-            //        _workSpeed, Globals.DropOffKeenoSpeed);
-            //    if (Globals.E_KeyDown)
-            //        sortedList[0].OnInteract();
+            _itemsNearPlayer.Clear();
 
-            //    // When pressing Q, if there are keenos following the player
-            //    // Go to that location
-            //    if (_followers.Count > 0 && Globals.Q_KeyDown)
-            //    {
-            //        if (sortedList[0].CanDropOffWorker(_followers[0]))
-            //            _followers.RemoveAt(0);
-            //    }
-            //}
+            foreach (var item in _map.WorldObjects.OfType<Item>())
+            {
+                if (InteractionRange.Intersects(item.Bounds))
+                    _itemsNearPlayer.Add(item);
+            }
+
+            // Sort the list
+            var sortedItemList = _itemsNearPlayer.OrderBy(x => x.DistanceTo(Position)).ToList();
+            #endregion
+            if (sortedItemList.Count > 0)
+            {
+                // Call the Selected method of the closest World Object
+                sortedItemList[0].Selected(_state != PlayerState.Building);
+                if (Globals.E_KeyPress)
+                {
+                    sortedItemList[0].OnInteract(_itemCarryPoint);
+                    _itemCarrying = sortedItemList[0];
+                    _state = PlayerState.Building;
+                }
+            }
         }
 
         private void Player_Object_Interaction()
@@ -154,21 +180,21 @@ namespace Keeno
                     _objectsNearPlayer.Add(_map.WorldObjects[i]);
             }
             // Sort the list
-            var sortedList = _objectsNearPlayer.OrderBy(x => x.DistanceTo(Position)).ToList();
+            var sortedWorldObjectList = _objectsNearPlayer.OrderBy(x => x.DistanceTo(Position)).ToList();
             #endregion
-            if (sortedList.Count > 0)
+            if (sortedWorldObjectList.Count > 0)
             {
                 // Call the Selected method of the closest World Object
-                sortedList[0].Selected(_followers.Count > 0,
+                sortedWorldObjectList[0].Selected(_followers.Count > 0,
                     _workSpeed, Globals.DropOffKeenoSpeed);
                 if (Globals.E_KeyDown)
-                    sortedList[0].OnInteract();
+                    sortedWorldObjectList[0].OnInteract();
 
                 // When pressing Q, if there are keenos following the player
                 // Go to that location
                 if (_followers.Count > 0 && Globals.Q_KeyDown)
                 {
-                    if (sortedList[0].CanDropOffWorker(_followers[0]))
+                    if (sortedWorldObjectList[0].CanDropOffWorker(_followers[0]))
                         _followers.RemoveAt(0);
                 }
             }
@@ -207,11 +233,6 @@ namespace Keeno
                     _followers.Add(sortedKeenoList[0]); // add it to the list of followers
                 }
             }
-            // tell all followers to follow the player
-            foreach (var keeno in _followers)
-            {
-                keeno.FollowPlayer(_position.ToPoint());
-            }
         }
 
         public Rectangle HandleInput()
@@ -240,7 +261,7 @@ namespace Keeno
             var flip = _facingRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             // Draw Player
             sb.Draw(_txr, _rect, _srcRect, _tint, 0f,
-                    Vector2.Zero, flip, .1f);
+                    Vector2.Zero, flip, .099f);
 
             // Draw test pixel
             if (_drawBounds)

@@ -33,9 +33,10 @@ namespace Keeno
 
         protected List<Keeno> _workers;
 
-        protected Texture2D _txr;
+        protected Texture2D _tilesetTxr;
         protected Texture2D _selectedTileTileset;
         protected Texture2D _testPixel;
+        protected Texture2D _txr;
 
         protected Rectangle _rect;
         protected Rectangle _srcRect;
@@ -70,8 +71,7 @@ namespace Keeno
         public Vector2 Position { get { return new Vector2(_tilePosition.X + _tileWidth / 2, _tilePosition.Y + _tileHeight / 2 - 3); } }
 
 
-        protected WorldObject(Texture2D texture,
-            Rectangle bounds,
+        protected WorldObject(Rectangle bounds,
             Rectangle sourceRect)
         {
             _state = ObjectState.Default;
@@ -84,7 +84,7 @@ namespace Keeno
             _canHarvestResource = false;
 
             _selectedTileTileset = Assets.MonochromaticTilesetTxr;
-            _txr = texture;
+            _tilesetTxr = Assets.TilesetTxr;
             _rect = bounds;
             _srcRect = sourceRect;
             Tint = Color.White;
@@ -205,15 +205,77 @@ namespace Keeno
         }
         public virtual void Draw(SpriteBatch sb)
         {
-            //sb.Draw(_testPixel, Bounds, Color.Red*.75f);
+
             if (_isSelected)
                 sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
-            sb.Draw(_txr, _rect, _srcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
+            sb.Draw(_tilesetTxr, _rect, _srcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
 
             if (_state == ObjectState.Default) 
                 _HGWorkProgress.Draw(sb);
         }
     }
+    class Item : WorldObject
+    {
+        public Item(Point position, Texture2D txr)
+            : base(
+                  new Rectangle(position.X, 
+                              position.Y,
+                              Globals.Tile_Width_Height,
+                              Globals.Tile_Width_Height),
+                // sourceRect of the selectedTxr inside the tileset
+                new Rectangle(
+                  (Globals.ItemSelectedIndex % Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  (Globals.ItemSelectedIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height)
+                  )
+        {
+            _txr = txr;
+            _tilePosition = position;
+            _impassable = false;
+            _selectedTileSrcRect = _srcRect;
+            //_srcRect = new Rectangle(0,0,16,16);
+        }
+        public void Selected(bool IsConditionMet)
+        {
+            if(IsConditionMet)
+                _isSelected = true;
+        }
+        public void OnInteract(Point itemCarryPoint)
+        {
+            _rect.X = itemCarryPoint.X;
+            _rect.Y = itemCarryPoint.Y;
+
+        }
+        public void FollowPlayer(Point itemCarryPoint)
+        {
+            _rect.X = itemCarryPoint.X;
+            _rect.Y = itemCarryPoint.Y;
+        }
+        public void Place(Rectangle onThisTile)
+        {
+            _rect = onThisTile;
+        }
+        public override void Draw(SpriteBatch sb)
+        {
+            if (_isSelected)
+                sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+            //sb.Draw(_testPixel, Bounds, Color.Red * .75f);
+            sb.Draw(_txr, _rect, Color.White);
+            sb.Draw(_txr, _rect, null, Color.White, 0f,Vector2.Zero,SpriteEffects.None,.1f);
+
+        }
+
+    }
+    //class BluePrint : Item()
+    //{
+
+    //}
+
+
+
+
+
 
     //class WorkStation : WorldObject
     //{
@@ -263,9 +325,9 @@ namespace Keeno
         private bool _canChop;
 
 
-        public Tree(Texture2D tileset, Point tilePosition)
-            : base( tileset,
-                // world‐space bounds: tilePosition * tileSize
+        public Tree(Point tilePosition)
+            : base(
+                  // world‐space bounds: tilePosition * tileSize
                 new Rectangle(tilePosition.X * Globals.Tile_Width_Height,
                               tilePosition.Y * Globals.Tile_Width_Height,
                               Globals.Tile_Width_Height,
@@ -282,6 +344,7 @@ namespace Keeno
             _workerSlots = 3;
             _destroySpeed = .01f;
             _resourceAmount = Globals.TreeWoodAmount;
+            _tilesetTxr = Assets.TilesetTxr;
             _health = Globals.TreeHealth;
             _canChop = false;
             _canHarvestResource = false;
@@ -411,9 +474,8 @@ namespace Keeno
     class Farm : WorldObject
     {
         private Rectangle _farmLandSrc;
-        public Farm(Texture2D tileset, Point tilePosition) 
+        public Farm(Point tilePosition) 
             : base(
-                tileset,
                 // world‐space bounds: tilePosition * tileSize
                 new Rectangle(tilePosition.X * Globals.Tile_Width_Height,
                               tilePosition.Y * Globals.Tile_Width_Height,
@@ -433,6 +495,7 @@ namespace Keeno
             _workerSlots = 1;
             _destroySpeed = .01f;
             _resourceAmount = Globals.FarmFoodAmount;
+            _tilesetTxr = Assets.TilesetTxr;
             _health = Globals.FarmHealth;
             _canHarvestResource = false;
             _canDropOff = false;
@@ -573,9 +636,8 @@ namespace Keeno
         public event Action<Keeno> KeenoSpawned;
         public List<Keeno> KeenosISpwaned { get { return _keenosISpawned; } }
 
-        public TownCentre(Texture2D tileset, Point tilePosition) 
+        public TownCentre(Point tilePosition) 
             : base(
-                tileset,
                 // world‐space bounds: tilePosition * tileSize
                 new Rectangle(tilePosition.X * Globals.Tile_Width_Height,
                               tilePosition.Y * Globals.Tile_Width_Height,
@@ -599,6 +661,8 @@ namespace Keeno
             _tilePosition.X = tilePosition.X * Globals.Tile_Width_Height;
             _tilePosition.Y = tilePosition.Y * Globals.Tile_Width_Height;
             _tilesetColumns = Globals.TilemapColumns;
+            _tilesetTxr = Assets.TilesetTxr;
+
 
             _buttonPrompt_E = new ButtonPrompt(Assets.InputsTilesetTxr,
                 new Rectangle(_tilePosition.X + _tileWidth / 2,
@@ -667,9 +731,8 @@ namespace Keeno
     class EmptyTile : WorldObject
     {
 
-        public EmptyTile(Texture2D tileset, Point tilePosition) 
+        public EmptyTile(Point tilePosition) 
             : base(
-                tileset,
                 // world‐space bounds: tilePosition * tileSize
                 new Rectangle(tilePosition.X * Globals.Tile_Width_Height,
                               tilePosition.Y * Globals.Tile_Width_Height,
@@ -686,6 +749,7 @@ namespace Keeno
             _impassable = false;
             _canUse = false;
             _state = ObjectState.Default;
+            _tilesetTxr = Assets.TilesetTxr;
             Tint = Color.White;
 
             _tileHeight = _tileWidth = Globals.Tile_Width_Height;

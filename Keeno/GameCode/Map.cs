@@ -43,14 +43,15 @@ namespace Keeno
         public Map(string csvPath)
         {
             _tileWidth = _tileHeight = Globals.Tile_Width_Height;
-            _tileset = Assets.TilesetTxr;
             _tilesetColumns = Globals.TilemapColumns;
+            _tileset = Assets.TilesetTxr;
 
 
             // Loads the map data from the CSV
             LoadMap(csvPath);
 
             _worldObjects = new List<WorldObject>();
+
 
 
             // after LoadMap has filled _mapData
@@ -133,31 +134,35 @@ namespace Keeno
         }
         private void AddTree(int x, int y)
         {
-            _worldObjects.Add(new Tree(_tileset, new Point(x, y)));
+            _worldObjects.Add(new Tree(new Point(x, y)));
 
             _mapData[y, x] = Globals.OccupiedTileIndex;
         }
         private void AddFarm(int x, int y)
         {
-            _worldObjects.Add(new Farm(_tileset, new Point(x, y)));
+            _worldObjects.Add(new Farm(new Point(x, y)));
 
             _mapData[y, x] = Globals.OccupiedTileIndex;
         }
         private void AddTownCentre(int x, int y)
         {
-            _worldObjects.Add(new TownCentre(_tileset, new Point(x, y)));
+            _worldObjects.Add(new TownCentre(new Point(x, y)));
 
             _mapData[y, x] = Globals.OccupiedTileIndex;
         }
         private void AddEmptyTile(int x, int y)
         {
-            _worldObjects.Add(new EmptyTile(_tileset, new Point(x, y)));
+            _worldObjects.Add(new EmptyTile(new Point(x, y)));
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }
 
         public void Update(GameTime gt)
         {
+
+            if (Globals.UpArrow_KeyPress)
+                _worldObjects.Add(new Item(new Point(100, 150), Assets.TentsTxr));
+
             for (int i = 0; i < _worldObjects.Count; i++)
             {
                 _worldObjects[i].Update(gt);

@@ -13,8 +13,6 @@ namespace Keeno
         private Rectangle _emptySrcRect;
         private Rectangle _fullSrcRect;
 
-        private Texture2D _spritesheet;
-
 
         public HourGlass(Texture2D Spritesheet, Rectangle rect, Color tint)
             : base(rect, Spritesheet)
@@ -24,7 +22,7 @@ namespace Keeno
             _rect = rect;
             _rect.X = rect.X - 1;
             _rect.Width = rect.Width+1;
-            _spritesheet = Spritesheet;
+            _txr = Spritesheet;
 
             _emptySrcRect = new Rectangle(Globals.EmptyHourGlassIndex % Globals.TilemapColumns * Globals.Tile_Width_Height,
                                 (Globals.EmptyHourGlassIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
@@ -100,7 +98,7 @@ namespace Keeno
             updatedSrcRect = new Rectangle(_fullSrcRect.X, _fullSrcRect.Bottom - yUsed, 
                                             _fullSrcRect.Width, yUsed);
             // Draw the "Filling"
-            sb.Draw(_spritesheet, updatedDrawRect, 
+            sb.Draw(_txr, updatedDrawRect, 
                     updatedSrcRect, _tint, 0, Vector2.Zero, SpriteEffects.None, Globals.HourGlassLD);
             // Draw the "Outline"
             //sb.Draw(_spritesheet, _rect, 
@@ -119,10 +117,6 @@ namespace Keeno
             _staticSrcRect = new Rectangle(tileIndex % Globals.InputsTilesetColumns * Globals.InputsTileset_Width_Height,
                                 (tileIndex / Globals.InputsTilesetColumns) * Globals.InputsTileset_Width_Height,
                                 Globals.InputsTileset_Width_Height, Globals.InputsTileset_Width_Height);
-
-            //_emptySrcRect = new Rectangle(Globals.EmptyHourGlassIndex % Globals.TilemapColumns * Globals.Tile_Width_Height,
-            //        (Globals.EmptyHourGlassIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
-            //        Globals.Tile_Width_Height, Globals.Tile_Width_Height);
         }
         public override void Draw(SpriteBatch sb)
         {

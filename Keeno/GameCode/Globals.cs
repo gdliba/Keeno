@@ -42,8 +42,7 @@ namespace Keeno
         public static bool DownArrow_KeyPress => KeyPress(Keys.Down);
         public static bool Tab_KeyPress => KeyPress(Keys.Tab);
 
-
-
+        public static bool E_FakeKeyPress => FakeKeyPress(Keys.E);
 
 
         /// <summary>
@@ -54,6 +53,10 @@ namespace Keeno
         public static bool KeyPress(Keys key)
         {
             return KbCurr.IsKeyDown(key) && KbOld.IsKeyUp(key);
+        }
+        public static bool FakeKeyPress(Keys key)
+        {
+            return KbOld.IsKeyDown(key) && KbCurr.IsKeyUp(key);
         }
 
         /// <summary>
@@ -154,6 +157,8 @@ namespace Keeno
         public static Texture2D MonochromaticTilesetTxr { get; private set; }
         public static Texture2D InputsTilesetTxr { get; private set; }
         public static Texture2D ChoppedTreeTxr {  get; private set; }
+        public static Texture2D TentsTxr { get; private set; }
+
 
 
         public static void Load(ContentManager content)
@@ -166,8 +171,9 @@ namespace Keeno
             TilesetTxr = content.Load<Texture2D>("SpriteSheets\\color_t");
             MonochromaticTilesetTxr = content.Load<Texture2D>("SpriteSheets\\mono_t");
             InputsTilesetTxr = content.Load<Texture2D>("SpriteSheets\\inputs_t");
-
             ChoppedTreeTxr = content.Load<Texture2D>("WorldObjects\\Flora\\choppedTree2");
+            TentsTxr = content.Load<Texture2D>("WorldObjects\\Buildings\\Houses\\tents_w");
+
         }
     }
     public enum ResourceType
