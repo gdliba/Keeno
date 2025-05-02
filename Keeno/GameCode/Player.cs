@@ -98,7 +98,6 @@ namespace Keeno
             if (_state != PlayerState.Building)
             {
                 Player_Object_Interaction();
-                Player_Item_Interaction();
                 Player_Keeno_Interaction(gt);
             }
             ColisionDependantMovement();
@@ -139,33 +138,6 @@ namespace Keeno
                 }
             }
         }
-        private void Player_Item_Interaction()
-        {
-            #region Sort By Distance
-
-            _itemsNearPlayer.Clear();
-
-            foreach (var item in _map.WorldObjects.OfType<Item>())
-            {
-                if (InteractionRange.Intersects(item.Bounds))
-                    _itemsNearPlayer.Add(item);
-            }
-
-            // Sort the list
-            var sortedItemList = _itemsNearPlayer.OrderBy(x => x.DistanceTo(Position)).ToList();
-            #endregion
-            if (sortedItemList.Count > 0)
-            {
-                // Call the Selected method of the closest World Object
-                sortedItemList[0].Selected(_state != PlayerState.Building);
-                if (Globals.E_KeyPress)
-                {
-                    sortedItemList[0].OnInteract(_itemCarryPoint);
-                    _itemCarrying = sortedItemList[0];
-                    _state = PlayerState.Building;
-                }
-            }
-        }
 
         private void Player_Object_Interaction()
         {
@@ -184,18 +156,33 @@ namespace Keeno
             #endregion
             if (sortedWorldObjectList.Count > 0)
             {
-                // Call the Selected method of the closest World Object
-                sortedWorldObjectList[0].Selected(_followers.Count > 0,
-                    _workSpeed, Globals.DropOffKeenoSpeed);
-                if (Globals.E_KeyDown)
-                    sortedWorldObjectList[0].OnInteract();
-
-                // When pressing Q, if there are keenos following the player
-                // Go to that location
-                if (_followers.Count > 0 && Globals.Q_KeyDown)
+                // if the selected World object is NOT AN ITEM
+                if (sortedWorldObjectList[0].GetType() != typeof(Item))
                 {
-                    if (sortedWorldObjectList[0].CanDropOffWorker(_followers[0]))
-                        _followers.RemoveAt(0);
+                    // Call the Selected method of the closest World Object
+                    sortedWorldObjectList[0].Selected(_followers.Count > 0,
+                        _workSpeed, Globals.DropOffKeenoSpeed);
+                    if (Globals.E_KeyDown)
+                        sortedWorldObjectList[0].OnInteract();
+
+                    // When pressing Q, if there are keenos following the player
+                    // Go to that location
+                    if (_followers.Count > 0 && Globals.Q_KeyDown)
+                    {
+                        if (sortedWorldObjectList[0].CanDropOffWorker(_followers[0]))
+                            _followers.RemoveAt(0);
+                    }
+                }
+                // else if it IS AN ITEM
+                else if (sortedWorldObjectList[0] is Item item)
+                {
+                    // Call the Selected method of the closest World Object
+                    item.Selected(_state != PlayerState.Building);
+                    if (Globals.E_KeyPress)
+                    {
+                        _itemCarrying = sortedWorldObjectList[0] as Item;
+                        _state = PlayerState.Building;
+                    }
                 }
             }
         }
