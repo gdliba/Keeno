@@ -40,13 +40,11 @@ namespace Keeno
         /// <param name="tileWidth"></param>
         /// <param name="tileHeight"></param>
         /// <param name="tilesetColumns"></param>
-        public Map(string csvPath, Texture2D tilesetTexture, Texture2D monochromaticTilesetTxr, Texture2D inputsTileset, int tileWidth,
-            int tileHeight, int tilesetColumns)
+        public Map(string csvPath)
         {
-            _tileWidth = tileWidth;
-            _tileHeight = tileHeight;
-            _tileset = tilesetTexture;
-            _tilesetColumns = tilesetColumns;
+            _tileWidth = _tileHeight = Globals.Tile_Width_Height;
+            _tileset = Assets.TilesetTxr;
+            _tilesetColumns = Globals.TilemapColumns;
 
 
             // Loads the map data from the CSV
@@ -75,7 +73,7 @@ namespace Keeno
                                 AddFarm(x,y);
                             break;
                         case Globals.EmptyTileIndex:
-                            AddEmptyTile(x, y);
+                            AddEmptyTile(x,y);
                             break;
                         default:
                             break;
@@ -135,29 +133,25 @@ namespace Keeno
         }
         private void AddTree(int x, int y)
         {
-            _worldObjects.Add(new Tree(_tileset, _tileWidth, _tileHeight,
-                                _tilesetColumns, new Point(x, y)));
+            _worldObjects.Add(new Tree(_tileset, new Point(x, y)));
 
             _mapData[y, x] = Globals.OccupiedTileIndex;
         }
         private void AddFarm(int x, int y)
         {
-            _worldObjects.Add(new Farm(_tileset, _tileWidth, _tileHeight,
-                                _tilesetColumns, new Point(x, y)));
+            _worldObjects.Add(new Farm(_tileset, new Point(x, y)));
 
             _mapData[y, x] = Globals.OccupiedTileIndex;
         }
         private void AddTownCentre(int x, int y)
         {
-            _worldObjects.Add(new TownCentre(_tileset, _tileWidth, _tileHeight,
-                                _tilesetColumns, new Point(x, y)));
+            _worldObjects.Add(new TownCentre(_tileset, new Point(x, y)));
 
             _mapData[y, x] = Globals.OccupiedTileIndex;
         }
         private void AddEmptyTile(int x, int y)
         {
-            _worldObjects.Add(new EmptyTile(_tileset, _tileWidth, _tileHeight,
-                    _tilesetColumns, new Point(x, y)));
+            _worldObjects.Add(new EmptyTile(_tileset, new Point(x, y)));
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }

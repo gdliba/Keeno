@@ -65,6 +65,10 @@ namespace Keeno
         // WorldObjects
         //Texture2D choppedTree;
 
+        // Items
+        //List<Item> items;
+
+
         // Fonts
 #if DEBUG
         public static SpriteFont debugFont;
@@ -117,14 +121,14 @@ namespace Keeno
             debugFont = Content.Load<SpriteFont>("Fonts\\debugFont");
 #endif
 
-            testMap = new Map("Content/MapData/testLevel_Map.csv", Assets.TilesetTxr, Assets.MonochromaticTilesetTxr, Assets.InputsTilesetTxr, 16, 16, 49);
+            testMap = new Map("Content/MapData/testLevel_Map.csv");
             testPlayer = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(200, 200, 16, 16),
                 Assets.DebugPixelTxr, testMap, keenos);
 
             //testHourGlass = new HourGlass(tilesetTxr, new Rectangle(50, 50, 16, 16));
 
             testBuildingObject = new BuildingBlueprint(Content.Load<Texture2D>
-                ("WorldObjects\\Buildings\\Houses\\tents_w"), 0, new Rectangle(300, 200, 16, 16));
+                ("WorldObjects\\Buildings\\Houses\\tents_w"), 0, new Rectangle(300, 200, 16, 16), Content.Load<Texture2D>("WorldObjects\\Items\\scroll"));
 
             // TODO: FIND OUT
             // Does this update according to the number of TCS???

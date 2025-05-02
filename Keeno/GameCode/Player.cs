@@ -110,35 +110,35 @@ namespace Keeno
         }
         private void Player_Item_Interaction()
         {
-            #region Sort By Distance
+            //#region Sort By Distance
 
-            _itemsNearPlayer.Clear();
-            for (var i = 0; i < ; i++)
-            {
-                // only consider tiles that aren't empty
-                if (InteractionRange.Intersects(_map.WorldObjects[i].Bounds)
-                    && _map.WorldObjects[i].GetType() != typeof(EmptyTile))
-                    _objectsNearPlayer.Add(_map.WorldObjects[i]);
-            }
-            // Sort the list
-            var sortedList = _objectsNearPlayer.OrderBy(x => x.DistanceTo(Position)).ToList();
-            #endregion
-            if (sortedList.Count > 0)
-            {
-                // Call the Selected method of the closest World Object
-                sortedList[0].Selected(_followers.Count > 0,
-                    _workSpeed, Globals.DropOffKeenoSpeed);
-                if (Globals.E_KeyDown)
-                    sortedList[0].OnInteract();
+            //_itemsNearPlayer.Clear();
+            //for (var i = 0; i < ; i++)
+            //{
+            //    // only consider tiles that aren't empty
+            //    if (InteractionRange.Intersects(.Bounds)
+            //        && _map.WorldObjects[i].GetType() != typeof(EmptyTile))
+            //        _objectsNearPlayer.Add(_map.WorldObjects[i]);
+            //}
+            //// Sort the list
+            //var sortedList = _objectsNearPlayer.OrderBy(x => x.DistanceTo(Position)).ToList();
+            //#endregion
+            //if (sortedList.Count > 0)
+            //{
+            //    // Call the Selected method of the closest World Object
+            //    sortedList[0].Selected(_followers.Count > 0,
+            //        _workSpeed, Globals.DropOffKeenoSpeed);
+            //    if (Globals.E_KeyDown)
+            //        sortedList[0].OnInteract();
 
-                // When pressing Q, if there are keenos following the player
-                // Go to that location
-                if (_followers.Count > 0 && Globals.Q_KeyDown)
-                {
-                    if (sortedList[0].CanDropOffWorker(_followers[0]))
-                        _followers.RemoveAt(0);
-                }
-            }
+            //    // When pressing Q, if there are keenos following the player
+            //    // Go to that location
+            //    if (_followers.Count > 0 && Globals.Q_KeyDown)
+            //    {
+            //        if (sortedList[0].CanDropOffWorker(_followers[0]))
+            //            _followers.RemoveAt(0);
+            //    }
+            //}
         }
 
         private void Player_Object_Interaction()
