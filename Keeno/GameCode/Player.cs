@@ -189,7 +189,7 @@ namespace Keeno
                 else
                 {
                     sortedWorldObjectList[0].Selected(_workSpeed);
-                    if (Globals.E_KeyPress)
+                    if (Globals.E_KeyDown)
                         sortedWorldObjectList[0].OnInteract();
                 }
             }
