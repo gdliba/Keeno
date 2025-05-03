@@ -110,6 +110,7 @@ namespace Keeno
         // Player
         public static int PlayerMovementSpeed = 50;
         public static float DropOffKeenoSpeed = .03f;
+        public static float NeutralInteractSpeed = .02f;
 
         // Keeno
         //public static float KeenoMovementSpeed = 20;

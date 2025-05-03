@@ -77,6 +77,9 @@ namespace Keeno
             _destroyMe = false;
             _canUse = false;
 
+            _destroySpeed = .01f;
+
+
             _testPixel = Assets.DebugPixelTxr; 
             _selectedTileTileset = Assets.MonochromaticTilesetTxr;
             _txr = Assets.TilesetTxr;
@@ -178,9 +181,7 @@ namespace Keeno
 
         }
         
-        public virtual void Selected(bool IsConditionMet,
-            float playerWorkSpeed,
-            float dropOffSpeed)
+        public virtual void Selected(float playerWorkSpeed)
         {
             _isSelected = true;
         }
@@ -309,6 +310,8 @@ namespace Keeno
 
         protected float _workSpeed;
         protected float _workDuration;
+        protected float _playerWorkSpeed;
+
 
         protected int _workerSlots;
         protected int _resourceAmount;
@@ -326,14 +329,15 @@ namespace Keeno
                   Globals.Tile_Width_Height,
                   Globals.Tile_Width_Height))
         {
-            _resourceHarvested = false;
-
             _workers = new List<Keeno>();
             _resourceType = ResourceType.None;
             _resourceAmount = 0;
             _workSpeed = 0f;
             _workerSlots = 1;
             _workDuration = 10f;
+
+            _resourceHarvested = false;
+            _canDropOff = false;
 
 
             #region ButtonPrompts and HG
@@ -381,9 +385,39 @@ namespace Keeno
                 Color.Yellow);
             #endregion
         }
+        public override void Selected(float playerWorkSpeed)
+        {
+            base.Selected(playerWorkSpeed);
+            _playerWorkSpeed = playerWorkSpeed;
+        }
         public override void Update(GameTime gt)
         {
+            if (_state == ObjectState.NotHarvestable)
+                ClearWorkerList();
+
+            if (_isSelected)
+            {
+                _resourceHarvested = _HGInteract.Update(Globals.E_KeyDown, _playerWorkSpeed);
+
+                if (_state == ObjectState.NotHarvestable)
+                    _destroyMe = _HGDestroy.Update(Globals.X_KeyDown, _destroySpeed);
+                if (_destroyMe)
+                    DestroyMe();
+                // Check if player has followers
+                // And if there are available workerSlots
+                if (_workerSlots > 0)
+                {
+                    _canDropOff = _HGDropOff.Update(Globals.Q_KeyDown, Globals.DropOffKeenoSpeed);
+                }
+            }
+            if (_state != ObjectState.NotHarvestable)
+            {
+                if (_resourceHarvested)
+                    HarvestResource(_resourceType, _resourceAmount);
+            }
+
             // Set selected to false;
+            // Reset all HG
             base.Update(gt);
 
             // Work out the ammount of work that needs to be put in
@@ -407,11 +441,14 @@ namespace Keeno
             if (_resourceHarvested)
                 HarvestResource(_resourceType, _resourceAmount);
         }
+        #region Resources/Workers
         public virtual void HarvestResource(ResourceType type, int amount)
         {
             _health--;
             ResourceTracker.Add(type, amount);
             _HGWorkProgress.Reset();
+            _HGInteract.Reset();
+
         }
         public virtual void ReduceWorkerSlots()
         {
@@ -440,7 +477,6 @@ namespace Keeno
             }
             _workers.Clear();
         }
-
         public virtual bool CanDropOffWorker(Keeno worker)
         {
             if (_canDropOff && _workerSlots > 0)
@@ -451,6 +487,7 @@ namespace Keeno
             }
             return false;
         }
+        #endregion
         public override void DestroyMe()
         {
             ClearWorkerList();
@@ -463,10 +500,6 @@ namespace Keeno
         }
         public override void Draw(SpriteBatch sb)
         {
-            if (_state == ObjectState.Dead)
-                return;
-
-
             switch (_state)
             {
                 case ObjectState.Dead:
@@ -493,9 +526,6 @@ namespace Keeno
             }
             //sb.Draw(_txr, _rect, _farmLandSrc, Color.White);
             base.Draw(sb);
-
-            
-            
         }
     }
 
@@ -506,60 +536,14 @@ namespace Keeno
 
         public Tree(Point tilePosition, int globalTileIndex)
             : base(tilePosition, globalTileIndex)
-                {
-            _state = ObjectState.Default;
-            _resourceType = ResourceType.Wood;
-            _workerSlots = 3;
-            _destroySpeed = .01f;
+        {
             _resourceAmount = Globals.TreeWoodAmount;
-            _txr = Assets.TilesetTxr;
             _health = Globals.TreeHealth;
-            _resourceHarvested = false;
-            _canDropOff = false;
-            _impassable = true;
+            _workerSlots = 3;
+            _resourceType = ResourceType.Wood;
 
             _choppedTreeTxr = Assets.ChoppedTreeTxr;
-        }
-
-        public override void Selected(bool playerHasFollowers,
-            float playerWorkSpeed,
-            float dropOffSpeed)
-        {
-            base.Selected(playerHasFollowers, playerWorkSpeed, dropOffSpeed);
-
-            _resourceHarvested = _HGInteract.Update(Globals.E_KeyDown, playerWorkSpeed);
-
-            if (_state == ObjectState.NotHarvestable)
-                _destroyMe = _HGDestroy.Update(Globals.X_KeyDown, _destroySpeed);
-            if (_destroyMe) 
-                DestroyMe();
-
-            // Check if player has followers
-            // And if there are available workerSlots
-            if (playerHasFollowers && _workerSlots > 0)
-            {
-                _canDropOff = _HGDropOff.Update(Globals.Q_KeyDown, dropOffSpeed);
-            }
-
-        }
-        public override void Update(GameTime gt)
-        {
-            if (_state == ObjectState.NotHarvestable)
-                ClearWorkerList();
-            base.Update(gt);
-        }
-        public override void OnInteract()
-        {
-            if (_state != ObjectState.NotHarvestable)
-            {
-                if (_resourceHarvested)
-                    HarvestResource(ResourceType.Wood, _resourceAmount);
-            }
-        }
-        public override void HarvestResource(ResourceType type, int amount)
-        {
-            base.HarvestResource(type, amount);
-            _HGInteract.Reset();
+            _impassable = true;
         }
         public override void ChangeTextureToNotHarvestable()
         {
@@ -640,73 +624,6 @@ namespace Keeno
                 Color.Yellow);
             #endregion
         }
-        public override void Selected(bool playerHasFollowers,
-     float playerWorkSpeed,
-     float dropOffSpeed)
-        {
-            base.Selected(playerHasFollowers, playerWorkSpeed, dropOffSpeed);
-
-            _resourceHarvested = _HGInteract.Update(Globals.E_KeyDown, playerWorkSpeed);
-
-            if (_state == ObjectState.NotHarvestable)
-                _destroyMe = _HGDestroy.Update(Globals.X_KeyDown, _destroySpeed);
-            if (_destroyMe)
-                DestroyMe();
-
-            // Check if player has followers
-            // And if there are available workerSlots
-            if (playerHasFollowers && _workerSlots > 0)
-            {
-                _canDropOff = _HGDropOff.Update(Globals.Q_KeyDown, dropOffSpeed);
-            }
-
-        }
-        public override void Update(GameTime gt)
-        {
-            if (_state == ObjectState.NotHarvestable)
-                ClearWorkerList();
-            base.Update(gt);
-        }
-        public override void OnInteract()
-        {
-            if (_state != ObjectState.NotHarvestable)
-            {
-                if (_resourceHarvested)
-                    HarvestResource(ResourceType.Food, _resourceAmount);
-            }
-        }
-        public override void HarvestResource(ResourceType type, int amount)
-        {
-            base.HarvestResource(type, amount);
-            _HGInteract.Reset();
-        }
-
-        public override void Draw(SpriteBatch sb)
-        {
-            if (_state != ObjectState.NotHarvestable)
-            {
-                if (_isSelected)
-                {
-                    // HourGlasses
-                    _HGInteract.Draw(sb);
-                    _HGDropOff.Draw(sb);
-                    // Input Promts
-                    _buttonPrompt_E.Draw(sb);
-                    _buttonPrompt_Q.Draw(sb);
-                }
-            }
-            else if (_state == ObjectState.NotHarvestable)
-            {
-                ChangeTextureToNotHarvestable();
-                if (_isSelected)
-                {
-                    _buttonPrompt_X.Draw(sb);
-                    _HGDestroy.Draw(sb);
-                }
-            }
-            //sb.Draw(_txr, _rect, _farmLandSrc, Color.White);
-            base.Draw(sb);
-        }
         public override void ChangeTextureToNotHarvestable()
         {
 
@@ -735,19 +652,17 @@ namespace Keeno
         {
             _keenosISpawned = new List<Keeno>();
         }
-        public override void Selected(bool playerHasFollowers,
-            float playerWorkSpeed,
-            float dropOffSpeed)
-        {
-            base.Selected(playerHasFollowers, playerWorkSpeed, dropOffSpeed);
-            if (ResourceTracker.CanSpend(ResourceType.Food, 
-                ResourceTracker.KeenoCost))
-                _canUse = _HGInteract.Update(Globals.E_KeyDown, playerWorkSpeed);
-            else
-                _canUse = _HGCantInteract.Update(Globals.E_KeyDown, playerWorkSpeed);
-        }
         public override void Update(GameTime gt)
         {
+
+            if (_isSelected)
+            {
+                if (ResourceTracker.CanSpend(ResourceType.Food,
+                ResourceTracker.KeenoCost))
+                    _canUse = _HGInteract.Update(Globals.E_KeyDown, Globals.NeutralInteractSpeed);
+                else
+                    _canUse = _HGCantInteract.Update(Globals.E_KeyDown, Globals.NeutralInteractSpeed);
+            }
             base.Update(gt);
         }
         public override void OnInteract()
@@ -758,8 +673,9 @@ namespace Keeno
                 ResourceTracker.KeenoCost))
                 {
                     SpawnKeeno();
-                    _HGInteract.Reset();
                 }
+
+                _HGInteract.Reset();
                 _HGCantInteract.Reset();
             }
         }
@@ -797,12 +713,6 @@ namespace Keeno
               )
         {
             _impassable = false;
-        }
-        public override void Selected(bool playerHasFollowers,
-            float playerWorkSpeed,
-            float dropOffSpeed)
-        {
-            base.Selected(playerHasFollowers, playerWorkSpeed, dropOffSpeed);
         }
         public override void OnInteract()
         {

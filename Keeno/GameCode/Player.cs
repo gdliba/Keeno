@@ -132,8 +132,7 @@ namespace Keeno
             if (sortedEmptyTileList.Count > 0)
             {
                 // Call the Selected method of the closest World Object
-                sortedEmptyTileList[0].Selected(_state == PlayerState.Building,
-                    _workSpeed,Globals.DropOffKeenoSpeed);
+                sortedEmptyTileList[0].Selected(_workSpeed);
                 if(_itemCarrying !=null && Globals.E_KeyPress)
                 {
                     _itemCarrying.Place(sortedEmptyTileList[0].Bounds);
@@ -160,10 +159,10 @@ namespace Keeno
             if (sortedWorldObjectList.Count > 0)
             {
                 // if it IS AN ITEM
-                if (sortedWorldObjectList[0] is Item item)
+                if (sortedWorldObjectList[0] is Item selectedItem)
                 {
                     // Call the Selected method of the closest World Object
-                    item.Selected(_state != PlayerState.Building);
+                    selectedItem.Selected(_state != PlayerState.Building);
                     if (Globals.E_KeyPress)
                     {
                         _itemCarrying = sortedWorldObjectList[0] as Item;
@@ -171,23 +170,27 @@ namespace Keeno
                     }
                 }
 
-                // if selected World object is NOT AN ITEM
-                else
+                // if selected World object IS a WORKSTATION
+                else if (sortedWorldObjectList[0] is WorkStation selectedWorkStation)
                 {
-                    // Call the Selected method of the closest World Object
-                    sortedWorldObjectList[0].Selected(_followers.Count > 0,
-                        _workSpeed, Globals.DropOffKeenoSpeed);
-                    if (Globals.E_KeyDown)
-                        sortedWorldObjectList[0].OnInteract();
-
-                    // When pressing Q, if there are keenos following the player
-                    if (sortedWorldObjectList[0] is WorkStation workStation 
-                        && _followers.Count > 0/* && Globals.Q_KeyDown*/)
+                    // Select said WORKSTATION
+                    selectedWorkStation.Selected(_workSpeed);
+                    // Call OnInteract when E is pressed
+                    if (Globals.E_KeyPress)
+                        selectedWorkStation.OnInteract();
+                    // if you have followers
+                    if (_followers.Count > 0)
                     {
-                        // Send worker to that location
-                        if (workStation.CanDropOffWorker(_followers[0]))
+                        // Check if the WORKSTATION has available worker slots
+                        if (selectedWorkStation.CanDropOffWorker(_followers[0])) // Give the follower to the WORKSTATION
                             _followers.RemoveAt(0);
                     }
+                }
+                else
+                {
+                    sortedWorldObjectList[0].Selected(_workSpeed);
+                    if (Globals.E_KeyPress)
+                        sortedWorldObjectList[0].OnInteract();
                 }
             }
         }
