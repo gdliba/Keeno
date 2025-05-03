@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace Keeno
 {
@@ -68,7 +69,7 @@ namespace Keeno
 
         public Color Tint;
         public Rectangle Bounds { get{ return _rect; } protected set { _rect = value; } }
-        public Vector2 Position { get { return new Vector2(_tilePosition.X + _tileWidth / 2, _tilePosition.Y + _tileHeight / 2 - 3); } }
+        public Vector2 Position { get { return new Vector2(_rect.X + _tileWidth / 2, _rect.Y + _tileHeight / 2); } }
 
 
         protected WorldObject(Rectangle bounds,
@@ -205,6 +206,8 @@ namespace Keeno
         }
         public virtual void Draw(SpriteBatch sb)
         {
+            //sb.Draw(_testPixel, new Vector2(Position.X, Position.Y), Color.Black);  // Draw Position
+
 
             if (_isSelected)
                 sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
@@ -212,6 +215,8 @@ namespace Keeno
 
             if (_state == ObjectState.Default) 
                 _HGWorkProgress.Draw(sb);
+
+
         }
     }
     class Item : WorldObject
@@ -447,6 +452,10 @@ namespace Keeno
 
         public override void Draw(SpriteBatch sb)
         {
+            //sb.Draw(_testPixel, Bounds, Color.Red * .75f);
+
+
+
             if (_state != ObjectState.NotHarvestable)
             {
                 base.Draw(sb);
@@ -631,6 +640,7 @@ namespace Keeno
     }
     class TownCentre : WorldObject
     {
+
         private Color _tint;
         private List<Keeno> _keenosISpawned;
         public event Action<Keeno> KeenoSpawned;
@@ -719,6 +729,8 @@ namespace Keeno
         }
         public override void Draw(SpriteBatch sb)
         {
+            //sb.Draw(_testPixel, Bounds, Color.Red * .75f);
+
             base.Draw(sb);
             if (_isSelected)
             {

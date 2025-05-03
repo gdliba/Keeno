@@ -47,7 +47,7 @@ namespace Keeno
         {
             _state = PlayerState.Normal;
             _moveSpeed = Globals.PlayerMovementSpeed;
-            _drawBounds = false;
+            _drawBounds = true;
             _swapToNormalState = false;
             _interactionRange = new Rectangle((int)_position.X - rect.Width, (int)_position.Y - rect.Height, rect.Width * 3, rect.Height * 3);
             _map = map;
@@ -69,6 +69,11 @@ namespace Keeno
         }
         public override void Update(GameTime gt)
         {
+            _objectsNearPlayer.Clear();
+            _emptyTilesNearPlayer.Clear();
+
+
+
             // update the point that the items the player is carrying follows
             _itemCarryPoint = new Point((int)_position.X, (int)_position.Y - 5);
             // tell the item you are holding to follow you
@@ -114,7 +119,6 @@ namespace Keeno
 
             #region Select Closes Empty Tile
             // Clear the List of worldObjects that the are in range with the player
-            _emptyTilesNearPlayer.Clear();
 
             foreach (var tile in _map.WorldObjects.OfType<EmptyTile>())
             {
@@ -143,7 +147,6 @@ namespace Keeno
         {
             #region Sort By Distance
             // Clear the List of worldObjects that the are in range with the player
-            _objectsNearPlayer.Clear();
             for (var i = 0; i < _map.WorldObjects.Count; i++)
             {
                 // only consider tiles that aren't empty
@@ -156,8 +159,20 @@ namespace Keeno
             #endregion
             if (sortedWorldObjectList.Count > 0)
             {
-                // if the selected World object is NOT AN ITEM
-                if (sortedWorldObjectList[0].GetType() != typeof(Item))
+                // if it IS AN ITEM
+                if (sortedWorldObjectList[0] is Item item)
+                {
+                    // Call the Selected method of the closest World Object
+                    item.Selected(_state != PlayerState.Building);
+                    if (Globals.E_KeyPress)
+                    {
+                        _itemCarrying = sortedWorldObjectList[0] as Item;
+                        _state = PlayerState.Building;
+                    }
+                }
+
+                // if selected World object is NOT AN ITEM
+                else
                 {
                     // Call the Selected method of the closest World Object
                     sortedWorldObjectList[0].Selected(_followers.Count > 0,
@@ -171,17 +186,6 @@ namespace Keeno
                     {
                         if (sortedWorldObjectList[0].CanDropOffWorker(_followers[0]))
                             _followers.RemoveAt(0);
-                    }
-                }
-                // else if it IS AN ITEM
-                else if (sortedWorldObjectList[0] is Item item)
-                {
-                    // Call the Selected method of the closest World Object
-                    item.Selected(_state != PlayerState.Building);
-                    if (Globals.E_KeyPress)
-                    {
-                        _itemCarrying = sortedWorldObjectList[0] as Item;
-                        _state = PlayerState.Building;
                     }
                 }
             }
@@ -246,19 +250,21 @@ namespace Keeno
 
             // determine when to flip the sprite (making it look to the RIGHT)
             var flip = _facingRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-            // Draw Player
-            sb.Draw(_txr, _rect, _srcRect, _tint, 0f,
-                    Vector2.Zero, flip, .099f);
+
 
             // Draw test pixel
             if (_drawBounds)
             {
+                sb.Draw(_testPixel, new Vector2(Position.X, Position.Y), Color.Black);  // Draw Player Position
+
                 sb.Draw(_testPixel, _tileTargetedRect, Color.Green * .8f);      // Draw _tileTargetedRect
                 sb.Draw(_testPixel, _targetDestinationBounds, Color.White * .8f);      // Draw _targetDestinationBound
                 sb.Draw(_testPixel, Bounds, Color.Blue * .7f);                          // Draw Player Bounds
                 sb.Draw(_testPixel, _interactionRange, Color.Red * .75f);               // Draw interactionRange
-                sb.Draw(_testPixel, new Vector2(Position.X, Position.Y), Color.Black);  // Draw Player Position
             }
+            // Draw Player
+            sb.Draw(_txr, _rect, _srcRect, _tint, 0f,
+                    Vector2.Zero, flip, .099f);
         }
     }
 }
