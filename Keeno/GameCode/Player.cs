@@ -47,7 +47,7 @@ namespace Keeno
         {
             _state = PlayerState.Normal;
             _moveSpeed = Globals.PlayerMovementSpeed;
-            _drawBounds = true;
+            _drawBounds = false;
             _swapToNormalState = false;
             _interactionRange = new Rectangle((int)_position.X - rect.Width, (int)_position.Y - rect.Height, rect.Width * 3, rect.Height * 3);
             _map = map;
@@ -181,10 +181,11 @@ namespace Keeno
                         sortedWorldObjectList[0].OnInteract();
 
                     // When pressing Q, if there are keenos following the player
-                    // Go to that location
-                    if (_followers.Count > 0 && Globals.Q_KeyDown)
+                    if (sortedWorldObjectList[0] is WorkStation workStation 
+                        && _followers.Count > 0/* && Globals.Q_KeyDown*/)
                     {
-                        if (sortedWorldObjectList[0].CanDropOffWorker(_followers[0]))
+                        // Send worker to that location
+                        if (workStation.CanDropOffWorker(_followers[0]))
                             _followers.RemoveAt(0);
                     }
                 }
@@ -264,7 +265,7 @@ namespace Keeno
             }
             // Draw Player
             sb.Draw(_txr, _rect, _srcRect, _tint, 0f,
-                    Vector2.Zero, flip, .099f);
+                    Vector2.Zero, flip, Globals.PlayerLD);
         }
     }
 }

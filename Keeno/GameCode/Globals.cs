@@ -123,11 +123,13 @@ namespace Keeno
         public static int FarmFoodAmount = 1;
 
         // Layer Depths
+        public static float SelectedTxrLD = .099f;
+        public static float ItemTxrLD = .098f;
+        public static float WolrdObjectLD = .097f;
+        public static float PlayerLD = .096f;
         public static float ButtonPromptLD = .09f;
         public static float HourGlassLD = .085f;
         public static float KeenoLD = .081f;
-        public static float SelectedTxrLD = .08f;
-        public static float WolrdObjectLD = .01f;
         public static float MapLD = 0f;
 
 
@@ -158,6 +160,8 @@ namespace Keeno
         public static Texture2D InputsTilesetTxr { get; private set; }
         public static Texture2D ChoppedTreeTxr {  get; private set; }
         public static Texture2D TentsTxr { get; private set; }
+        public static Texture2D BlueprintTxr { get; private set; }
+
 
 
 
@@ -173,7 +177,7 @@ namespace Keeno
             InputsTilesetTxr = content.Load<Texture2D>("SpriteSheets\\inputs_t");
             ChoppedTreeTxr = content.Load<Texture2D>("WorldObjects\\Flora\\choppedTree2");
             TentsTxr = content.Load<Texture2D>("WorldObjects\\Buildings\\Houses\\tents_w");
-
+            BlueprintTxr = content.Load<Texture2D>("WorldObjects\\Items\\scroll");
         }
     }
     public enum ResourceType

@@ -134,13 +134,13 @@ namespace Keeno
         }
         private void AddTree(int x, int y)
         {
-            _worldObjects.Add(new Tree(new Point(x, y)));
+            _worldObjects.Add(new Tree(new Point(x, y), Globals.TreeTileIndex));
 
             _mapData[y, x] = Globals.OccupiedTileIndex;
         }
         private void AddFarm(int x, int y)
         {
-            _worldObjects.Add(new Farm(new Point(x, y)));
+            _worldObjects.Add(new Farm(new Point(x,y), Globals.FarmTileIndex1));
 
             _mapData[y, x] = Globals.OccupiedTileIndex;
         }
@@ -161,7 +161,7 @@ namespace Keeno
         {
 
             if (Globals.UpArrow_KeyPress)
-                _worldObjects.Add(new Item(new Point(100, 150), Assets.TentsTxr));
+                _worldObjects.Add(new BuildingBlueprint(new Point(100, 150), Assets.TentsTxr));
 
             for (int i = 0; i < _worldObjects.Count; i++)
             {
