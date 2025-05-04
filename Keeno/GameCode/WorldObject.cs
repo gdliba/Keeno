@@ -348,6 +348,7 @@ namespace Keeno
 
         protected bool _playerHarvestedResource;
         protected bool _workerHarvestedResource;
+        protected bool _hasToBeCollected;
         protected bool _selectedCondition;      // in most cases checking if player has followers
         protected bool _flashesWhenHarvested;
 
@@ -377,6 +378,7 @@ namespace Keeno
             _selectedCondition = false;
             _canBeSelectedWhenBroken = true;
             _flashesWhenHarvested = true;
+            _hasToBeCollected = false;
 
             _coreRect = new Rectangle(_rect.X+_rect.Width/4,_rect.Y+_rect.Height/4, _rect.Width/2, _rect.Height/2);
 
@@ -506,7 +508,10 @@ namespace Keeno
                     // Harvest Resource
                     if (_playerHarvestedResource || _workerHarvestedResource)
                     {
-                        HarvestResource(_resourceType, _resourceAmount);
+                        if (!_hasToBeCollected)
+                            HarvestResource(_resourceType, _resourceAmount);
+                        else
+                            HarvestResource(_resourceType, 0);
                     }
 
                     break;
@@ -705,12 +710,13 @@ namespace Keeno
             _resourceType = ResourceType.Gold;
             _resourceAmount = Globals.GoldGoldAmount;
             _health = Globals.GoldHealth;
-            _workerSlots = 1;
-            _workDuration = 60f;
+            _workerSlots = 3;
+            _workDuration = 6f;
 
             _impassable = true;
             _canBeSelectedWhenBroken = false;
             _flashesWhenHarvested = false;
+            _hasToBeCollected = true;
         }
         public override void ChangeTextureToBroken()
         {
