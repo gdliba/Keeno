@@ -13,10 +13,8 @@ namespace Keeno
     class Map
     {
         private List<WorldObject> _worldObjects;
-        private List<SelectableWorldObject> _selectableWorldObjects;
 
         public List<WorldObject> WorldObjects {  get { return _worldObjects; } }
-        public List<SelectableWorldObject> SelectableWorldObject { get { return _selectableWorldObjects; } }
 
 
         // 2D array storing tile indices for the map
@@ -56,7 +54,6 @@ namespace Keeno
             LoadMap(csvPath);
 
             _worldObjects = new List<WorldObject>();
-            //_selectableWorldObjects = new List<SelectableWorldObject>();
 
 
 
@@ -94,10 +91,6 @@ namespace Keeno
                     }
                 }
             }
-            //foreach (SelectableWorldObject obj in _worldObjects.OfType<SelectableWorldObject>())
-            //{
-            //    _selectableWorldObjects.Add(obj);
-            //}
         }
 
         /// <summary>
@@ -194,17 +187,25 @@ namespace Keeno
 
         public void Update(GameTime gt)
         {
-
+            // Test Item spawn
             if (Globals.UpArrow_KeyPress)
                 _worldObjects.Add(new BuildingBlueprint(new Point(100, 150), Assets.TentsTxr));
 
+
             for (int i = 0; i < _worldObjects.Count; i++)
             {
+                // Update WorldObjects
                 _worldObjects[i].Update(gt);
+
+                // Remove Dead WorldObjects
                 if (_worldObjects[i].State == ObjectState.Dead)
                 {
-                    _worldObjects.RemoveAt(i);
+                    int y = _worldObjects[i].TilePosition.Y / Globals.Tile_Width_Height;
+                    int x = _worldObjects[i].TilePosition.X / Globals.Tile_Width_Height;
 
+                    // Replace their tile with and Empty one so that the player can build on it
+                    AddEmptyTile(x, y);
+                    _worldObjects.RemoveAt(i);
                 }
             }
         }

@@ -39,6 +39,8 @@ namespace Keeno
         protected Rectangle? _selectedTileSrcRect;
 
         protected Point _tilePosition;
+        public Point TilePosition { get { return _tilePosition; } protected set { _tilePosition = value; } }
+
 
         protected int _tileWidth;
         protected int _tileHeight;
@@ -598,62 +600,6 @@ namespace Keeno
 
             _txr = Assets.TilesetTxr;
             _impassable = false;
-
-
-            _tileHeight = _tileWidth = Globals.Tile_Width_Height;
-            _tilePosition.X = tilePosition.X * Globals.Tile_Width_Height;
-            _tilePosition.Y = tilePosition.Y * Globals.Tile_Width_Height;
-            _tilesetColumns = Globals.TilemapColumns;
-
-            #region ButtonPrompts and HG
-            _farmLandSrc= new Rectangle(
-                  (Globals.FarmLandTileIndex % _tilesetColumns) * _tileWidth,
-                  (Globals.FarmLandTileIndex / _tilesetColumns) * _tileHeight,
-                  _tileWidth,
-                  _tileHeight);
-            _buttonPrompt_E = new ButtonPrompt(Assets.InputsTilesetTxr,
-                new Rectangle(_tilePosition.X + _tileWidth / 2,
-                _tilePosition.Y - _tileHeight,
-                _tileWidth,
-                _tileHeight), Globals.InputsTilesetIndex_E);
-
-            _buttonPrompt_Q = new ButtonPrompt(Assets.InputsTilesetTxr,
-                new Rectangle(_tilePosition.X - _tileWidth / 2,
-                _tilePosition.Y - _tileHeight,
-                _tileWidth,
-                _tileHeight), Globals.InputsTilesetIndex_Q);
-
-            _buttonPrompt_X = new ButtonPrompt(Assets.InputsTilesetTxr,
-                new Rectangle(_tilePosition.X,
-                _tilePosition.Y + _tileHeight,
-                _tileWidth,
-                _tileHeight), Globals.InputsTilesetIndex_X);
-
-            _HGInteract = new HourGlass(Assets.MonochromaticTilesetTxr,
-                new Rectangle(_tilePosition.X + _tileWidth / 2,
-                _tilePosition.Y - _tileHeight,
-                _tileWidth,
-                _tileHeight), Color.Yellow);
-
-            _HGDropOff = new HourGlass(Assets.MonochromaticTilesetTxr,
-                new Rectangle(_tilePosition.X - _tileWidth / 2,
-                _tilePosition.Y - _tileHeight,
-                _tileWidth,
-                _tileHeight), Color.White);
-
-            _HGDestroy = new HourGlass(Assets.MonochromaticTilesetTxr,
-                new Rectangle(_tilePosition.X,
-                _tilePosition.Y + _tileHeight,
-                _tileWidth,
-                _tileHeight), Color.Red);
-
-            _HGWorkProgress = new HourGlass(Assets.MonochromaticTilesetTxr,
-                new Rectangle(_tilePosition.X,
-                _tilePosition.Y,
-                _tileWidth,
-                _tileHeight),
-                Color.Yellow);
-            #endregion
         }
         public override void ChangeTextureToBroken()
         {
