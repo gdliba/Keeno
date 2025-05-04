@@ -189,8 +189,6 @@ namespace Keeno
                 else
                 {
                     sortedWorldObjectList[0].Selected();
-                    if (Globals.E_KeyDown)
-                        sortedWorldObjectList[0].OnInteract();
                 }
             }
         }

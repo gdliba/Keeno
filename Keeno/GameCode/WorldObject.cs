@@ -40,18 +40,12 @@ namespace Keeno
 
         protected Point _tilePosition;
 
-        //protected float _workSpeed;
-        //protected float _workDuration;
-
         protected int _tileWidth;
         protected int _tileHeight;
         protected int _tilesetColumns;
 
         protected int _health;
-        //protected int _workerSlots;
-        //protected int _resourceAmount;
 
-        //protected bool _resourceHarvested;
         protected bool _isSelected;
         protected bool _canDropOff;
         protected bool _canUse;
@@ -76,6 +70,7 @@ namespace Keeno
             _canDropOff = false;
             _destroyMe = false;
             _canUse = false;
+            _cannotUse = false;
 
             _destroySpeed = .01f;
 
@@ -187,14 +182,12 @@ namespace Keeno
         }
         public virtual void DestroyMe()
         {
-            //ClearWorkerList();
             _state = ObjectState.Dead;
         }
 
         public virtual void Draw(SpriteBatch sb)
         {
             //sb.Draw(_testPixel, new Vector2(Position.X, Position.Y), Color.Black);  // Draw Position
-
 
             if (_isSelected)
                 sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
@@ -316,7 +309,8 @@ namespace Keeno
         protected int _workerSlots;
         protected int _resourceAmount;
 
-        protected bool _resourceHarvested;
+        protected bool _playerHarvestedResource;
+        protected bool _workerHarvestedResource;
         protected bool _selectedCondition;
 
 
@@ -331,13 +325,15 @@ namespace Keeno
                   Globals.Tile_Width_Height))
         {
             _workers = new List<Keeno>();
+            // Default values
             _resourceType = ResourceType.None;
             _resourceAmount = 0;
             _workSpeed = 0f;
             _workerSlots = 1;
             _workDuration = 10f;
+            _health = 1;
 
-            _resourceHarvested = false;
+            _playerHarvestedResource = false;
             _canDropOff = false;
             _selectedCondition = false;
 
@@ -395,52 +391,51 @@ namespace Keeno
         }
         public override void Update(GameTime gt)
         {
-            if (_state == ObjectState.NotHarvestable)
-                ClearWorkerList();
-
-            if (_isSelected)
+            switch (_state)
             {
-                _resourceHarvested = _HGInteract.Update(Globals.E_KeyDown, _playerWorkSpeed);
+                case ObjectState.NotHarvestable:
+                    ClearWorkerList();
+                    if (_isSelected)
+                    {
+                        _destroyMe = _HGDestroy.Update(Globals.X_KeyDown, _destroySpeed);
+                        _playerHarvestedResource = false;
+                    }
+                    break;
+                case ObjectState.Default:
+                    if (_isSelected)
+                    {
+                        // Interaction
+                        _playerHarvestedResource = _HGInteract.Update(Globals.E_KeyDown, _playerWorkSpeed);
+                        // worker DropOff
+                        if (_workerSlots > 0 && _selectedCondition && _state != ObjectState.NotHarvestable)
+                        {
+                            _canDropOff = _HGDropOff.Update(Globals.Q_KeyDown, Globals.DropOffKeenoSpeed);
+                        }
+                    }
+                    // Worker Logic
+                    float deltaTime = (float)gt.ElapsedGameTime.TotalSeconds;
+                    float deltaFill = _workSpeed * (deltaTime / _workDuration);
 
-                if (_state == ObjectState.NotHarvestable)
-                    _destroyMe = _HGDestroy.Update(Globals.X_KeyDown, _destroySpeed);
-                if (_destroyMe)
-                    DestroyMe();
+                    _workerHarvestedResource = _HGWorkProgress.Update(true, deltaFill);
 
-                // And if there are available workerSlots
-                if (_workerSlots > 0 && _selectedCondition)
-                {
-                    _canDropOff = _HGDropOff.Update(Globals.Q_KeyDown, Globals.DropOffKeenoSpeed);
-                }
+                    // Tell workers where to go
+                    foreach (Keeno keeno in _workers)
+                    {
+                        keeno.MoveTo(_tilePosition);
+                    }
+                    // Harvest Resource
+                    if (_playerHarvestedResource || _workerHarvestedResource)
+                        HarvestResource(_resourceType, _resourceAmount);
+                    break;
             }
-            if (_state != ObjectState.NotHarvestable)
-            {
-                if (_resourceHarvested)
-                    HarvestResource(_resourceType, _resourceAmount);
-            }
-
-
-            // Work out the ammount of work that needs to be put in
-            // to complete the work
-            float deltaTime = (float)gt.ElapsedGameTime.TotalSeconds;
-            float deltaFill = _workSpeed * (deltaTime / _workDuration);
-
-            if (_state == ObjectState.Default)
-                _resourceHarvested = _HGWorkProgress.Update(true, deltaFill);
-
+            if (_destroyMe)
+                DestroyMe();
+            // Health Check
             if (_health == 0)
             {
                 _health--;
                 _state = ObjectState.NotHarvestable;
             }
-
-            foreach (Keeno keeno in _workers)
-            {
-                keeno.MoveTo(_tilePosition);
-            }
-            if (_resourceHarvested)
-                HarvestResource(_resourceType, _resourceAmount);
-
             // Set selected to false;
             // Reset all HG
             base.Update(gt);
@@ -533,7 +528,6 @@ namespace Keeno
         }
     }
 
-
     class Tree : WorkStation
     {
         private Texture2D _choppedTreeTxr;
@@ -543,7 +537,7 @@ namespace Keeno
         {
             _resourceAmount = Globals.TreeWoodAmount;
             _health = Globals.TreeHealth;
-            _workerSlots = 3;
+            _workerSlots = 1;
             _resourceType = ResourceType.Wood;
 
             _choppedTreeTxr = Assets.ChoppedTreeTxr;
@@ -568,7 +562,7 @@ namespace Keeno
             _resourceAmount = Globals.FarmFoodAmount;
             _txr = Assets.TilesetTxr;
             _health = Globals.FarmHealth;
-            _resourceHarvested = false;
+            _playerHarvestedResource = false;
             _canDropOff = false;
             _impassable = false;
 
@@ -667,10 +661,6 @@ namespace Keeno
                 else
                     _canUse = _HGCantInteract.Update(Globals.E_KeyDown, Globals.NeutralInteractSpeed);
             }
-            base.Update(gt);
-        }
-        public override void OnInteract()
-        {
             if (_canUse)
             {
                 if (ResourceTracker.TrySpend(ResourceType.Food,
@@ -682,6 +672,11 @@ namespace Keeno
                 _HGInteract.Reset();
                 _HGCantInteract.Reset();
             }
+            base.Update(gt);
+        }
+        public override void OnInteract()
+        {
+
         }
         private void SpawnKeeno()
         {

@@ -124,13 +124,13 @@ namespace Keeno
         public static int FarmFoodAmount = 1;
 
         // Layer Depths
-        public static float SelectedTxrLD = .099f;
         public static float ItemTxrLD = .098f;
-        public static float WolrdObjectLD = .097f;
-        public static float PlayerLD = .096f;
-        public static float ButtonPromptLD = .09f;
-        public static float HourGlassLD = .085f;
-        public static float KeenoLD = .081f;
+        public static float PlayerLD = .097f;
+        public static float ButtonPromptLD = .096f;
+        public static float HourGlassLD = .095f;
+        public static float KeenoLD = .094f;
+        public static float SelectedTxrLD = .093f;
+        public static float WolrdObjectLD = .092f;
         public static float MapLD = 0f;
 
 
