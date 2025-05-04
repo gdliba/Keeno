@@ -37,8 +37,6 @@ namespace Keeno
 
         private Rectangle _tileTargetedRect;
 
-
-
         public Rectangle InteractionRange { get { return _interactionRange; } }
 
 
@@ -186,6 +184,7 @@ namespace Keeno
                             _followers.RemoveAt(0);
                     }
                 }
+                // At this time only TownCentre
                 else
                 {
                     sortedWorldObjectList[0].Selected();
@@ -194,9 +193,11 @@ namespace Keeno
         }
         private void ColisionDependantMovement()
         {
-            // Player - movement
+            // Player movement
             if (_map.IsWalkable(HandleInput()))
-                MoveInDirection(Direction);
+            {
+                MoveInDirection(_direction);
+            }
             else
                 MoveInDirection(Vector2.Zero);
         }

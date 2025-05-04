@@ -38,8 +38,6 @@ namespace Keeno
         protected Color _tint;
         protected Color _defaultTint;
 
-
-
         // test related
         protected Texture2D _testPixel;
 
@@ -57,6 +55,7 @@ namespace Keeno
             _drawBounds = false;
             _targetDestinationBounds = _rect;
 
+
             _tint = Color.White;
             _defaultTint = _tint;
 
@@ -73,7 +72,7 @@ namespace Keeno
             // Set the previous position to be the same as the current one.
             // This allows to later randomise what direction the Keeno
             // face when they first spawn
-            _previousPosition.X = _position.X;
+            _previousPosition= _position;
         }
         public override void Update(GameTime gt)
         {
@@ -159,7 +158,7 @@ namespace Keeno
             _wasWalking = _isWalking;
             // Track if the player is moving to the right
             // (used to flip the sprite accordingly)
-            _previousPosition.X = _position.X;
+            _previousPosition = _position;
         }
         public Rectangle HandleMovement()
         {
