@@ -120,7 +120,8 @@ namespace Keeno
             debugFont = Content.Load<SpriteFont>("Fonts\\debugFont");
 #endif
 
-            testMap = new Map("Content/MapData/testLevel_Map.csv");
+            //testMap = new Map("Content/MapData/testLevel_Map.csv");
+            testMap = new Map("Content\\MapData\\testLevel2.csv");
             testPlayer = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(200, 200, 16, 16),
                 Assets.DebugPixelTxr, testMap, keenos);
 
