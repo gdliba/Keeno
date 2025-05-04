@@ -181,7 +181,7 @@ namespace Keeno
 
         }
         
-        public virtual void Selected(float playerWorkSpeed)
+        public virtual void Selected()
         {
             _isSelected = true;
         }
@@ -317,6 +317,7 @@ namespace Keeno
         protected int _resourceAmount;
 
         protected bool _resourceHarvested;
+        protected bool _selectedCondition;
 
 
         public WorkStation(Point tilePosition, int globalTileIndex)
@@ -338,6 +339,7 @@ namespace Keeno
 
             _resourceHarvested = false;
             _canDropOff = false;
+            _selectedCondition = false;
 
 
             #region ButtonPrompts and HG
@@ -385,10 +387,11 @@ namespace Keeno
                 Color.Yellow);
             #endregion
         }
-        public override void Selected(float playerWorkSpeed)
+        public virtual void Selected(float playerWorkSpeed, bool condition)
         {
-            base.Selected(playerWorkSpeed);
+            base.Selected();
             _playerWorkSpeed = playerWorkSpeed;
+            _selectedCondition = condition;
         }
         public override void Update(GameTime gt)
         {
@@ -403,9 +406,9 @@ namespace Keeno
                     _destroyMe = _HGDestroy.Update(Globals.X_KeyDown, _destroySpeed);
                 if (_destroyMe)
                     DestroyMe();
-                // Check if player has followers
+
                 // And if there are available workerSlots
-                if (_workerSlots > 0)
+                if (_workerSlots > 0 && _selectedCondition)
                 {
                     _canDropOff = _HGDropOff.Update(Globals.Q_KeyDown, Globals.DropOffKeenoSpeed);
                 }
@@ -416,9 +419,6 @@ namespace Keeno
                     HarvestResource(_resourceType, _resourceAmount);
             }
 
-            // Set selected to false;
-            // Reset all HG
-            base.Update(gt);
 
             // Work out the ammount of work that needs to be put in
             // to complete the work
@@ -440,6 +440,10 @@ namespace Keeno
             }
             if (_resourceHarvested)
                 HarvestResource(_resourceType, _resourceAmount);
+
+            // Set selected to false;
+            // Reset all HG
+            base.Update(gt);
         }
         #region Resources/Workers
         public virtual void HarvestResource(ResourceType type, int amount)

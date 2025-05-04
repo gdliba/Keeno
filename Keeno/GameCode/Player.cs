@@ -132,7 +132,7 @@ namespace Keeno
             if (sortedEmptyTileList.Count > 0)
             {
                 // Call the Selected method of the closest World Object
-                sortedEmptyTileList[0].Selected(_workSpeed);
+                sortedEmptyTileList[0].Selected();
                 if(_itemCarrying !=null && Globals.E_KeyPress)
                 {
                     _itemCarrying.Place(sortedEmptyTileList[0].Bounds);
@@ -174,7 +174,7 @@ namespace Keeno
                 else if (sortedWorldObjectList[0] is WorkStation selectedWorkStation)
                 {
                     // Select said WORKSTATION
-                    selectedWorkStation.Selected(_workSpeed);
+                    selectedWorkStation.Selected(_workSpeed, _followers.Count > 0);
                     // Call OnInteract when E is pressed
                     if (Globals.E_KeyPress)
                         selectedWorkStation.OnInteract();
@@ -188,7 +188,7 @@ namespace Keeno
                 }
                 else
                 {
-                    sortedWorldObjectList[0].Selected(_workSpeed);
+                    sortedWorldObjectList[0].Selected();
                     if (Globals.E_KeyDown)
                         sortedWorldObjectList[0].OnInteract();
                 }
