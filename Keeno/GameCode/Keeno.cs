@@ -18,6 +18,8 @@ namespace Keeno
         protected Vector2 _previousPosition;
 
         protected bool _isWalking { get { return _velocity.Length() > 0; } }
+        public bool IsWalking { get { return _isWalking; }}
+
         protected bool _wasWalking;
         protected bool _facingRight;
         protected bool _drawBounds;

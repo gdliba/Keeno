@@ -121,7 +121,8 @@ namespace Keeno
 #endif
 
             //testMap = new Map("Content/MapData/testLevel_Map.csv");
-            testMap = new Map("Content\\MapData\\testLevel2.csv");
+            testMap = new Map("Content/MapData/testLevel_Map2.csv");
+
             testPlayer = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(200, 200, 16, 16),
                 Assets.DebugPixelTxr, testMap, keenos);
 
@@ -285,6 +286,7 @@ namespace Keeno
                 + "\nWood: " + ResourceTracker.GetAmount(ResourceType.Wood)
                 + "\nFood: " + ResourceTracker.GetAmount(ResourceType.Food)
                 + "\nGold: " + ResourceTracker.GetAmount(ResourceType.Gold)
+                + "\nStone: " + ResourceTracker.GetAmount(ResourceType.Stone)
                 + "\nSelected Resource" + debugResource,
                 
                 new Vector2(10, 10), Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);

@@ -32,6 +32,14 @@
   <ItemGroup>
     <Folder Include="Content\SpriteSheets\" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Content\MapData\testLevel_Map1.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Content\MapData\testLevel_Map2.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Target Name="RestoreDotnetTools" BeforeTargets="Restore">
     <Message Text="Restoring dotnet tools" Importance="High" />
     <Exec Command="dotnet tool restore" />

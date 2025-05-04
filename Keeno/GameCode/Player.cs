@@ -31,7 +31,7 @@ namespace Keeno
 
         private readonly List<WorldObject> _worldObjects;
         private readonly List<WorldObject> _objectsNearPlayer;
-        private readonly List<WorldObject> _emptyTilesNearPlayer;
+        private readonly List<EmptyTile> _emptyTilesNearPlayer;
         private readonly List<Item> _itemsNearPlayer;
         private Item? _itemCarrying;
 
@@ -52,7 +52,7 @@ namespace Keeno
 
             _worldObjects = map.WorldObjects;
             _objectsNearPlayer = new List<WorldObject>();
-            _emptyTilesNearPlayer = new List<WorldObject>();
+            _emptyTilesNearPlayer = new List<EmptyTile>();
             _itemsNearPlayer = new List<Item>();
 
 
@@ -69,7 +69,6 @@ namespace Keeno
         {
             _objectsNearPlayer.Clear();
             _emptyTilesNearPlayer.Clear();
-
 
 
             // update the point that the items the player is carrying follows
@@ -118,7 +117,7 @@ namespace Keeno
             #region Select Closes Empty Tile
             // Clear the List of worldObjects that the are in range with the player
 
-            foreach (var tile in _map.WorldObjects.OfType<EmptyTile>())
+            foreach (EmptyTile tile in _worldObjects.OfType<EmptyTile>())
             {
                 if (_tileTargetedRect.Intersects(tile.Bounds))
                     _emptyTilesNearPlayer.Add(tile);
@@ -129,7 +128,7 @@ namespace Keeno
             #endregion
             if (sortedEmptyTileList.Count > 0)
             {
-                // Call the Selected method of the closest World Object
+                // Call the Selected method of the closest Empty Tile
                 sortedEmptyTileList[0].Selected();
                 if(_itemCarrying !=null && Globals.E_KeyPress)
                 {
@@ -148,7 +147,8 @@ namespace Keeno
             {
                 // only consider tiles that aren't empty
                 if (InteractionRange.Intersects(_map.WorldObjects[i].Bounds)
-                    && _map.WorldObjects[i].GetType() != typeof(EmptyTile))
+                    && _map.WorldObjects[i].GetType() != typeof(EmptyTile)
+                    && _map.WorldObjects[i] is SelectableWorldObject)
                     _objectsNearPlayer.Add(_map.WorldObjects[i]);
             }
             // Sort the list
@@ -171,6 +171,12 @@ namespace Keeno
                 // if selected World object IS a WORKSTATION
                 else if (sortedWorldObjectList[0] is WorkStation selectedWorkStation)
                 {
+                    if(selectedWorkStation is GoldFromation goldFormation)
+                    {
+                        if(goldFormation.State == ObjectState.Broken &&
+                            _rect.Intersects(goldFormation.CoreRect))
+                            goldFormation.GatherGoldCoin();
+                    }
                     // Select said WORKSTATION
                     selectedWorkStation.Selected(_workSpeed, _followers.Count > 0);
                     // Call OnInteract when E is pressed
@@ -185,9 +191,9 @@ namespace Keeno
                     }
                 }
                 // At this time only TownCentre
-                else
+                else if (sortedWorldObjectList[0] is TownCentre townCentre)
                 {
-                    sortedWorldObjectList[0].Selected();
+                    townCentre.Selected();
                 }
             }
         }

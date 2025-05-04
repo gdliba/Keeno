@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection.Metadata;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -12,7 +13,11 @@ namespace Keeno
     class Map
     {
         private List<WorldObject> _worldObjects;
+        private List<SelectableWorldObject> _selectableWorldObjects;
+
         public List<WorldObject> WorldObjects {  get { return _worldObjects; } }
+        public List<SelectableWorldObject> SelectableWorldObject { get { return _selectableWorldObjects; } }
+
 
         // 2D array storing tile indices for the map
         private int[,] _mapData;
@@ -51,6 +56,7 @@ namespace Keeno
             LoadMap(csvPath);
 
             _worldObjects = new List<WorldObject>();
+            //_selectableWorldObjects = new List<SelectableWorldObject>();
 
 
 
@@ -76,12 +82,22 @@ namespace Keeno
                         case Globals.EmptyTileIndex:
                             AddEmptyTile(x,y);
                             break;
+                        case Globals.RockTileIndex:
+                            AddRock(x, y);
+                            break;
+                        case Globals.GoldTileIndex:
+                            AddGold(x, y);
+                            break;
                         default:
+                            AddWorldObject(x,y);
                             break;
                     }
                 }
             }
-           
+            //foreach (SelectableWorldObject obj in _worldObjects.OfType<SelectableWorldObject>())
+            //{
+            //    _selectableWorldObjects.Add(obj);
+            //}
         }
 
         /// <summary>
@@ -132,6 +148,13 @@ namespace Keeno
             }
             return true;
         }
+        private void AddWorldObject(int x, int y)
+        {
+            int index = _mapData[y, x];
+            _worldObjects.Add(new WorldObject(new Point(x,y), index));
+
+            _mapData[y, x] = Globals.OccupiedTileIndex;
+        }
         private void AddTree(int x, int y)
         {
             _worldObjects.Add(new Tree(new Point(x, y), Globals.TreeTileIndex));
@@ -144,15 +167,27 @@ namespace Keeno
 
             _mapData[y, x] = Globals.OccupiedTileIndex;
         }
+        private void AddRock(int x, int y)
+        {
+            _worldObjects.Add(new RockFormation(new Point(x, y), Globals.RockTileIndex));
+
+            _mapData[y, x] = Globals.OccupiedTileIndex;
+        }
+        private void AddGold(int x, int y)
+        {
+            _worldObjects.Add(new GoldFromation(new Point(x, y), Globals.GoldTileIndex));
+
+            _mapData[y, x] = Globals.OccupiedTileIndex;
+        }
         private void AddTownCentre(int x, int y)
         {
-            _worldObjects.Add(new TownCentre(new Point(x, y)));
+            _worldObjects.Add(new TownCentre(new Point(x, y), Globals.TownCentreTileIndex));
 
             _mapData[y, x] = Globals.OccupiedTileIndex;
         }
         private void AddEmptyTile(int x, int y)
         {
-            _worldObjects.Add(new EmptyTile(new Point(x, y)));
+            _worldObjects.Add(new EmptyTile(new Point(x, y), Globals.EmptyTileIndex));
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }

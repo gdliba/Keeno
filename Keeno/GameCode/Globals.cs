@@ -75,19 +75,30 @@ namespace Keeno
         public const int TilemapColumns = 49;
         public const int Tile_Width_Height = 16;
 
-        public const int TreeTileIndex = 51;
-        public const int ChoppedTreeTileIndex = 313;
         public const int OccupiedTileIndex = 0;
         public const int EmptyTileIndex = -1;
-        public const int TownCentreTileIndex = 983;
         public const int TileSelectedIndex = 624;
         public const int ItemSelectedIndex = 625;
         public const int BlueprintIndex = 767;
+
+        public const int TreeTileIndex = 51;
 
         public const int FarmTileIndex1 = 309;
         public const int FarmTileIndex2 = 310;
         public const int HarvestedFarmTileIndex = 307;
         public const int FarmLandTileIndex = 306;
+
+        public const int TownCentreTileIndex = 983;
+        public const int WorkShopTileIndex = 984;
+
+        public const int RockTileIndex = 103;
+        public const int HarvestedRockTileIndex = 68;
+
+        public const int GoldTileIndex = 522;
+        public const int HarvestedGoldTileIndex = 218;
+
+
+
 
 
 
@@ -125,14 +136,24 @@ namespace Keeno
         public static int FarmHealth = 5;
         public static int FarmFoodAmount = 1;
 
+        // Stone
+        public static int RockHealth = 1;
+        public static int RockStoneAmount = 1;
+
+        // Gold
+        public static int GoldHealth = 1;
+        public static int GoldGoldAmount = 1;
+
         // Layer Depths
-        public static float ItemTxrLD = .098f;
-        public static float PlayerLD = .097f;
-        public static float ButtonPromptLD = .096f;
-        public static float HourGlassLD = .095f;
-        public static float KeenoLD = .094f;
-        public static float SelectedTxrLD = .093f;
-        public static float WolrdObjectLD = .092f;
+        public static float ItemSelectedTxrLD = .098f;
+        public static float ItemTxrLD = .097f;
+        public static float BlueprintTxrLD = .096f;
+        public static float PlayerLD = .095f;
+        public static float ButtonPromptLD = .094f;
+        public static float HourGlassLD = .093f;
+        public static float KeenoLD = .092f;
+        public static float SelectedTxrLD = .091f;
+        public static float WolrdObjectLD = .090f;
         public static float MapLD = 0f;
 
 
@@ -186,9 +207,10 @@ namespace Keeno
     public enum ResourceType
     {
         None,
-        Gold,
+        Food,
         Wood,
-        Food
+        Stone,
+        Gold
     }
 
     static class ResourceTracker

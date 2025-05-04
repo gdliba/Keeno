@@ -11,7 +11,7 @@ namespace Keeno
     enum ObjectState
     {
         Harvestable,
-        NotHarvestable,
+        Broken,
         Dead
     }
     class WorldObject
@@ -47,6 +47,7 @@ namespace Keeno
         protected int _health;
 
         protected bool _isSelected;
+        protected bool _canBeSelectedWhenBroken;
         protected bool _canDropOff;
         protected bool _canUse;
         protected bool _cannotUse;
@@ -59,8 +60,7 @@ namespace Keeno
         public Vector2 Position { get { return new Vector2(_rect.X + _tileWidth / 2, _rect.Y + _tileHeight / 2); } }
 
 
-        protected WorldObject(Point tilePosition,
-            Rectangle sourceRect)
+        public WorldObject(Point tilePosition, int globalTileIndex)
         {
             _state = ObjectState.Harvestable;
             _impassable = true;
@@ -69,6 +69,7 @@ namespace Keeno
             _destroyMe = false;
             _canUse = false;
             _cannotUse = false;
+            _canBeSelectedWhenBroken = true;
 
             _testPixel = Assets.DebugPixelTxr; 
             _selectedTileTileset = Assets.MonochromaticTilesetTxr;
@@ -84,7 +85,11 @@ namespace Keeno
                               _tilePosition.Y,
                               Globals.Tile_Width_Height,
                               Globals.Tile_Width_Height);
-            _srcRect = sourceRect;
+            _srcRect = new Rectangle(
+                  (globalTileIndex % Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  (globalTileIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height);
             Tint = Color.White;
 
 
@@ -170,22 +175,29 @@ namespace Keeno
         {
 
         }
-        
-        public virtual void Selected()
-        {
-            _isSelected = true;
-        }
         public virtual void DestroyMe()
         {
             _state = ObjectState.Dead;
         }
-
+        public virtual void SelectedDraw(SpriteBatch sb)
+        {
+            switch (_state)
+            {
+                case ObjectState.Harvestable:
+                    if (_isSelected)
+                        sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+                    break;
+                case ObjectState.Broken:
+                    if (_isSelected && _canBeSelectedWhenBroken)
+                        sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+                    break;
+            }
+        }
         public virtual void Draw(SpriteBatch sb)
         {
             //sb.Draw(_testPixel, new Vector2(Position.X, Position.Y), Color.Black);  // Draw Position
 
-            if (_isSelected)
-                sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+            SelectedDraw(sb);
             if (_state != ObjectState.Dead)
             {
                 sb.Draw(_txr, _rect, _srcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
@@ -193,18 +205,24 @@ namespace Keeno
             }
         }
     }
-    class Item : WorldObject
+    class SelectableWorldObject : WorldObject
+    {
+        public SelectableWorldObject(Point position, int globalTileIndex)
+            : base(position, globalTileIndex)
+        {
+
+        }
+
+        public virtual void Selected()
+        {
+            _isSelected = true;
+        }
+    }
+    class Item : SelectableWorldObject
     {
         protected bool _isEquipped;
-        public Item(Point position, Texture2D txr)
-            : base(position,
-                // sourceRect of the selectedTxr inside the tileset
-                new Rectangle(
-                  (Globals.ItemSelectedIndex % Globals.TilemapColumns) * Globals.Tile_Width_Height,
-                  (Globals.ItemSelectedIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
-                  Globals.Tile_Width_Height,
-                  Globals.Tile_Width_Height)
-                  )
+        public Item(Point position, Texture2D txr, int index)
+            : base(position,index)
         {
             _isEquipped = false;
             _txr = txr;
@@ -252,7 +270,7 @@ namespace Keeno
     {
         protected Texture2D _blueprintTxr;
         public Blueprint(Point position, Texture2D txr)
-            : base(position, txr)
+            : base(position, txr, Globals.ItemSelectedIndex)
         {
             _blueprintTxr = Assets.BlueprintTxr;
         }
@@ -284,15 +302,15 @@ namespace Keeno
         public override void Draw(SpriteBatch sb)
         {
             if (_isSelected)
-                sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
-            sb.Draw(_txr, _rect, _stage1SrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
-            sb.Draw(_txr, _rect, _stage2SrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
-            sb.Draw(_txr, _rect, _stage3SrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
-            sb.Draw(_blueprintTxr, _rect, null, Color.CornflowerBlue, 0f, Vector2.Zero, SpriteEffects.None, Globals.ItemTxrLD);
+                sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Color.DeepSkyBlue, 0, Vector2.Zero, SpriteEffects.None, Globals.ItemSelectedTxrLD);
+            sb.Draw(_txr, _rect, _stage1SrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.ItemTxrLD);
+            sb.Draw(_txr, _rect, _stage2SrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.ItemTxrLD);
+            sb.Draw(_txr, _rect, _stage3SrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.ItemTxrLD);
+            sb.Draw(_blueprintTxr, _rect, null, Color.RoyalBlue, 0f, Vector2.Zero, SpriteEffects.None, Globals.BlueprintTxrLD);
         }
     }
 
-    class WorkStation : WorldObject
+    class WorkStation : SelectableWorldObject
     {
         protected List<Keeno> _workers;
 
@@ -307,17 +325,15 @@ namespace Keeno
         protected bool _playerHarvestedResource;
         protected bool _workerHarvestedResource;
         protected bool _selectedCondition;
+        protected bool _gainResourcesGradually;
+
+        protected Rectangle _coreRect;
+        public Rectangle CoreRect { get { return _coreRect; } protected set { _coreRect = value; } }
 
 
         public WorkStation(Point tilePosition, int globalTileIndex)
             : base
-            (tilePosition,
-                // sourceRect inside the tileset
-                new Rectangle(
-                  (globalTileIndex % Globals.TilemapColumns) * Globals.Tile_Width_Height,
-                  (globalTileIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
-                  Globals.Tile_Width_Height,
-                  Globals.Tile_Width_Height))
+            (tilePosition, globalTileIndex)
         {
             _workers = new List<Keeno>();
             // Default values
@@ -331,6 +347,10 @@ namespace Keeno
             _playerHarvestedResource = false;
             _canDropOff = false;
             _selectedCondition = false;
+            _gainResourcesGradually = true;
+            _canBeSelectedWhenBroken = true;
+
+            _coreRect = new Rectangle(_rect.X+_rect.Width/4,_rect.Y+_rect.Height/4, _rect.Width/2, _rect.Height/2);
 
 
             #region ButtonPrompts and HG
@@ -386,14 +406,30 @@ namespace Keeno
         }
         public override void Update(GameTime gt)
         {
+            // Apply the worker's workspeed
+                // reset first so that it isn't increasing exponentially
+                _workSpeed = 0f;
+            foreach (var worker in _workers)
+            {
+                if (!worker.IsWalking)  // Only apply when they have arrived at the Workstation
+                {
+                    // Get the worker's workspeed and apply it to the Workstation
+                    float kWorkspeed = worker.GetWorkSpeed();
+                    _workSpeed += kWorkspeed;
+                }
+            }
+
             switch (_state)
             {
-                case ObjectState.NotHarvestable:
+                case ObjectState.Broken:
                     ClearWorkerList();
+                    if(!_canBeSelectedWhenBroken)
+                        break;
                     if (_isSelected)
                     {
                         _destroyMe = _HGDestroy.Update(Globals.X_KeyDown, Globals.DestroyInteractSpeed);
                         _playerHarvestedResource = false;
+                        _workerHarvestedResource = false;
                     }
                     break;
                 case ObjectState.Harvestable:
@@ -402,7 +438,7 @@ namespace Keeno
                         // Interaction
                         _playerHarvestedResource = _HGInteract.Update(Globals.E_KeyDown, _playerWorkSpeed);
                         // worker DropOff
-                        if (_workerSlots > 0 && _selectedCondition && _state != ObjectState.NotHarvestable)
+                        if (_workerSlots > 0 && _selectedCondition && _state != ObjectState.Broken)
                         {
                             _canDropOff = _HGDropOff.Update(Globals.Q_KeyDown, Globals.DropOffKeenoSpeed);
                         }
@@ -420,7 +456,13 @@ namespace Keeno
                     }
                     // Harvest Resource
                     if (_playerHarvestedResource || _workerHarvestedResource)
-                        HarvestResource(_resourceType, _resourceAmount);
+                    {
+                        if (_gainResourcesGradually)
+                            HarvestResource(_resourceType, _resourceAmount);
+                        else
+                            HarvestResource(_resourceType, 0);
+                    }
+
                     break;
             }
             if (_destroyMe)
@@ -429,7 +471,7 @@ namespace Keeno
             if (_health == 0)
             {
                 _health--;
-                _state = ObjectState.NotHarvestable;
+                _state = ObjectState.Broken;
             }
             // Set selected to false;
             // Reset all HG
@@ -458,10 +500,6 @@ namespace Keeno
             _workers.Add(worker);
             worker.SwitchToWorking();
             ReduceWorkerSlots();
-
-            // Get the worker's workspeed and apply it to the WorldObject
-            float kWorkspeed = worker.GetWorkSpeed();
-            _workSpeed += kWorkspeed;
         }
         public void ClearWorkerList()
         {
@@ -488,12 +526,13 @@ namespace Keeno
             // Set state to Dead
             base.DestroyMe();
         }
-        public virtual void ChangeTextureToNotHarvestable()
+        public virtual void ChangeTextureToBroken()
         {
       
         }
         public override void Draw(SpriteBatch sb)
         {
+            //sb.Draw(_testPixel, _coreRect, Color.Green);
             switch (_state)
             {
                 case ObjectState.Dead:
@@ -509,8 +548,10 @@ namespace Keeno
                         _buttonPrompt_Q.Draw(sb);
                     }
                     break;
-                case ObjectState.NotHarvestable:
-                    ChangeTextureToNotHarvestable();
+                case ObjectState.Broken:
+                    ChangeTextureToBroken();
+                    if (!_canBeSelectedWhenBroken)
+                        break;
                     if (_isSelected)
                     {
                         _buttonPrompt_X.Draw(sb);
@@ -533,12 +574,12 @@ namespace Keeno
             _resourceType = ResourceType.Wood;
             _resourceAmount = Globals.TreeWoodAmount;
             _health = Globals.TreeHealth;
-            _workerSlots = 1;
+            _workerSlots = 2;
 
             _choppedTreeTxr = Assets.ChoppedTreeTxr;
             _impassable = true;
         }
-        public override void ChangeTextureToNotHarvestable()
+        public override void ChangeTextureToBroken()
         {
             _srcRect = null;
             _txr = _choppedTreeTxr;
@@ -614,7 +655,7 @@ namespace Keeno
                 Color.Yellow);
             #endregion
         }
-        public override void ChangeTextureToNotHarvestable()
+        public override void ChangeTextureToBroken()
         {
 
             _srcRect = new Rectangle(
@@ -624,21 +665,64 @@ namespace Keeno
                   _tileHeight);
         }
     }
-    class TownCentre : WorldObject
+    class RockFormation : WorkStation
+    {
+        public RockFormation(Point tilePosition, int globalTileIndex)
+            : base(tilePosition, globalTileIndex)
+        {
+            _resourceType = ResourceType.Stone;
+            _resourceAmount = Globals.RockStoneAmount;
+            _health = Globals.RockHealth;
+            _workerSlots = 1;
+
+            _impassable = true;
+        }
+        public override void ChangeTextureToBroken()
+        {
+            _srcRect = new Rectangle(
+                  (Globals.HarvestedRockTileIndex % _tilesetColumns) * _tileWidth,
+                  (Globals.HarvestedRockTileIndex / _tilesetColumns) * _tileHeight,
+                  _tileWidth,
+                  _tileHeight);
+        }
+    }
+    class GoldFromation : WorkStation
+    {
+        public GoldFromation(Point tilePosition, int globalTileIndex)
+            : base(tilePosition, globalTileIndex)
+        {
+            _resourceType = ResourceType.Gold;
+            _resourceAmount = Globals.GoldGoldAmount;
+            _health = Globals.GoldHealth;
+            _workerSlots = 1;
+
+            _impassable = true;
+            _gainResourcesGradually = false;
+            _canBeSelectedWhenBroken = false;
+        }
+        public override void ChangeTextureToBroken()
+        {
+            _impassable = false;
+            _srcRect = new Rectangle(
+                  (Globals.HarvestedGoldTileIndex % _tilesetColumns) * _tileWidth,
+                  (Globals.HarvestedGoldTileIndex / _tilesetColumns) * _tileHeight,
+                  _tileWidth,
+                  _tileHeight);
+        }
+        public void GatherGoldCoin()
+        {
+            HarvestResource(_resourceType, _resourceAmount);
+            _state = ObjectState.Dead;
+        }
+    }
+    class TownCentre : SelectableWorldObject
     {
         private List<Keeno> _keenosISpawned;
         public event Action<Keeno> KeenoSpawned;
         public List<Keeno> KeenosISpwaned { get { return _keenosISpawned; } }
 
-        public TownCentre(Point tilePosition) 
-            : base(tilePosition,
-                // sourceRect inside the tileset
-                new Rectangle(
-                  (Globals.TownCentreTileIndex % Globals.TilemapColumns) * Globals.Tile_Width_Height,
-                  (Globals.TownCentreTileIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
-                  Globals.Tile_Width_Height,
-                  Globals.Tile_Width_Height)
-              )
+        public TownCentre(Point tilePosition, int globalTileIndex) 
+            : base(tilePosition, globalTileIndex)
         {
             _keenosISpawned = new List<Keeno>();
         }
@@ -690,18 +774,11 @@ namespace Keeno
             }
         }
     }
-    class EmptyTile : WorldObject
+    class EmptyTile : SelectableWorldObject
     {
 
-        public EmptyTile(Point tilePosition) 
-            : base(tilePosition,
-                // sourceRect inside the tileset
-                new Rectangle(
-                  (Globals.EmptyTileIndex % Globals.TilemapColumns) * Globals.Tile_Width_Height,
-                  (Globals.EmptyTileIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
-                  Globals.Tile_Width_Height,
-                  Globals.Tile_Width_Height)
-              )
+        public EmptyTile(Point tilePosition, int globalTileIndex) 
+            : base(tilePosition, globalTileIndex)
         {
             _impassable = false;
         }
