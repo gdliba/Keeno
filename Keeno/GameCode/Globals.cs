@@ -206,8 +206,8 @@ namespace Keeno
             MonochromaticTilesetTxr = content.Load<Texture2D>("SpriteSheets\\mono_t");
             InputsTilesetTxr = content.Load<Texture2D>("SpriteSheets\\inputs_t");
 
-            RockTxr = content.Load<Texture2D>("WorldObjects\\Minerals\\rock");
-            WhiteRockTxr = content.Load<Texture2D>("WorldObjects\\Minerals\\rock_w");
+            RockTxr = content.Load<Texture2D>("WorldObjects\\Minerals\\rock1");
+            WhiteRockTxr = content.Load<Texture2D>("WorldObjects\\Minerals\\rock1_w");
             ChoppedTreeTxr = content.Load<Texture2D>("WorldObjects\\Flora\\choppedTree2");
             TentsTxr = content.Load<Texture2D>("WorldObjects\\Buildings\\Houses\\tents_w");
             BlueprintTxr = content.Load<Texture2D>("WorldObjects\\Items\\scroll");
