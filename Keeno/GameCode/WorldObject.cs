@@ -10,7 +10,7 @@ namespace Keeno
 {
     enum ObjectState
     {
-        Default,
+        Harvestable,
         NotHarvestable,
         Dead
     }
@@ -54,8 +54,6 @@ namespace Keeno
         protected bool _impassable;
         public bool Impassable { get { return _impassable;} protected set { _impassable = value; } }
 
-        protected float _destroySpeed;
-
         public Color Tint;
         public Rectangle Bounds { get{ return _rect; } protected set { _rect = value; } }
         public Vector2 Position { get { return new Vector2(_rect.X + _tileWidth / 2, _rect.Y + _tileHeight / 2); } }
@@ -64,16 +62,13 @@ namespace Keeno
         protected WorldObject(Point tilePosition,
             Rectangle sourceRect)
         {
-            _state = ObjectState.Default;
+            _state = ObjectState.Harvestable;
             _impassable = true;
             _isSelected = false;
             _canDropOff = false;
             _destroyMe = false;
             _canUse = false;
             _cannotUse = false;
-
-            _destroySpeed = .01f;
-
 
             _testPixel = Assets.DebugPixelTxr; 
             _selectedTileTileset = Assets.MonochromaticTilesetTxr;
@@ -397,11 +392,11 @@ namespace Keeno
                     ClearWorkerList();
                     if (_isSelected)
                     {
-                        _destroyMe = _HGDestroy.Update(Globals.X_KeyDown, _destroySpeed);
+                        _destroyMe = _HGDestroy.Update(Globals.X_KeyDown, Globals.DestroyInteractSpeed);
                         _playerHarvestedResource = false;
                     }
                     break;
-                case ObjectState.Default:
+                case ObjectState.Harvestable:
                     if (_isSelected)
                     {
                         // Interaction
@@ -503,7 +498,7 @@ namespace Keeno
             {
                 case ObjectState.Dead:
                     return;
-                case ObjectState.Default:
+                case ObjectState.Harvestable:
                     if (_isSelected)
                     {
                         // HourGlasses
@@ -535,10 +530,10 @@ namespace Keeno
         public Tree(Point tilePosition, int globalTileIndex)
             : base(tilePosition, globalTileIndex)
         {
+            _resourceType = ResourceType.Wood;
             _resourceAmount = Globals.TreeWoodAmount;
             _health = Globals.TreeHealth;
             _workerSlots = 1;
-            _resourceType = ResourceType.Wood;
 
             _choppedTreeTxr = Assets.ChoppedTreeTxr;
             _impassable = true;
@@ -555,15 +550,12 @@ namespace Keeno
         public Farm(Point tilePosition, int globalTileIndex) 
             : base(tilePosition, globalTileIndex)
         {
-            _state = ObjectState.Default;
             _resourceType = ResourceType.Food;
-            _workerSlots = 1;
-            _destroySpeed = .01f;
             _resourceAmount = Globals.FarmFoodAmount;
-            _txr = Assets.TilesetTxr;
             _health = Globals.FarmHealth;
-            _playerHarvestedResource = false;
-            _canDropOff = false;
+            _workerSlots = 1;
+
+            _txr = Assets.TilesetTxr;
             _impassable = false;
 
 
