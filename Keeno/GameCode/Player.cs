@@ -14,7 +14,7 @@ namespace Keeno
         Dying,
         Dead
     }
-    class Player : MobileSwarmPoint
+    class Player : AnimatedKeeno2D
     {
         private Map _map;
 
@@ -59,7 +59,7 @@ namespace Keeno
             _keenos = keenos;
             _keenosNearPlayer = new List<Keeno>();
             _followers = new List<Keeno>();
-            _workSpeed = .02f;
+            _workSpeed = 5f;
 
             _itemCarryPoint = new Point(0, 0);
             _itemCarrying = null;

@@ -91,7 +91,7 @@ namespace Keeno
             yUsed = (int)(_rect.Height * _fill);
 
             // Change the Position in which the "full Hourglass" sprite is drawn
-            updatedDrawRect = new Rectangle(_rect.X, _rect.Bottom - yUsed,
+            updatedDrawRect = new Rectangle(_rect.X, _rect.Bottom - yUsed-1,
                                             _rect.Width, yUsed); 
             // Change the position of the "full Hourglass" sprite's Source Rectangle to
             // draw from the bottom up

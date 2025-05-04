@@ -104,7 +104,9 @@ namespace Keeno
 
         // HourGlass
         public const int EmptyHourGlassIndex = 628;
-        public const int FullHourGlassIndex = 630;
+        //public const int FullHourGlassIndex = 630;
+        public const int FullHourGlassIndex = 627;
+
 
         //Inputs Tileset
         public const int InputsTilesetColumns = 34;
@@ -133,11 +135,11 @@ namespace Keeno
         public static int TreeWoodAmount = 1;
 
         // Farm
-        public static int FarmHealth = 5;
+        public static int FarmHealth = 10;
         public static int FarmFoodAmount = 1;
 
         // Stone
-        public static int RockHealth = 1;
+        public static int RockHealth = 20;
         public static int RockStoneAmount = 1;
 
         // Gold
@@ -185,6 +187,10 @@ namespace Keeno
         public static Texture2D ChoppedTreeTxr {  get; private set; }
         public static Texture2D TentsTxr { get; private set; }
         public static Texture2D BlueprintTxr { get; private set; }
+        public static Texture2D RockTxr { get; private set; }
+        public static Texture2D WhiteRockTxr { get; private set; }
+
+
 
 
 
@@ -199,6 +205,9 @@ namespace Keeno
             TilesetTxr = content.Load<Texture2D>("SpriteSheets\\color_t");
             MonochromaticTilesetTxr = content.Load<Texture2D>("SpriteSheets\\mono_t");
             InputsTilesetTxr = content.Load<Texture2D>("SpriteSheets\\inputs_t");
+
+            RockTxr = content.Load<Texture2D>("WorldObjects\\Minerals\\rock");
+            WhiteRockTxr = content.Load<Texture2D>("WorldObjects\\Minerals\\rock_w");
             ChoppedTreeTxr = content.Load<Texture2D>("WorldObjects\\Flora\\choppedTree2");
             TentsTxr = content.Load<Texture2D>("WorldObjects\\Buildings\\Houses\\tents_w");
             BlueprintTxr = content.Load<Texture2D>("WorldObjects\\Items\\scroll");

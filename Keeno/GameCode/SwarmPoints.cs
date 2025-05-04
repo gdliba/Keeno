@@ -4,44 +4,44 @@ using System.Collections.Generic;
 
 namespace Keeno
 {
-    class StaticSwarmPoint : StaticGraphic
-    {
+    //class StaticSwarmPoint : StaticGraphic
+    //{
 
-        private Texture2D _testPixel;
-        private Rectangle _testRectangle;
+    //    private Texture2D _testPixel;
+    //    private Rectangle _testRectangle;
 
-        public StaticSwarmPoint(Texture2D txr, int xTile, int yTile, int tileWidth, int tileHeight, Rectangle destinationRect, Texture2D pixel)
-            : base(txr, xTile, yTile, tileWidth, tileHeight, destinationRect)
-        {
-            _testPixel = pixel;
-            _testRectangle = destinationRect;
-        }
+    //    public StaticSwarmPoint(Texture2D txr, int xTile, int yTile, int tileWidth, int tileHeight, Rectangle destinationRect, Texture2D pixel)
+    //        : base(txr, xTile, yTile, tileWidth, tileHeight, destinationRect)
+    //    {
+    //        _testPixel = pixel;
+    //        _testRectangle = destinationRect;
+    //    }
 
-        public override void Draw(SpriteBatch sb)
-        {
-            sb.Draw(_testPixel, _testRectangle, Color.Red * .75f);
+    //    public override void Draw(SpriteBatch sb)
+    //    {
+    //        sb.Draw(_testPixel, _testRectangle, Color.Red * .75f);
 
-            base.Draw(sb);
-        }
+    //        base.Draw(sb);
+    //    }
 
-    }
+    //}
 
-    class MobileSwarmPoint : AnimatedKeeno2D
-    {
+    //class MobileSwarmPoint : AnimatedKeeno2D
+    //{
         
-        public MobileSwarmPoint(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
-            : base ( spriteSheet, fps, rect, pixel)
-        {
+    //    public MobileSwarmPoint(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
+    //        : base ( spriteSheet, fps, rect, pixel)
+    //    {
 
-        }
+    //    }
 
-        public override void Update(GameTime gt)
-        {
-            base.Update(gt);
-        }
-        //public List<Keeno> KeenoSwarm()
-        //{
+    //    public override void Update(GameTime gt)
+    //    {
+    //        base.Update(gt);
+    //    }
+    //    //public List<Keeno> KeenoSwarm()
+    //    //{
 
-        //}
-    }
+    //    //}
+    //}
 }

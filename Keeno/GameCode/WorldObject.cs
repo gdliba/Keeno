@@ -42,12 +42,16 @@ namespace Keeno
         public Point TilePosition { get { return _tilePosition; } protected set { _tilePosition = value; } }
 
 
+        protected float _txrRotationDegrees;
+        protected float _txrRotationRadians;
+
         protected int _tileWidth;
         protected int _tileHeight;
         protected int _tilesetColumns;
 
         protected int _health;
 
+        protected bool _flipped;
         protected bool _isSelected;
         protected bool _canBeSelectedWhenBroken;
         protected bool _canDropOff;
@@ -71,7 +75,9 @@ namespace Keeno
             _destroyMe = false;
             _canUse = false;
             _cannotUse = false;
+            _flipped = false;
             _canBeSelectedWhenBroken = true;
+            
 
             _testPixel = Assets.DebugPixelTxr; 
             _selectedTileTileset = Assets.MonochromaticTilesetTxr;
@@ -102,7 +108,7 @@ namespace Keeno
 
 
             _health = 1;
-
+            _txrRotationDegrees = 0f;
             #region ButtonPrompts and HG
             _buttonPrompt_E = new ButtonPrompt(Assets.InputsTilesetTxr,
                 new Rectangle(_tilePosition.X + _tileWidth / 2,
@@ -169,6 +175,8 @@ namespace Keeno
                 _HGCantInteract.Reset();
             }
             _isSelected = false;
+            _txrRotationRadians = MathHelper.ToRadians(_txrRotationDegrees);
+
         }
         /// <summary>
         /// Called when the player “interacts” with this object
@@ -199,10 +207,17 @@ namespace Keeno
         {
             //sb.Draw(_testPixel, new Vector2(Position.X, Position.Y), Color.Black);  // Draw Position
 
+
+            Vector2 origin = new Vector2(_rect.Width / 2f, _rect.Height / 2f);
+
+            // determine when to flip the sprite (making it look to the RIGHT)
+            var flip = _flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             SelectedDraw(sb);
             if (_state != ObjectState.Dead)
             {
-                sb.Draw(_txr, _rect, _srcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
+                //sb.Draw(_txr, _rect, _srcRect, Tint, _txrRotationRadians, origin, flip, Globals.WolrdObjectLD);
+                sb.Draw(_txr, Position, _srcRect, Tint, _txrRotationRadians, origin, 1, flip, Globals.WolrdObjectLD);
+
                 _HGWorkProgress.Draw(sb);
             }
         }
@@ -316,9 +331,16 @@ namespace Keeno
     {
         protected List<Keeno> _workers;
 
+
+        protected Texture2D _whiteTxr;
+        protected Texture2D _defaultTxr;
+
         protected float _workSpeed;
         protected float _workDuration;
         protected float _playerWorkSpeed;
+        protected float _flashingTxrTimer;
+        protected float _flashingTxrTimerReset;
+
 
 
         protected int _workerSlots;
@@ -326,8 +348,9 @@ namespace Keeno
 
         protected bool _playerHarvestedResource;
         protected bool _workerHarvestedResource;
-        protected bool _selectedCondition;
-        protected bool _gainResourcesGradually;
+        protected bool _selectedCondition;      // in most cases checking if player has followers
+        protected bool _flashesWhenHarvested;
+
 
         protected Rectangle _coreRect;
         public Rectangle CoreRect { get { return _coreRect; } protected set { _coreRect = value; } }
@@ -346,14 +369,20 @@ namespace Keeno
             _workDuration = 10f;
             _health = 1;
 
+            _defaultTxr = _txr;
+            _whiteTxr = Assets.MonochromaticTilesetTxr;
+
             _playerHarvestedResource = false;
             _canDropOff = false;
             _selectedCondition = false;
-            _gainResourcesGradually = true;
             _canBeSelectedWhenBroken = true;
+            _flashesWhenHarvested = true;
 
             _coreRect = new Rectangle(_rect.X+_rect.Width/4,_rect.Y+_rect.Height/4, _rect.Width/2, _rect.Height/2);
 
+
+            _flashingTxrTimer = 0;
+            _flashingTxrTimerReset = .07f;
 
             #region ButtonPrompts and HG
             _buttonPrompt_E = new ButtonPrompt(Assets.InputsTilesetTxr,
@@ -404,13 +433,30 @@ namespace Keeno
         {
             base.Selected();
             _playerWorkSpeed = playerWorkSpeed;
+            // in most cases checking if player has followers
             _selectedCondition = condition;
         }
         public override void Update(GameTime gt)
         {
-            // Apply the worker's workspeed
-                // reset first so that it isn't increasing exponentially
-                _workSpeed = 0f;
+            float deltaTime = (float)gt.ElapsedGameTime.TotalSeconds;
+
+            // if this WorkStation flashes when a unit of resource is harvested
+            if (_flashesWhenHarvested)
+            {
+                // apply the appropriate effect
+                if (_flashingTxrTimer > 0)
+                {
+                    _flashingTxrTimer -= deltaTime;
+                    _txr = _whiteTxr;
+                }
+                else
+                {
+                    _txr = _defaultTxr;
+                    _txrRotationDegrees = 0f;
+                }
+            }
+
+            _workSpeed = 0f;
             foreach (var worker in _workers)
             {
                 if (!worker.IsWalking)  // Only apply when they have arrived at the Workstation
@@ -437,19 +483,20 @@ namespace Keeno
                 case ObjectState.Harvestable:
                     if (_isSelected)
                     {
+                        // Player Work Logic
+                        float playerFill = _playerWorkSpeed * (deltaTime / _workDuration);
                         // Interaction
-                        _playerHarvestedResource = _HGInteract.Update(Globals.E_KeyDown, _playerWorkSpeed);
+                        _playerHarvestedResource = _HGInteract.Update(Globals.E_KeyDown, playerFill);
                         // worker DropOff
                         if (_workerSlots > 0 && _selectedCondition && _state != ObjectState.Broken)
                         {
                             _canDropOff = _HGDropOff.Update(Globals.Q_KeyDown, Globals.DropOffKeenoSpeed);
                         }
                     }
-                    // Worker Logic
-                    float deltaTime = (float)gt.ElapsedGameTime.TotalSeconds;
-                    float deltaFill = _workSpeed * (deltaTime / _workDuration);
+                    // Worker Work Logic
+                    float workerFill = _workSpeed * (deltaTime / _workDuration);
 
-                    _workerHarvestedResource = _HGWorkProgress.Update(true, deltaFill);
+                    _workerHarvestedResource = _HGWorkProgress.Update(true, workerFill);
 
                     // Tell workers where to go
                     foreach (Keeno keeno in _workers)
@@ -459,10 +506,7 @@ namespace Keeno
                     // Harvest Resource
                     if (_playerHarvestedResource || _workerHarvestedResource)
                     {
-                        if (_gainResourcesGradually)
-                            HarvestResource(_resourceType, _resourceAmount);
-                        else
-                            HarvestResource(_resourceType, 0);
+                        HarvestResource(_resourceType, _resourceAmount);
                     }
 
                     break;
@@ -482,11 +526,23 @@ namespace Keeno
         #region Resources/Workers
         public virtual void HarvestResource(ResourceType type, int amount)
         {
+            ApplyHitEffect();
             _health--;
             ResourceTracker.Add(type, amount);
             _HGWorkProgress.Reset();
             _HGInteract.Reset();
 
+        }
+        public virtual void ApplyHitEffect()
+        {
+            if (_flashesWhenHarvested)
+            {
+                // Apply a slight rotation and reset the flashing timer
+                // so that the Workstation flashes when hit
+                float rand = Globals.RNG.Next(0, 2) == 0 ? 3 : -3;
+                _txrRotationDegrees = rand;
+                _flashingTxrTimer = _flashingTxrTimerReset;
+            }
         }
         public virtual void ReduceWorkerSlots()
         {
@@ -547,7 +603,8 @@ namespace Keeno
                         _HGDropOff.Draw(sb);
                         // Input Promts
                         _buttonPrompt_E.Draw(sb);
-                        _buttonPrompt_Q.Draw(sb);
+                        if(_selectedCondition)
+                            _buttonPrompt_Q.Draw(sb);
                     }
                     break;
                 case ObjectState.Broken:
@@ -613,6 +670,7 @@ namespace Keeno
     }
     class RockFormation : WorkStation
     {
+        private Texture2D _tilesetTxr;
         public RockFormation(Point tilePosition, int globalTileIndex)
             : base(tilePosition, globalTileIndex)
         {
@@ -622,9 +680,16 @@ namespace Keeno
             _workerSlots = 1;
 
             _impassable = true;
+
+            _srcRect = null;
+            _tilesetTxr = _txr;
+            _txr = Assets.RockTxr;
+            _defaultTxr = _txr;
+            _whiteTxr = Assets.WhiteRockTxr;
         }
         public override void ChangeTextureToBroken()
         {
+            _txr = _tilesetTxr;
             _srcRect = new Rectangle(
                   (Globals.HarvestedRockTileIndex % _tilesetColumns) * _tileWidth,
                   (Globals.HarvestedRockTileIndex / _tilesetColumns) * _tileHeight,
@@ -641,10 +706,11 @@ namespace Keeno
             _resourceAmount = Globals.GoldGoldAmount;
             _health = Globals.GoldHealth;
             _workerSlots = 1;
+            _workDuration = 60f;
 
             _impassable = true;
-            _gainResourcesGradually = false;
             _canBeSelectedWhenBroken = false;
+            _flashesWhenHarvested = false;
         }
         public override void ChangeTextureToBroken()
         {
