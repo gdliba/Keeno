@@ -188,7 +188,9 @@ namespace Keeno
         public static Texture2D TentsTxr { get; private set; }
         public static Texture2D BlueprintTxr { get; private set; }
         public static Texture2D RockTxr { get; private set; }
+
         public static Texture2D WhiteRockTxr { get; private set; }
+        public static Texture2D GoldOreTxr { get; private set; }
 
 
 
@@ -208,6 +210,11 @@ namespace Keeno
 
             RockTxr = content.Load<Texture2D>("WorldObjects\\Minerals\\rock1");
             WhiteRockTxr = content.Load<Texture2D>("WorldObjects\\Minerals\\rock1_w");
+
+            GoldOreTxr = content.Load<Texture2D>("WorldObjects\\Minerals\\gold");
+
+
+
             ChoppedTreeTxr = content.Load<Texture2D>("WorldObjects\\Flora\\choppedTree2");
             TentsTxr = content.Load<Texture2D>("WorldObjects\\Buildings\\Houses\\tents_w");
             BlueprintTxr = content.Load<Texture2D>("WorldObjects\\Items\\scroll");

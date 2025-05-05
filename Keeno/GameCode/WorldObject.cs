@@ -331,7 +331,7 @@ namespace Keeno
     {
         protected List<Keeno> _workers;
 
-
+        protected Texture2D _tilesetTxr;
         protected Texture2D _whiteTxr;
         protected Texture2D _defaultTxr;
 
@@ -372,6 +372,7 @@ namespace Keeno
 
             _defaultTxr = _txr;
             _whiteTxr = Assets.MonochromaticTilesetTxr;
+            _tilesetTxr = Assets.TilesetTxr;
 
             _playerHarvestedResource = false;
             _canDropOff = false;
@@ -384,7 +385,7 @@ namespace Keeno
 
 
             _flashingTxrTimer = 0;
-            _flashingTxrTimerReset = .07f;
+            _flashingTxrTimerReset = .02f;
 
             #region ButtonPrompts and HG
             _buttonPrompt_E = new ButtonPrompt(Assets.InputsTilesetTxr,
@@ -675,7 +676,6 @@ namespace Keeno
     }
     class RockFormation : WorkStation
     {
-        private Texture2D _tilesetTxr;
         public RockFormation(Point tilePosition, int globalTileIndex)
             : base(tilePosition, globalTileIndex)
         {
@@ -687,7 +687,6 @@ namespace Keeno
             _impassable = true;
 
             _srcRect = null;
-            _tilesetTxr = _txr;
             _txr = Assets.RockTxr;
             _defaultTxr = _txr;
             _whiteTxr = Assets.WhiteRockTxr;
@@ -717,10 +716,14 @@ namespace Keeno
             _canBeSelectedWhenBroken = false;
             _flashesWhenHarvested = false;
             _hasToBeCollected = true;
+
+            _txr = Assets.GoldOreTxr;
+            _srcRect = null;
         }
         public override void ChangeTextureToBroken()
         {
             _impassable = false;
+            _txr = _tilesetTxr;
             _srcRect = new Rectangle(
                   (Globals.HarvestedGoldTileIndex % _tilesetColumns) * _tileWidth,
                   (Globals.HarvestedGoldTileIndex / _tilesetColumns) * _tileHeight,
