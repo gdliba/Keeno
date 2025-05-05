@@ -222,6 +222,14 @@ namespace Keeno
             }
         }
     }
+    class Door : WorldObject
+    {
+        public Door(Point position, int globalTileIndex)
+            : base(position, globalTileIndex)
+        {
+            _impassable = false;
+        }
+    }
     class SelectableWorldObject : WorldObject
     {
         public SelectableWorldObject(Point position, int globalTileIndex)
@@ -346,6 +354,7 @@ namespace Keeno
         protected int _workerSlots;
         protected int _resourceAmount;
 
+        protected bool _diesWhenBroken;
         protected bool _playerHarvestedResource;
         protected bool _workerHarvestedResource;
         protected bool _hasToBeCollected;
@@ -380,6 +389,7 @@ namespace Keeno
             _canBeSelectedWhenBroken = true;
             _flashesWhenHarvested = true;
             _hasToBeCollected = false;
+            _diesWhenBroken = false;
 
             _coreRect = new Rectangle(_rect.X+_rect.Width/4,_rect.Y+_rect.Height/4, _rect.Width/2, _rect.Height/2);
 
@@ -474,6 +484,11 @@ namespace Keeno
             {
                 case ObjectState.Broken:
                     ClearWorkerList();
+                    if (_diesWhenBroken)
+                    {
+                        _state = ObjectState.Dead;
+                        break;
+                    }
                     if(!_canBeSelectedWhenBroken)
                         break;
                     if (_isSelected)
@@ -734,6 +749,21 @@ namespace Keeno
         {
             HarvestResource(_resourceType, _resourceAmount);
             _state = ObjectState.Dead;
+        }
+    }
+    class BreakableWall : WorkStation
+    {
+        public BreakableWall(Point tilePosition, int globalTileIndex)
+            : base(tilePosition, globalTileIndex)
+        {
+            _workDuration = 6f;
+            _workerSlots = 10;
+            _resourceType = ResourceType.None;
+            _resourceAmount = 0;
+            _health = 1;
+
+            _impassable = true;
+            _diesWhenBroken = true;
         }
     }
     class TownCentre : SelectableWorldObject

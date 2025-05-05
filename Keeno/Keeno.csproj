@@ -33,6 +33,9 @@
     <Folder Include="Content\SpriteSheets\" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="Content\MapData\testLevel3.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Content\MapData\testLevel_Map1.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

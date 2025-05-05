@@ -85,6 +85,12 @@ namespace Keeno
                         case Globals.GoldTileIndex:
                             AddGold(x, y);
                             break;
+                        case Globals.BreakableWallTileIndex:
+                            AddBreakableWall(x, y);
+                            break;
+                        case Globals.MineEntranceTileIndex:
+                            AddDoor(x, y);
+                            break;
                         default:
                             AddWorldObject(x,y);
                             break;
@@ -146,41 +152,53 @@ namespace Keeno
             int index = _mapData[y, x];
             _worldObjects.Add(new WorldObject(new Point(x,y), index));
 
-            _mapData[y, x] = Globals.OccupiedTileIndex;
+            _mapData[y, x] = Globals.EmptyTileIndex;
         }
         private void AddTree(int x, int y)
         {
             _worldObjects.Add(new Tree(new Point(x, y), Globals.TreeTileIndex));
 
-            _mapData[y, x] = Globals.OccupiedTileIndex;
+            _mapData[y, x] = Globals.EmptyTileIndex;
         }
         private void AddFarm(int x, int y)
         {
             _worldObjects.Add(new Farm(new Point(x,y), Globals.FarmTileIndex1));
 
-            _mapData[y, x] = Globals.OccupiedTileIndex;
+            _mapData[y, x] = Globals.EmptyTileIndex;
         }
         private void AddRock(int x, int y)
         {
             _worldObjects.Add(new RockFormation(new Point(x, y), Globals.RockTileIndex));
 
-            _mapData[y, x] = Globals.OccupiedTileIndex;
+            _mapData[y, x] = Globals.EmptyTileIndex;
         }
         private void AddGold(int x, int y)
         {
             _worldObjects.Add(new GoldFromation(new Point(x, y), Globals.GoldTileIndex));
 
-            _mapData[y, x] = Globals.OccupiedTileIndex;
+            _mapData[y, x] = Globals.EmptyTileIndex;
         }
         private void AddTownCentre(int x, int y)
         {
             _worldObjects.Add(new TownCentre(new Point(x, y), Globals.TownCentreTileIndex));
 
-            _mapData[y, x] = Globals.OccupiedTileIndex;
+            _mapData[y, x] = Globals.EmptyTileIndex;
         }
         private void AddEmptyTile(int x, int y)
         {
             _worldObjects.Add(new EmptyTile(new Point(x, y), Globals.EmptyTileIndex));
+
+            _mapData[y, x] = Globals.EmptyTileIndex;
+        }
+        private void AddBreakableWall(int x, int y)
+        {
+            _worldObjects.Add(new BreakableWall(new Point(x, y), Globals.BreakableWallTileIndex));
+
+            _mapData[y, x] = Globals.EmptyTileIndex;
+        }
+        private void AddDoor(int x, int y)
+        {
+            _worldObjects.Add(new Door(new Point(x, y), Globals.MineEntranceTileIndex));
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }
@@ -228,8 +246,8 @@ namespace Keeno
                 for (int x = 0; x < _mapWidth; x++)
                 {
                     int tileIndex = _mapData[y, x]; // Get the tile index
-                    //if (tileIndex == Globals.EmptyTileIndex) 
-                    //    continue;                   // skip "empty" tiles
+                    if (tileIndex == Globals.EmptyTileIndex)
+                        continue;                   // skip "empty" tiles
 
                     int col = (tileIndex) % _tilesetColumns;    // X position in the tileset
                     int row = (tileIndex) / _tilesetColumns;    // Y position in the tileset

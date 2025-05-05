@@ -97,6 +97,19 @@ namespace Keeno
         public const int GoldTileIndex = 522;
         public const int HarvestedGoldTileIndex = 218;
 
+        public const int BreakableWallTileIndex = 885;
+
+        public const int MineEntranceTileIndex = 300;
+
+        public const int BrokenBridgeTileIndex = 262;
+        public const int FixedBridgeTileIndex = 261;
+        public const int RiverTileIndex = 204;
+
+
+
+
+
+
 
 
 

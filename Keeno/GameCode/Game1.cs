@@ -121,9 +121,9 @@ namespace Keeno
 #endif
 
             //testMap = new Map("Content/MapData/testLevel_Map.csv");
-            testMap = new Map("Content/MapData/testLevel_Map2.csv");
+            testMap = new Map("Content/MapData/testLevel3.csv");
 
-            testPlayer = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(200, 200, 16, 16),
+            testPlayer = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(400, 300, 16, 16),
                 Assets.DebugPixelTxr, testMap, keenos);
 
             //testHourGlass = new HourGlass(tilesetTxr, new Rectangle(50, 50, 16, 16));

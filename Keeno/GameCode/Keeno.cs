@@ -56,8 +56,6 @@ namespace Keeno
             _testPixel = pixel;
             _drawBounds = false;
             _targetDestinationBounds = _rect;
-
-
             _tint = Color.White;
             _defaultTint = _tint;
 
@@ -74,7 +72,7 @@ namespace Keeno
             // Set the previous position to be the same as the current one.
             // This allows to later randomise what direction the Keeno
             // face when they first spawn
-            _previousPosition= _position;
+            _previousPosition = _position;
         }
         public override void Update(GameTime gt)
         {
@@ -182,7 +180,6 @@ namespace Keeno
         public virtual void MoveTo(Point destination)
         {
             Vector2 vectorDistance = destination.ToVector2() - _position;
-
             if (vectorDistance.Length() > .5f)
             {
                 vectorDistance.Normalize();
@@ -262,10 +259,6 @@ namespace Keeno
         }
         public override void Update(GameTime gt)
         {
-            //MoveMe(MoveInThisDirection(gt));
-            //if(destination!=_position.ToPoint())
-            //    MoveTo(destination);
-
             switch (_state)
             {
                 case KeenoState.Idle:
