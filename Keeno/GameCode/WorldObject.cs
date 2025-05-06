@@ -654,7 +654,8 @@ namespace Keeno
             _resourceType = ResourceType.Wood;
             _resourceAmount = Globals.TreeWoodAmount;
             _health = Globals.TreeHealth;
-            _workerSlots = 2;
+            _workerSlots = Globals.TreeWorkerSlots;
+            _workDuration = Globals.TreeWorkAmount;
 
             _choppedTreeTxr = Assets.ChoppedTreeTxr;
             _impassable = true;
@@ -674,7 +675,8 @@ namespace Keeno
             _resourceType = ResourceType.Food;
             _resourceAmount = Globals.FarmFoodAmount;
             _health = Globals.FarmHealth;
-            _workerSlots = 1;
+            _workerSlots = Globals.FarmWorkerSlots;
+            _workDuration = Globals.FarmWorkAmount;
 
             _txr = Assets.TilesetTxr;
             _impassable = false;
@@ -697,7 +699,8 @@ namespace Keeno
             _resourceType = ResourceType.Stone;
             _resourceAmount = Globals.RockStoneAmount;
             _health = Globals.RockHealth;
-            _workerSlots = 1;
+            _workerSlots = Globals.RockWorkerSlots;
+            _workDuration = Globals.RockWorkAmount;
 
             _impassable = true;
 
@@ -708,6 +711,7 @@ namespace Keeno
         }
         public override void ChangeTextureToBroken()
         {
+            _impassable = false ;
             _txr = _tilesetTxr;
             _srcRect = new Rectangle(
                   (Globals.HarvestedRockTileIndex % _tilesetColumns) * _tileWidth,
@@ -724,8 +728,8 @@ namespace Keeno
             _resourceType = ResourceType.Gold;
             _resourceAmount = Globals.GoldGoldAmount;
             _health = Globals.GoldHealth;
-            _workerSlots = 3;
-            _workDuration = 6f;
+            _workerSlots = Globals.GoldWorkerSlots;
+            _workDuration = Globals.GoldWorkAmount;
 
             _impassable = true;
             _canBeSelectedWhenBroken = false;

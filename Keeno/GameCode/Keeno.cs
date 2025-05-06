@@ -88,19 +88,6 @@ namespace Keeno
             _rect.Location = _position.ToPoint();
 
             _isSelected = false;
-
-            // Update the player's "would be" bounds in relation to
-            // the direction they are moving in
-            //_targetDestinationBounds = new Rectangle(
-            //    _rect.X + _rect.Width / 4 + (int)_direction.X,
-            //    _rect.Y + _rect.Height / 4 + (int)_direction.Y,
-            //    2 * _rect.Width / 3,
-            //    2 * _rect.Height / 3);
-        //    _targetDestinationBounds = new Rectangle(
-        //_rect.X  + (int)_direction.X,
-        //_rect.Y  + (int)_direction.Y,
-        //_rect.Width,
-        //_rect.Height);
         }
         private void AnimateKeeno(GameTime gt)
         {

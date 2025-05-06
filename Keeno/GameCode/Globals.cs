@@ -107,14 +107,6 @@ namespace Keeno
 
 
 
-
-
-
-
-
-
-
-
         // HourGlass
         public const int EmptyHourGlassIndex = 628;
         //public const int FullHourGlassIndex = 630;
@@ -129,6 +121,12 @@ namespace Keeno
         public const int InputsTilesetIndex_Q = 85;
         public const int InputsTilesetIndex_X = 156;
 
+        //Left Click Index
+        //public const int InputsTilesetIndex_E = 111;
+        //Right Click Index
+        //public const int InputsTilesetIndex_E = 112;
+
+
         #endregion
 
         //public static Rectangle TileSelectSrcRect { get { return new Rectangle(1, 1, 1, 1); } }
@@ -137,7 +135,7 @@ namespace Keeno
         public static int PlayerMovementSpeed = 50;
         public static float DropOffKeenoSpeed = .03f;
         public static float NeutralInteractSpeed = .02f;
-        public static float DestroyInteractSpeed = .005f;
+        public static float DestroyInteractSpeed = .02f;
 
 
         // Keeno
@@ -146,18 +144,28 @@ namespace Keeno
         // Tree
         public static int TreeHealth = 10;
         public static int TreeWoodAmount = 1;
+        public static int TreeWorkerSlots = 1;
+        public static float TreeWorkAmount = 10f;
+
 
         // Farm
         public static int FarmHealth = 10;
         public static int FarmFoodAmount = 1;
+        public static int FarmWorkerSlots = 1;
+        public static float FarmWorkAmount = 10f;
 
-        // Stone
-        public static int RockHealth = 20;
+
+        // Rock / Stone
+        public static int RockHealth = 2;
         public static int RockStoneAmount = 1;
+        public static int RockWorkerSlots = 1;
+        public static float RockWorkAmount = 10f;
 
         // Gold
         public static int GoldHealth = 1;
         public static int GoldGoldAmount = 1;
+        public static int GoldWorkerSlots = 1;
+        public static float GoldWorkAmount = 10f;
 
         // Layer Depths
         public static float ItemSelectedTxrLD = .098f;

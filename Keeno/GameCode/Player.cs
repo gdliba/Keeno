@@ -70,6 +70,8 @@ namespace Keeno
             _objectsNearPlayer.Clear();
             _emptyTilesNearPlayer.Clear();
 
+            base.Update(gt);
+            ColisionDependantMovement();
 
             // update the point that the items the player is carrying follows
             //_itemCarryPoint = new Point((int)_position.X, (int)_position.Y - 5);
@@ -89,6 +91,7 @@ namespace Keeno
                      _rect.Width / 3,
                      _rect.Height / 3);
 
+
             if (Globals.Tab_KeyPress)
                 _state++;
             if (_state == PlayerState.Dead)
@@ -102,9 +105,7 @@ namespace Keeno
                 Player_Object_Interaction();
                 Player_Keeno_Interaction(gt);
             }
-            ColisionDependantMovement();
 
-            base.Update(gt);
         }
         private void BuildingMode()
         {
@@ -152,7 +153,8 @@ namespace Keeno
                     _objectsNearPlayer.Add(_map.WorldObjects[i]);
             }
             // Sort the list
-            var sortedWorldObjectList = _objectsNearPlayer.OrderBy(x => x.DistanceTo(Position)).ToList();
+            Vector2 positionBasedOnDirection = new Vector2(Position.X + 5f * _direction.X, Position.Y + 5f * _direction.Y);
+            var sortedWorldObjectList = _objectsNearPlayer.OrderBy(x => x.DistanceTo(positionBasedOnDirection)).ToList();
             #endregion
             if (sortedWorldObjectList.Count > 0)
             {
