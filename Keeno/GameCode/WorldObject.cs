@@ -532,6 +532,7 @@ namespace Keeno
                         else
                             PlayerHarvestedResource(_resourceType, 0);
                     }
+                    // Worker Harvested Resource
                     if (_workerHarvestedResource)
                     {
                         if (!_hasToBeCollected)
@@ -604,7 +605,11 @@ namespace Keeno
         {
             foreach (var keeno in _workers)
             {
-                keeno.DropOffAndIdle(_resourceType, _resourceAmount);
+                if(!_hasToBeCollected)
+                    keeno.DropOffAndIdle(_resourceType, _resourceAmount);
+                else
+                    keeno.DropOffAndIdle(_resourceType, 0);
+
             }
             _workers.Clear();
         }
@@ -771,7 +776,7 @@ namespace Keeno
         }
         public void GatherGoldCoin()
         {
-            WorkerHarvestedResource(_resourceType, _resourceAmount);
+            PlayerHarvestedResource(_resourceType, _resourceAmount);
             _state = ObjectState.Dead;
         }
     }

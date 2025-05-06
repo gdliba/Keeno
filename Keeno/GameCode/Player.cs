@@ -173,6 +173,7 @@ namespace Keeno
                 // if selected World object IS a WORKSTATION
                 else if (sortedWorldObjectList[0] is WorkStation selectedWorkStation)
                 {
+                    // if it's Gold
                     if(selectedWorkStation is GoldFromation goldFormation)
                     {
                         if(goldFormation.State == ObjectState.Broken &&
