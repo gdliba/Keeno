@@ -191,11 +191,13 @@ namespace Keeno
         }
         public virtual void SelectedDraw(SpriteBatch sb)
         {
+
+            //Rectangle temp = new Rectangle(_rect.X + _rect.Width / 16, _rect.Y + _rect.Height / 16, 7 * _rect.Width / 8, 7 * _rect.Height / 8);
             switch (_state)
             {
                 case ObjectState.Harvestable:
                     if (_isSelected)
-                        sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+                        sb.Draw(_selectedTileTileset,_rect , _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
                     break;
                 case ObjectState.Broken:
                     if (_isSelected && _canBeSelectedWhenBroken)
@@ -205,7 +207,7 @@ namespace Keeno
         }
         public virtual void Draw(SpriteBatch sb)
         {
-            //sb.Draw(_testPixel, new Vector2(Position.X, Position.Y), Color.Black);  // Draw Position
+            //sb.Draw(_testPixel, new Vector2(Position.X, Position.Y), Color.Yellow);  // Draw Position
 
 
             Vector2 origin = new Vector2(_rect.Width / 2f, _rect.Height / 2f);
@@ -519,15 +521,23 @@ namespace Keeno
                     // Tell workers where to go
                     foreach (Keeno keeno in _workers)
                     {
-                        keeno.MoveTo(_tilePosition);
+                        if(keeno.State == KeenoState.Working)
+                            keeno.MoveTo(_tilePosition);
                     }
                     // Harvest Resource
-                    if (_playerHarvestedResource || _workerHarvestedResource)
+                    if (_playerHarvestedResource)
                     {
                         if (!_hasToBeCollected)
-                            HarvestResource(_resourceType, _resourceAmount);
+                            PlayerHarvestedResource(_resourceType, _resourceAmount);
                         else
-                            HarvestResource(_resourceType, 0);
+                            PlayerHarvestedResource(_resourceType, 0);
+                    }
+                    if (_workerHarvestedResource)
+                    {
+                        if (!_hasToBeCollected)
+                            WorkerHarvestedResource(_resourceType, _resourceAmount);
+                        else
+                            WorkerHarvestedResource(_resourceType, 0);
                     }
 
                     break;
@@ -545,7 +555,17 @@ namespace Keeno
             base.Update(gt);
         }
         #region Resources/Workers
-        public virtual void HarvestResource(ResourceType type, int amount)
+        public virtual void WorkerHarvestedResource(ResourceType type, int amount)
+        {
+            _workers[0].DropOffResources(type,  amount);
+            ApplyHitEffect();
+            _health--;
+            //ResourceTracker.Add(type, amount);
+            _HGWorkProgress.Reset();
+            _HGInteract.Reset();
+
+        }
+        public virtual void PlayerHarvestedResource(ResourceType type, int amount)
         {
             ApplyHitEffect();
             _health--;
@@ -584,7 +604,7 @@ namespace Keeno
         {
             foreach (var keeno in _workers)
             {
-                keeno.SwitchToIdle();
+                keeno.DropOffAndIdle(_resourceType, _resourceAmount);
             }
             _workers.Clear();
         }
@@ -751,7 +771,7 @@ namespace Keeno
         }
         public void GatherGoldCoin()
         {
-            HarvestResource(_resourceType, _resourceAmount);
+            WorkerHarvestedResource(_resourceType, _resourceAmount);
             _state = ObjectState.Dead;
         }
     }
@@ -760,11 +780,11 @@ namespace Keeno
         public BreakableWall(Point tilePosition, int globalTileIndex)
             : base(tilePosition, globalTileIndex)
         {
-            _workDuration = 6f;
-            _workerSlots = 10;
+            _workDuration = Globals.BreakableWallWorkAmount;
+            _workerSlots = Globals.BreakableWallWorkerSlots;
             _resourceType = ResourceType.None;
             _resourceAmount = 0;
-            _health = 1;
+            _health = Globals.BreakableWallHealth;
 
             _impassable = true;
             _diesWhenBroken = true;
@@ -811,7 +831,9 @@ namespace Keeno
         }
         private void SpawnKeeno()
         {
-            var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(_tilePosition.X, _tilePosition.Y, 16, 16), Assets.DebugPixelTxr);
+            Rectangle temp = new Rectangle(_rect.X-_rect.Width/2, _rect.Y , 16, 16);
+
+            var newKeeno = new Keeno(Assets.KeenoTxr, 5, temp, Assets.DebugPixelTxr);
             _keenosISpawned.Add(newKeeno);
             //Debug.WriteLine("Spawning Keeno: firing event");
             KeenoSpawned?.Invoke(newKeeno);

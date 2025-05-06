@@ -16,6 +16,8 @@ namespace Keeno
         public Vector2 Direction { get { return _direction; } }
         public Vector2 Position { get { return new(_position.X + _rect.Width / 2, _position.Y + _rect.Height / 2); } }
         protected Vector2 _previousPosition;
+        protected Vector2 _startingPosition;
+
 
         protected bool _isWalking { get { return _velocity.Length() > 0; } }
         public bool IsWalking { get { return _isWalking; }}
@@ -53,6 +55,7 @@ namespace Keeno
         public AnimatedKeeno2D(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
             : base(spriteSheet, fps, rect)
         {
+            _startingPosition = new Vector2(rect.X+_rect.Width/2, rect.Y);
             //_rect = new Rectangle(_rect.X + _rect.Width / 2, _rect.Y + _rect.Height / 2, _rect.Width / 2, _rect.Height / 2);
             _idleFPS = 1;
 
@@ -222,12 +225,19 @@ namespace Keeno
         Idle,
         Following,
         Working,
+        DroppingOff,
+        DroppingOffAndIdle,
         Dying,
         Dead
     }
 
     class Keeno : AnimatedKeeno2D
     {
+        private ResourceType _resourceType;
+        private int _resourceAmmount;
+
+        private float _startingMovementSpeed;
+        private float _carryingMovementSpeed;
         private float _moveTimer;
         private float _idleTimer;
         private float _moveTimerReset;
@@ -246,20 +256,44 @@ namespace Keeno
             _defaultTint =_tint = new Color(Globals.RNG.Next(0, 256),
                 Globals.RNG.Next(0, 256), Globals.RNG.Next(0, 256));
 
-            _moveSpeed = Globals.RNG.Next(15, 26) + (float)Globals.RNG.NextDouble();
-
+            _moveSpeed = _startingMovementSpeed = Globals.RNG.Next(20, 26) + (float)Globals.RNG.NextDouble();
+            _carryingMovementSpeed = 10f;
             _facingRight = Globals.RNG.Next(2) == 0;
 
             _workSpeed = 1f;
         }
         public override void Update(GameTime gt)
         {
+
             switch (_state)
             {
                 case KeenoState.Idle:
+                    _moveSpeed = _startingMovementSpeed;
                     MoveInDirection(IdleAndMove(gt));
                     break;
                 case KeenoState.Following:
+                    _moveSpeed = _startingMovementSpeed;
+                    break;
+                case KeenoState.Working:
+                    _moveSpeed = _startingMovementSpeed;
+                    break;
+                case KeenoState.DroppingOff:
+                    _moveSpeed = _carryingMovementSpeed;
+                    MoveTo(_startingPosition.ToPoint());
+                    if (_position == _startingPosition)
+                    {
+                        ResourceTracker.Add(_resourceType, _resourceAmmount);
+                        _state = KeenoState.Working;
+                    }
+                    break;
+                case KeenoState.DroppingOffAndIdle:
+                    _moveSpeed = _carryingMovementSpeed;
+                    MoveTo(_startingPosition.ToPoint());
+                    if (_position == _startingPosition)
+                    {
+                        ResourceTracker.Add(_resourceType, _resourceAmmount);
+                        SwitchToIdle();
+                    }
                     break;
                 case KeenoState.Dead:
                     break;
@@ -316,9 +350,45 @@ namespace Keeno
         {
             _state = KeenoState.Idle;
         }
+        public void DropOffResources(ResourceType type, int amount)
+        {
+            _state = KeenoState.DroppingOff;
+            _resourceType = type;
+            _resourceAmmount = amount;
+        }
+        public void DropOffAndIdle(ResourceType type, int amount)
+        {
+            _state = KeenoState.DroppingOffAndIdle;
+            _resourceType = type;
+            _resourceAmmount = amount;
+        }
         public void Selected()
         {
             _isSelected = true;
+        }
+        public override void Draw(SpriteBatch sb)
+        {
+            // Make sure the rectangle moves and is drawn in the right position
+            _rect.X = (int)_position.X;
+            _rect.Y = (int)_position.Y;
+
+            // Draw test pixel
+            if (_drawBounds)
+                sb.Draw(_testPixel, Bounds, Color.Blue * 1f);
+
+
+            // determine when to flip the sprite (making it look to the RIGHT)
+            var flip = _facingRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+
+            // Draw actual sprite
+            if (_isSelected)
+                _tint = Color.White;
+            else if (_state ==  KeenoState.Idle && !_isSelected)
+                _tint = Color.Gray;
+            else
+                _tint = _defaultTint;
+            sb.Draw(_txr, _rect, _srcRect, _tint, 0f,
+                    Vector2.Zero, flip, Globals.KeenoLD);
         }
     }
 }

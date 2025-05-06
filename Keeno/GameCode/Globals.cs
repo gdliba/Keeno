@@ -152,7 +152,7 @@ namespace Keeno
         public static int FarmHealth = 10;
         public static int FarmFoodAmount = 1;
         public static int FarmWorkerSlots = 1;
-        public static float FarmWorkAmount = 10f;
+        public static float FarmWorkAmount = 1f;
 
 
         // Rock / Stone
@@ -166,6 +166,11 @@ namespace Keeno
         public static int GoldGoldAmount = 1;
         public static int GoldWorkerSlots = 1;
         public static float GoldWorkAmount = 10f;
+
+        // BreakableWall
+        public static int BreakableWallHealth = 1;
+        public static int BreakableWallWorkerSlots = 10;
+        public static float BreakableWallWorkAmount = 600f;
 
         // Layer Depths
         public static float ItemSelectedTxrLD = .098f;
