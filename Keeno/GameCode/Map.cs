@@ -207,7 +207,7 @@ namespace Keeno
         {
             // Test Item spawn
             if (Globals.UpArrow_KeyPress)
-                _worldObjects.Add(new BuildingBlueprint(new Point(100, 150), Assets.TentsTxr));
+                _worldObjects.Add(new BuildingBlueprint(new Point(350, 300), Assets.TentsTxr));
 
 
             for (int i = 0; i < _worldObjects.Count; i++)

@@ -33,8 +33,15 @@ namespace Keeno
         protected int _playerLocationOffsetX;
         protected int _playerLocationOffsetY;
 
+        public Rectangle TargetDestinationBounds
+        {
+            get { return new(_rect.X + _rect.Width / 4 + (int)_direction.X,
+                            _rect.Y + _rect.Height / 4 + (int)_direction.Y,
+                             _rect.Width / 2,
+                             _rect.Height / 2);
+            }
+        }
 
-        public Rectangle _targetDestinationBounds;
         public Rectangle Bounds { get { return _rect; } }
 
         protected Color _tint;
@@ -55,7 +62,7 @@ namespace Keeno
             // test related
             _testPixel = pixel;
             _drawBounds = false;
-            _targetDestinationBounds = _rect;
+            //_targetDestinationBounds = _rect;
             _tint = Color.White;
             _defaultTint = _tint;
 
@@ -84,11 +91,16 @@ namespace Keeno
 
             // Update the player's "would be" bounds in relation to
             // the direction they are moving in
-            _targetDestinationBounds = new Rectangle(
-                _rect.X + _rect.Width / 4 + (int)_direction.X,
-                _rect.Y + _rect.Height / 4 + (int)_direction.Y,
-                2 * _rect.Width / 3,
-                2 * _rect.Height / 3);
+            //_targetDestinationBounds = new Rectangle(
+            //    _rect.X + _rect.Width / 4 + (int)_direction.X,
+            //    _rect.Y + _rect.Height / 4 + (int)_direction.Y,
+            //    2 * _rect.Width / 3,
+            //    2 * _rect.Height / 3);
+        //    _targetDestinationBounds = new Rectangle(
+        //_rect.X  + (int)_direction.X,
+        //_rect.Y  + (int)_direction.Y,
+        //_rect.Width,
+        //_rect.Height);
         }
         private void AnimateKeeno(GameTime gt)
         {
@@ -158,10 +170,6 @@ namespace Keeno
             // Track if the player is moving to the right
             // (used to flip the sprite accordingly)
             _previousPosition = _position;
-        }
-        public Rectangle HandleMovement()
-        {
-            return _targetDestinationBounds;
         }
         public virtual void MoveInDirection(Vector2 direction)
         {

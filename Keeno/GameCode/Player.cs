@@ -23,7 +23,7 @@ namespace Keeno
 
         private Rectangle _interactionRange;
 
-        private Point _itemCarryPoint;
+        private Point _itemCarryPoint { get { return new((int)_position.X, (int)_position.Y - 5); } }
 
         private readonly List<Keeno> _keenos;
         private readonly List<Keeno> _keenosNearPlayer;
@@ -61,7 +61,7 @@ namespace Keeno
             _followers = new List<Keeno>();
             _workSpeed = 5f;
 
-            _itemCarryPoint = new Point(0, 0);
+            //_itemCarryPoint = new Point(0, 0);
             _itemCarrying = null;
 
         }
@@ -72,7 +72,7 @@ namespace Keeno
 
 
             // update the point that the items the player is carrying follows
-            _itemCarryPoint = new Point((int)_position.X, (int)_position.Y - 5);
+            //_itemCarryPoint = new Point((int)_position.X, (int)_position.Y - 5);
             // tell the item you are holding to follow you
             _itemCarrying?.FollowPlayer(_itemCarryPoint);
 
@@ -146,7 +146,7 @@ namespace Keeno
             for (var i = 0; i < _map.WorldObjects.Count; i++)
             {
                 // only consider tiles that aren't empty
-                if (InteractionRange.Intersects(_map.WorldObjects[i].Bounds)
+                if (InteractionRange.Contains(_map.WorldObjects[i].Position)
                     && _map.WorldObjects[i].GetType() != typeof(EmptyTile)
                     && _map.WorldObjects[i] is SelectableWorldObject)
                     _objectsNearPlayer.Add(_map.WorldObjects[i]);
@@ -199,13 +199,16 @@ namespace Keeno
         }
         private void ColisionDependantMovement()
         {
+
             // Player movement
-            if (_map.IsWalkable(HandleInput()))
+            SetDirection();
+            
+            if (_direction != Vector2.Zero && _map.IsWalkable(TargetDestinationBounds))
             {
                 MoveInDirection(_direction);
             }
-            else
-                MoveInDirection(Vector2.Zero);
+            //else
+                //MoveInDirection(Vector2.Zero);
         }
         private void Player_Keeno_Interaction(GameTime gt)
         {
@@ -235,17 +238,17 @@ namespace Keeno
             }
         }
 
-        public Rectangle HandleInput()
+        public void SetDirection()
         {
             _direction = Vector2.Zero;
+            _velocity = Vector2.Zero;
 
             if (Globals.W_KeyDown) _direction.Y -= 1; // UP
             if (Globals.S_KeyDown) _direction.Y += 1; // Down
             if (Globals.A_KeyDown) _direction.X -= 1; // Left
             if (Globals.D_KeyDown) _direction.X += 1; // Right
-
-            return _targetDestinationBounds;
         }
+
         public override void Draw(SpriteBatch sb)
         {
             // Make sure the rectangle moves and is drawn in the right position
@@ -267,7 +270,7 @@ namespace Keeno
                 sb.Draw(_testPixel, new Vector2(Position.X, Position.Y), Color.Black);  // Draw Player Position
 
                 sb.Draw(_testPixel, _tileTargetedRect, Color.Green * .8f);      // Draw _tileTargetedRect
-                sb.Draw(_testPixel, _targetDestinationBounds, Color.White * .8f);      // Draw _targetDestinationBound
+                sb.Draw(_testPixel, TargetDestinationBounds, Color.White * .8f);      // Draw _targetDestinationBound
                 sb.Draw(_testPixel, Bounds, Color.Blue * .7f);                          // Draw Player Bounds
                 sb.Draw(_testPixel, _interactionRange, Color.Red * .75f);               // Draw interactionRange
             }
