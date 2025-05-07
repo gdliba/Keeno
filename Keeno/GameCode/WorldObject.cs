@@ -565,20 +565,10 @@ namespace Keeno
             {
                 if (!_workers[i].IsWalking)
                 {
-                    
                     _workers[i].DropOffResources(type, amount);
                     break;
                 }
             }
-
-
-
-            //if (!_workers[0].IsWalking)
-            //    _workers[0].DropOffResources(type,  amount);
-            //else if (!_workers[1].IsWalking)
-            //    _workers[1].DropOffResources(type, amount);
-
-
 
             ApplyHitEffect();
             _health--;
@@ -641,8 +631,6 @@ namespace Keeno
                     keeno.DropOffAndIdle(_resourceType, _resourceAmount);
                 else if(_brokenByPlayer)
                     keeno.DropOffAndIdle(_resourceType, 0);
-
-
             }
             _workers.Clear();
         }
