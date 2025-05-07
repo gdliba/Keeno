@@ -121,7 +121,7 @@ namespace Keeno
 #endif
 
             //testMap = new Map("Content/MapData/testLevel_Map.csv");
-            testMap = new Map("Content/MapData/testLevel3.csv");
+            testMap = new Map("Content/MapData/testLevel4.csv");
 
             testPlayer = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(400, 300, 16, 16),
                 Assets.DebugPixelTxr, testMap, keenos);
@@ -211,14 +211,14 @@ namespace Keeno
             testPlayer.Update(gt);
 
             // temp testing code
-            if (Keyboard.GetState().IsKeyDown(Keys.K))
-            {
-                int x = Globals.RNG.Next(0, _renderTarget.Width);
-                int y = Globals.RNG.Next(0, _renderTarget.Height);
+            //if (Keyboard.GetState().IsKeyDown(Keys.K))
+            //{
+            //    int x = Globals.RNG.Next(0, _renderTarget.Width);
+            //    int y = Globals.RNG.Next(0, _renderTarget.Height);
 
-                var newKeeno = new Keeno(Assets.KeenoTxr,5,new Rectangle(x,y,16,16),Assets.DebugPixelTxr);
-                keenos.Add(newKeeno);
-            }
+            //    var newKeeno = new Keeno(Assets.KeenoTxr,5,new Rectangle(x,y,16,16),Assets.DebugPixelTxr);
+            //    keenos.Add(newKeeno);
+            //}
 
             camera.Position.X = (-testPlayer.Bounds.X + _graphics.PreferredBackBufferWidth / (2 * camera.Zoom));
             camera.Position.Y = (-testPlayer.Bounds.Y + _graphics.PreferredBackBufferHeight / (2 * camera.Zoom));

@@ -180,7 +180,7 @@ namespace Keeno
         }
         private void AddTownCentre(int x, int y)
         {
-            _worldObjects.Add(new TownCentre(new Point(x, y), Globals.TownCentreTileIndex));
+            _worldObjects.Add(new TownCentre(new Point(x, y), Globals.TownCentreTileIndex, this));
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }

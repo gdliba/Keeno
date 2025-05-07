@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Keeno
 {
@@ -12,6 +13,10 @@ namespace Keeno
     /// </summary>
     class AnimatedKeeno2D : Animated2D
     {
+        protected Map _map;
+        protected readonly List<WorldObject> _worldObjects;
+
+
         protected Vector2 _direction;
         public Vector2 Direction { get { return _direction; } }
         public Vector2 Position { get { return new(_position.X + _rect.Width / 2, _position.Y + _rect.Height / 2); } }
@@ -52,7 +57,7 @@ namespace Keeno
         // test related
         protected Texture2D _testPixel;
 
-        public AnimatedKeeno2D(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
+        public AnimatedKeeno2D(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel, Map map)
             : base(spriteSheet, fps, rect)
         {
             _startingPosition = new Vector2(rect.X+_rect.Width/2, rect.Y);
@@ -69,6 +74,8 @@ namespace Keeno
             _tint = Color.White;
             _defaultTint = _tint;
 
+            _map = map;
+            _worldObjects = _map.WorldObjects;
 
             // Offset where you sit in relation to the player's location
             // when following the player
@@ -233,10 +240,13 @@ namespace Keeno
 
     class Keeno : AnimatedKeeno2D
     {
+        private List<WorldObject> _dropOffPoints;
+        private Point _closestDropOffPoint;
+
         private ResourceType _resourceType;
         private int _resourceAmmount;
 
-        private float _startingMovementSpeed;
+        private float _normalMoveSpeed;
         private float _carryingMovementSpeed;
         private float _moveTimer;
         private float _idleTimer;
@@ -244,8 +254,8 @@ namespace Keeno
         private KeenoState _state;
         public KeenoState State { get{  return _state; } }
 
-        public Keeno(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel)
-            : base (spriteSheet, fps, rect, pixel)
+        public Keeno(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel, Map map)
+            : base (spriteSheet, fps, rect, pixel, map)
         {
             _state = KeenoState.Idle;
             _moveTimer = 3;
@@ -256,11 +266,14 @@ namespace Keeno
             _defaultTint =_tint = new Color(Globals.RNG.Next(0, 256),
                 Globals.RNG.Next(0, 256), Globals.RNG.Next(0, 256));
 
-            _moveSpeed = _startingMovementSpeed = Globals.RNG.Next(50, 55) + (float)Globals.RNG.NextDouble();
-            _carryingMovementSpeed = 40f;
+            _moveSpeed = _normalMoveSpeed = Globals.RNG.Next(20, 26) + (float)Globals.RNG.NextDouble();
+            _carryingMovementSpeed = 10f;
             _facingRight = Globals.RNG.Next(2) == 0;
 
             _workSpeed = 1f;
+
+            _dropOffPoints = new List<WorldObject>();
+            _closestDropOffPoint = Point.Zero;
         }
         public override void Update(GameTime gt)
         {
@@ -268,19 +281,19 @@ namespace Keeno
             switch (_state)
             {
                 case KeenoState.Idle:
-                    _moveSpeed = _startingMovementSpeed;
+                    _moveSpeed = _normalMoveSpeed;
                     MoveInDirection(IdleAndMove(gt));
                     break;
                 case KeenoState.Following:
-                    _moveSpeed = _startingMovementSpeed;
+                    _moveSpeed = _normalMoveSpeed;
                     break;
                 case KeenoState.Working:
-                    _moveSpeed = _startingMovementSpeed;
+                    _moveSpeed = _normalMoveSpeed;
                     break;
                 case KeenoState.DroppingOff:
                     _moveSpeed = _carryingMovementSpeed;
-                    MoveTo(_startingPosition.ToPoint());
-                    if (_position == _startingPosition)
+                    MoveTo(_closestDropOffPoint);
+                    if (_position == _closestDropOffPoint.ToVector2())
                     {
                         ResourceTracker.Add(_resourceType, _resourceAmmount);
                         _state = KeenoState.Working;
@@ -288,8 +301,8 @@ namespace Keeno
                     break;
                 case KeenoState.DroppingOffAndIdle:
                     _moveSpeed = _carryingMovementSpeed;
-                    MoveTo(_startingPosition.ToPoint());
-                    if (_position == _startingPosition)
+                    MoveTo(_closestDropOffPoint);
+                    if (_position == _closestDropOffPoint.ToVector2())
                     {
                         ResourceTracker.Add(_resourceType, _resourceAmmount);
                         SwitchToIdle();
@@ -352,15 +365,34 @@ namespace Keeno
         }
         public void DropOffResources(ResourceType type, int amount)
         {
+            FindClosestDropOffPoint();
             _state = KeenoState.DroppingOff;
             _resourceType = type;
             _resourceAmmount = amount;
         }
         public void DropOffAndIdle(ResourceType type, int amount)
         {
+            FindClosestDropOffPoint();
             _state = KeenoState.DroppingOffAndIdle;
             _resourceType = type;
             _resourceAmmount = amount;
+        }
+        private void FindClosestDropOffPoint()
+        {
+            // Loop through the list of worldObjects
+            foreach (var worldObject in _worldObjects)
+            {
+                // find the drop off points and add them to the list
+                if (worldObject is IDropOffPoint)
+                    _dropOffPoints.Add(worldObject);
+            }
+            // Sort the list
+            var sortedDropOffPointList = _dropOffPoints.OrderBy(x => x.DistanceTo(Position)).ToList();
+            //Find the closest DropOffPoint
+            _closestDropOffPoint = sortedDropOffPointList[0].Position.ToPoint();
+            _closestDropOffPoint = new Vector2(
+                sortedDropOffPointList[0].Position.X-Globals.Tile_Width_Height/2, 
+                sortedDropOffPointList[0].Position.Y - Globals.Tile_Width_Height / 2).ToPoint();
         }
         public void Selected()
         {

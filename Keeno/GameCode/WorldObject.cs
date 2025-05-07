@@ -816,16 +816,23 @@ namespace Keeno
             _diesWhenBroken = true;
         }
     }
-    class TownCentre : SelectableWorldObject
+    interface IDropOffPoint
     {
+        public Vector2 Position { get; }
+    }
+    class TownCentre : SelectableWorldObject, IDropOffPoint 
+    {
+        private Map _map;
         private List<Keeno> _keenosISpawned;
         public event Action<Keeno> KeenoSpawned;
         public List<Keeno> KeenosISpwaned { get { return _keenosISpawned; } }
-
-        public TownCentre(Point tilePosition, int globalTileIndex) 
+        public Vector2 Position => base.Position;
+            
+        public TownCentre(Point tilePosition, int globalTileIndex, Map map) 
             : base(tilePosition, globalTileIndex)
         {
             _keenosISpawned = new List<Keeno>();
+            _map = map;
         }
         public override void Update(GameTime gt)
         {
@@ -859,7 +866,7 @@ namespace Keeno
         {
             Rectangle temp = new Rectangle(_rect.X-_rect.Width/2, _rect.Y , 16, 16);
 
-            var newKeeno = new Keeno(Assets.KeenoTxr, 5, temp, Assets.DebugPixelTxr);
+            var newKeeno = new Keeno(Assets.KeenoTxr, 5, temp, Assets.DebugPixelTxr, _map);
             _keenosISpawned.Add(newKeeno);
             //Debug.WriteLine("Spawning Keeno: firing event");
             KeenoSpawned?.Invoke(newKeeno);

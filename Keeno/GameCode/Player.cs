@@ -16,7 +16,7 @@ namespace Keeno
     }
     class Player : AnimatedKeeno2D
     {
-        private Map _map;
+        //private Map _map;
 
         private PlayerState _state;
         private bool _swapToNormalState;
@@ -29,7 +29,6 @@ namespace Keeno
         private readonly List<Keeno> _keenosNearPlayer;
         private readonly List<Keeno> _followers;
 
-        private readonly List<WorldObject> _worldObjects;
         private readonly List<WorldObject> _objectsNearPlayer;
         private readonly List<EmptyTile> _emptyTilesNearPlayer;
         private readonly List<Item> _itemsNearPlayer;
@@ -41,16 +40,15 @@ namespace Keeno
 
 
         public Player(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel, Map map, List<Keeno> keenos)
-            : base(spriteSheet, fps, rect, pixel)
+            : base(spriteSheet, fps, rect, pixel, map)
         {
             _state = PlayerState.Normal;
             _moveSpeed = Globals.PlayerMovementSpeed;
             _drawBounds = false;
             _swapToNormalState = false;
             _interactionRange = new Rectangle((int)_position.X - rect.Width, (int)_position.Y - rect.Height, rect.Width * 3, rect.Height * 3);
-            _map = map;
 
-            _worldObjects = map.WorldObjects;
+            //_worldObjects = map.WorldObjects;
             _objectsNearPlayer = new List<WorldObject>();
             _emptyTilesNearPlayer = new List<EmptyTile>();
             _itemsNearPlayer = new List<Item>();
