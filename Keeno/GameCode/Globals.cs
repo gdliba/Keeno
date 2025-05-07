@@ -144,8 +144,8 @@ namespace Keeno
         // Tree
         public static int TreeHealth = 10;
         public static int TreeWoodAmount = 1;
-        public static int TreeWorkerSlots = 1;
-        public static float TreeWorkAmount = 10f;
+        public static int TreeWorkerSlots = 2;
+        public static float TreeWorkAmount = 2f;
 
 
         // Farm

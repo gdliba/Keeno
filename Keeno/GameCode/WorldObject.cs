@@ -362,6 +362,8 @@ namespace Keeno
         protected bool _hasToBeCollected;
         protected bool _selectedCondition;      // in most cases checking if player has followers
         protected bool _flashesWhenHarvested;
+        protected bool _brokenByPlayer;         // checking if the player broke the resource
+
 
 
         protected Rectangle _coreRect;
@@ -392,6 +394,7 @@ namespace Keeno
             _flashesWhenHarvested = true;
             _hasToBeCollected = false;
             _diesWhenBroken = false;
+            _brokenByPlayer = false;
 
             _coreRect = new Rectangle(_rect.X+_rect.Width/4,_rect.Y+_rect.Height/4, _rect.Width/2, _rect.Height/2);
 
@@ -558,7 +561,25 @@ namespace Keeno
         #region Resources/Workers
         public virtual void WorkerHarvestedResource(ResourceType type, int amount)
         {
-            _workers[0].DropOffResources(type,  amount);
+            for (int i = 0; i < _workers.Count; i++)
+            {
+                if (!_workers[i].IsWalking)
+                {
+                    
+                    _workers[i].DropOffResources(type, amount);
+                    break;
+                }
+            }
+
+
+
+            //if (!_workers[0].IsWalking)
+            //    _workers[0].DropOffResources(type,  amount);
+            //else if (!_workers[1].IsWalking)
+            //    _workers[1].DropOffResources(type, amount);
+
+
+
             ApplyHitEffect();
             _health--;
             //ResourceTracker.Add(type, amount);
@@ -570,6 +591,8 @@ namespace Keeno
         {
             ApplyHitEffect();
             _health--;
+            if (_health == 0)
+                _brokenByPlayer = true;
             ResourceTracker.Add(type, amount);
             _HGWorkProgress.Reset();
             _HGInteract.Reset();
@@ -605,10 +628,20 @@ namespace Keeno
         {
             foreach (var keeno in _workers)
             {
-                if(!_hasToBeCollected)
-                    keeno.DropOffAndIdle(_resourceType, _resourceAmount);
-                else
+                if(_hasToBeCollected)
                     keeno.DropOffAndIdle(_resourceType, 0);
+                else if(keeno.State == KeenoState.Working && !_brokenByPlayer)
+                {
+                    if(keeno.IsWalking)
+                        keeno.DropOffAndIdle(_resourceType, 0);
+                    else
+                        keeno.DropOffAndIdle(_resourceType, _resourceAmount);
+                }
+                else if (keeno.State == KeenoState.DroppingOff)
+                    keeno.DropOffAndIdle(_resourceType, _resourceAmount);
+                else if(_brokenByPlayer)
+                    keeno.DropOffAndIdle(_resourceType, 0);
+
 
             }
             _workers.Clear();
@@ -649,7 +682,7 @@ namespace Keeno
                         _HGDropOff.Draw(sb);
                         // Input Promts
                         _buttonPrompt_E.Draw(sb);
-                        if(_selectedCondition)
+                        if(_workerSlots > 0 && _selectedCondition)
                             _buttonPrompt_Q.Draw(sb);
                     }
                     break;

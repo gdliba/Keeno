@@ -256,8 +256,8 @@ namespace Keeno
             _defaultTint =_tint = new Color(Globals.RNG.Next(0, 256),
                 Globals.RNG.Next(0, 256), Globals.RNG.Next(0, 256));
 
-            _moveSpeed = _startingMovementSpeed = Globals.RNG.Next(20, 26) + (float)Globals.RNG.NextDouble();
-            _carryingMovementSpeed = 10f;
+            _moveSpeed = _startingMovementSpeed = Globals.RNG.Next(50, 55) + (float)Globals.RNG.NextDouble();
+            _carryingMovementSpeed = 40f;
             _facingRight = Globals.RNG.Next(2) == 0;
 
             _workSpeed = 1f;
