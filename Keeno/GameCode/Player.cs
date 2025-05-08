@@ -84,10 +84,10 @@ namespace Keeno
 
             if (_isWalking)
                 _tileTargetedRect = new Rectangle(
-                    _rect.X + _rect.Width / 4 + (int)_direction.X*20,
-                    _rect.Y + _rect.Height / 4 + (int)_direction.Y*20,
-                     _rect.Width / 3,
-                     _rect.Height / 3);
+                    _rect.X + 2*_rect.Width / 5 + (int)_direction.X*25,
+                    _rect.Y + 2*_rect.Height / 5 + (int)_direction.Y*25,
+                     _rect.Width / 4,
+                     _rect.Height / 4);
 
 
             if (Globals.Tab_KeyPress)
@@ -196,6 +196,10 @@ namespace Keeno
                 {
                     townCentre.Selected();
                 }
+                else if (sortedWorldObjectList[0] is Building building)
+                {
+                    building.Selected();
+                }
             }
         }
         private void ColisionDependantMovement()
@@ -257,8 +261,8 @@ namespace Keeno
             _interactionRange.Y = (int)_position.Y - _rect.Height;
 
             // Make sure the rectangle moves and is drawn in the right position
-            _rect.X = (int)_position.X;
-            _rect.Y = (int)_position.Y;
+            _rect.Location = _position.ToPoint();
+
 
 
             // determine when to flip the sprite (making it look to the RIGHT)
@@ -268,7 +272,7 @@ namespace Keeno
             // Draw test pixel
             if (_drawBounds)
             {
-                sb.Draw(_testPixel, new Vector2(Position.X, Position.Y), Color.Black);  // Draw Player Position
+                sb.Draw(_testPixel, Position, Color.Black);  // Draw Player Position
 
                 sb.Draw(_testPixel, _tileTargetedRect, Color.Green * .8f);      // Draw _tileTargetedRect
                 sb.Draw(_testPixel, TargetDestinationBounds, Color.White * .8f);      // Draw _targetDestinationBound

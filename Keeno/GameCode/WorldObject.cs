@@ -14,8 +14,14 @@ namespace Keeno
         Broken,
         Dead
     }
+    enum BuildingType
+    {
+        Tent
+    }
+    enum BuildingLevel { One, Two, Three,}
     class WorldObject
     {
+        #region Variables
         public ObjectState State { get { return _state; } protected set { _state = value; } }
         protected ObjectState _state;
         protected ResourceType _resourceType;
@@ -64,8 +70,7 @@ namespace Keeno
         public Color Tint;
         public Rectangle Bounds { get{ return _rect; } protected set { _rect = value; } }
         public Vector2 Position { get { return new Vector2(_rect.X + _tileWidth / 2, _rect.Y + _tileHeight / 2); } }
-
-
+        #endregion
         public WorldObject(Point tilePosition, int globalTileIndex)
         {
             _state = ObjectState.Harvestable;
@@ -311,7 +316,10 @@ namespace Keeno
     }
     class BuildingBlueprint : Blueprint
     {
+        public event Action<Building> BuildingSpawned;
+
         protected Rectangle _stage1SrcRect, _stage2SrcRect, _stage3SrcRect;
+        protected Building _building;
         public BuildingBlueprint(Point position, Texture2D buildingSpritesheet)
             : base(position, buildingSpritesheet)
         {
@@ -324,16 +332,55 @@ namespace Keeno
         public override void Place(Rectangle onThisTile)
         {
             base.Place(onThisTile);
-            
+            _building = new Building(new Point(onThisTile.X, onThisTile.Y), Assets.TentsTxr);
+            BuildingSpawned?.Invoke(_building);
+            // Remove Blueprint
+            _state = ObjectState.Dead;
         }
         public override void Draw(SpriteBatch sb)
         {
+            if (_state == ObjectState.Dead)
+                return;
             if (_isSelected)
                 sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Color.DeepSkyBlue, 0, Vector2.Zero, SpriteEffects.None, Globals.ItemSelectedTxrLD);
             sb.Draw(_txr, _rect, _stage1SrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.ItemTxrLD);
             sb.Draw(_txr, _rect, _stage2SrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.ItemTxrLD);
             sb.Draw(_txr, _rect, _stage3SrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.ItemTxrLD);
             sb.Draw(_blueprintTxr, _rect, null, Color.RoyalBlue, 0f, Vector2.Zero, SpriteEffects.None, Globals.BlueprintTxrLD);
+        }
+    }
+    class Building : SelectableWorldObject
+    {
+
+        protected List<Rectangle> _stageSrcRects;
+        protected int _currLevel;
+
+        public Building(Point position, Texture2D BuildingSpriteSheet)
+            :base(position, -1)
+        {
+            _rect = new Rectangle(position.X, position.Y, _tileWidth, _tileHeight);
+
+            _txr = BuildingSpriteSheet;
+            _currLevel = 1;
+            _stageSrcRects = new List<Rectangle>();
+            _stageSrcRects.Add(new Rectangle(0, 0, _rect.Width, _rect.Height));
+            _stageSrcRects.Add(new Rectangle(_stageSrcRects[0].X + _rect.Width, 0, _rect.Width, _rect.Height));
+            _stageSrcRects.Add(new Rectangle(_stageSrcRects[1].X + _rect.Width, 0, _rect.Width, _rect.Height));
+
+            // The BuildingSpritesheet has 3 stages of the building given
+            //// and is intended to be drawn as 3 sprites one on top of the other
+            //_stageSrcRects[0] = _stageSrcRects[1] = _stageSrcRects[2] = new Rectangle(0, 0, _rect.Width, _rect.Height);
+            //_stageSrcRects[1] = new Rectangle (_stageSrcRects[0].X + _rect.Width, 0, _rect.Width, _rect.Height);
+            //_stageSrcRects[2] = new Rectangle(_stageSrcRects[1].X + _rect.Width, 0, _rect.Width, _rect.Height);
+        }
+        public override void Draw(SpriteBatch sb)
+        {
+            SelectedDraw(sb);
+            // Draw based on level
+            for (int i = 0; i < _currLevel; i++)
+            {
+                sb.Draw(_txr, _rect, _stageSrcRects[i], Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
+            }
         }
     }
 
@@ -403,48 +450,48 @@ namespace Keeno
             _flashingTxrTimerReset = .02f;
 
             #region ButtonPrompts and HG
-            _buttonPrompt_E = new ButtonPrompt(Assets.InputsTilesetTxr,
-                new Rectangle(_tilePosition.X + _tileWidth / 2,
-                _tilePosition.Y - _tileHeight,
-                _tileWidth,
-                _tileHeight), Globals.InputsTilesetIndex_E);
+            //_buttonPrompt_E = new ButtonPrompt(Assets.InputsTilesetTxr,
+            //    new Rectangle(_tilePosition.X + _tileWidth / 2,
+            //    _tilePosition.Y - _tileHeight,
+            //    _tileWidth,
+            //    _tileHeight), Globals.InputsTilesetIndex_E);
 
-            _buttonPrompt_Q = new ButtonPrompt(Assets.InputsTilesetTxr,
-                new Rectangle(_tilePosition.X - _tileWidth / 2,
-                _tilePosition.Y - _tileHeight,
-                _tileWidth,
-                _tileHeight), Globals.InputsTilesetIndex_Q);
+            //_buttonPrompt_Q = new ButtonPrompt(Assets.InputsTilesetTxr,
+            //    new Rectangle(_tilePosition.X - _tileWidth / 2,
+            //    _tilePosition.Y - _tileHeight,
+            //    _tileWidth,
+            //    _tileHeight), Globals.InputsTilesetIndex_Q);
 
-            _buttonPrompt_X = new ButtonPrompt(Assets.InputsTilesetTxr,
-                new Rectangle(_tilePosition.X,
-                _tilePosition.Y + _tileHeight,
-                _tileWidth,
-                _tileHeight), Globals.InputsTilesetIndex_X);
+            //_buttonPrompt_X = new ButtonPrompt(Assets.InputsTilesetTxr,
+            //    new Rectangle(_tilePosition.X,
+            //    _tilePosition.Y + _tileHeight,
+            //    _tileWidth,
+            //    _tileHeight), Globals.InputsTilesetIndex_X);
 
-            _HGInteract = new HourGlass(Assets.MonochromaticTilesetTxr,
-                new Rectangle(_tilePosition.X + _tileWidth / 2,
-                _tilePosition.Y - _tileHeight,
-                _tileWidth,
-                _tileHeight), Color.Yellow);
+            //_HGInteract = new HourGlass(Assets.MonochromaticTilesetTxr,
+            //    new Rectangle(_tilePosition.X + _tileWidth / 2,
+            //    _tilePosition.Y - _tileHeight,
+            //    _tileWidth,
+            //    _tileHeight), Color.Yellow);
 
-            _HGDropOff = new HourGlass(Assets.MonochromaticTilesetTxr,
-                new Rectangle(_tilePosition.X - _tileWidth / 2,
-                _tilePosition.Y - _tileHeight,
-                _tileWidth,
-                _tileHeight), Color.White);
+            //_HGDropOff = new HourGlass(Assets.MonochromaticTilesetTxr,
+            //    new Rectangle(_tilePosition.X - _tileWidth / 2,
+            //    _tilePosition.Y - _tileHeight,
+            //    _tileWidth,
+            //    _tileHeight), Color.White);
 
-            _HGDestroy = new HourGlass(Assets.MonochromaticTilesetTxr,
-                new Rectangle(_tilePosition.X,
-                _tilePosition.Y + _tileHeight,
-                _tileWidth,
-                _tileHeight), Color.Red);
+            //_HGDestroy = new HourGlass(Assets.MonochromaticTilesetTxr,
+            //    new Rectangle(_tilePosition.X,
+            //    _tilePosition.Y + _tileHeight,
+            //    _tileWidth,
+            //    _tileHeight), Color.Red);
 
-            _HGWorkProgress = new HourGlass(Assets.MonochromaticTilesetTxr,
-                new Rectangle(_tilePosition.X,
-                _tilePosition.Y,
-                _tileWidth,
-                _tileHeight),
-                Color.Yellow);
+            //_HGWorkProgress = new HourGlass(Assets.MonochromaticTilesetTxr,
+            //    new Rectangle(_tilePosition.X,
+            //    _tilePosition.Y,
+            //    _tileWidth,
+            //    _tileHeight),
+            //    Color.Yellow);
             #endregion
         }
         public virtual void Selected(float playerWorkSpeed, bool condition)

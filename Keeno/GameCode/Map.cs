@@ -205,26 +205,45 @@ namespace Keeno
 
         public void Update(GameTime gt)
         {
-            // Test Item spawn
-            if (Globals.UpArrow_KeyPress)
-                _worldObjects.Add(new BuildingBlueprint(new Point(350, 300), Assets.TentsTxr));
+            //// Test Item spawn
+            //if (Globals.DownArrow_KeyPress)
+            //    _worldObjects.Add(new Building(new Point(400, 320), Assets.TentsTxr));
 
 
-            for (int i = 0; i < _worldObjects.Count; i++)
+            for (int i = _worldObjects.Count - 1; i >= 0; i--)
             {
                 // Update WorldObjects
                 _worldObjects[i].Update(gt);
 
                 // Remove Dead WorldObjects
-                if (_worldObjects[i].State == ObjectState.Dead)
+                if (_worldObjects[i].State == ObjectState.Dead && _worldObjects[i] is Item)
                 {
                     int y = _worldObjects[i].TilePosition.Y / Globals.Tile_Width_Height;
                     int x = _worldObjects[i].TilePosition.X / Globals.Tile_Width_Height;
+
+
+                    // Replace their tile with and Empty one so that the player can build on it
+                    _worldObjects.RemoveAt(i);
+                }
+                else if (_worldObjects[i].State == ObjectState.Dead && _worldObjects[i] is not Item)
+                {
+                    int y = _worldObjects[i].TilePosition.Y / Globals.Tile_Width_Height;
+                    int x = _worldObjects[i].TilePosition.X / Globals.Tile_Width_Height;
+
 
                     // Replace their tile with and Empty one so that the player can build on it
                     AddEmptyTile(x, y);
                     _worldObjects.RemoveAt(i);
                 }
+            }
+
+            // Test Item spawn
+            if (Globals.UpArrow_KeyPress)
+            {
+                var newBlueprint = new BuildingBlueprint(new Point(350, 300), Assets.TentsTxr);
+                _worldObjects.Add(newBlueprint);
+                newBlueprint.BuildingSpawned += building => _worldObjects.Add(building);
+
             }
         }
 
