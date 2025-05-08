@@ -318,16 +318,18 @@ namespace Keeno
     {
         public event Action<Building> BuildingSpawned;
 
-        protected Rectangle _stage1SrcRect, _stage2SrcRect, _stage3SrcRect;
+        protected List<Rectangle> _stageSrcRects;
+
         protected Building _building;
         public BuildingBlueprint(Point position, Texture2D buildingSpritesheet)
             : base(position, buildingSpritesheet)
         {
             // The BuildingSpritesheet has 3 stages of the building given
             // and is intended to be drawn as 3 sprites one on top of the other
-            _stage1SrcRect = _stage2SrcRect = _stage3SrcRect = new Rectangle(0, 0, _rect.Width, _rect.Height);
-            _stage2SrcRect.X = _stage1SrcRect.X + _rect.Width;
-            _stage3SrcRect.X = _stage2SrcRect.X + _rect.Width;
+            _stageSrcRects = new List<Rectangle>();
+            _stageSrcRects.Add(new Rectangle(0, 0, _rect.Width, _rect.Height));
+            _stageSrcRects.Add(new Rectangle(_stageSrcRects[0].X + _rect.Width, 0, _rect.Width, _rect.Height));
+            _stageSrcRects.Add(new Rectangle(_stageSrcRects[1].X + _rect.Width, 0, _rect.Width, _rect.Height));
         }
         public override void Place(Rectangle onThisTile)
         {
@@ -343,9 +345,11 @@ namespace Keeno
                 return;
             if (_isSelected)
                 sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Color.DeepSkyBlue, 0, Vector2.Zero, SpriteEffects.None, Globals.ItemSelectedTxrLD);
-            sb.Draw(_txr, _rect, _stage1SrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.ItemTxrLD);
-            sb.Draw(_txr, _rect, _stage2SrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.ItemTxrLD);
-            sb.Draw(_txr, _rect, _stage3SrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.ItemTxrLD);
+            // Draw based on level
+            for (int i = 0; i < 3; i++)
+            {
+                sb.Draw(_txr, _rect, _stageSrcRects[i], Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.ItemTxrLD);
+            }
             sb.Draw(_blueprintTxr, _rect, null, Color.RoyalBlue, 0f, Vector2.Zero, SpriteEffects.None, Globals.BlueprintTxrLD);
         }
     }
@@ -366,12 +370,6 @@ namespace Keeno
             _stageSrcRects.Add(new Rectangle(0, 0, _rect.Width, _rect.Height));
             _stageSrcRects.Add(new Rectangle(_stageSrcRects[0].X + _rect.Width, 0, _rect.Width, _rect.Height));
             _stageSrcRects.Add(new Rectangle(_stageSrcRects[1].X + _rect.Width, 0, _rect.Width, _rect.Height));
-
-            // The BuildingSpritesheet has 3 stages of the building given
-            //// and is intended to be drawn as 3 sprites one on top of the other
-            //_stageSrcRects[0] = _stageSrcRects[1] = _stageSrcRects[2] = new Rectangle(0, 0, _rect.Width, _rect.Height);
-            //_stageSrcRects[1] = new Rectangle (_stageSrcRects[0].X + _rect.Width, 0, _rect.Width, _rect.Height);
-            //_stageSrcRects[2] = new Rectangle(_stageSrcRects[1].X + _rect.Width, 0, _rect.Width, _rect.Height);
         }
         public override void Draw(SpriteBatch sb)
         {
