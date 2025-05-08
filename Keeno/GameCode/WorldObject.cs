@@ -448,51 +448,6 @@ namespace Keeno
 
             _flashingTxrTimer = 0;
             _flashingTxrTimerReset = .02f;
-
-            #region ButtonPrompts and HG
-            //_buttonPrompt_E = new ButtonPrompt(Assets.InputsTilesetTxr,
-            //    new Rectangle(_tilePosition.X + _tileWidth / 2,
-            //    _tilePosition.Y - _tileHeight,
-            //    _tileWidth,
-            //    _tileHeight), Globals.InputsTilesetIndex_E);
-
-            //_buttonPrompt_Q = new ButtonPrompt(Assets.InputsTilesetTxr,
-            //    new Rectangle(_tilePosition.X - _tileWidth / 2,
-            //    _tilePosition.Y - _tileHeight,
-            //    _tileWidth,
-            //    _tileHeight), Globals.InputsTilesetIndex_Q);
-
-            //_buttonPrompt_X = new ButtonPrompt(Assets.InputsTilesetTxr,
-            //    new Rectangle(_tilePosition.X,
-            //    _tilePosition.Y + _tileHeight,
-            //    _tileWidth,
-            //    _tileHeight), Globals.InputsTilesetIndex_X);
-
-            //_HGInteract = new HourGlass(Assets.MonochromaticTilesetTxr,
-            //    new Rectangle(_tilePosition.X + _tileWidth / 2,
-            //    _tilePosition.Y - _tileHeight,
-            //    _tileWidth,
-            //    _tileHeight), Color.Yellow);
-
-            //_HGDropOff = new HourGlass(Assets.MonochromaticTilesetTxr,
-            //    new Rectangle(_tilePosition.X - _tileWidth / 2,
-            //    _tilePosition.Y - _tileHeight,
-            //    _tileWidth,
-            //    _tileHeight), Color.White);
-
-            //_HGDestroy = new HourGlass(Assets.MonochromaticTilesetTxr,
-            //    new Rectangle(_tilePosition.X,
-            //    _tilePosition.Y + _tileHeight,
-            //    _tileWidth,
-            //    _tileHeight), Color.Red);
-
-            //_HGWorkProgress = new HourGlass(Assets.MonochromaticTilesetTxr,
-            //    new Rectangle(_tilePosition.X,
-            //    _tilePosition.Y,
-            //    _tileWidth,
-            //    _tileHeight),
-            //    Color.Yellow);
-            #endregion
         }
         public virtual void Selected(float playerWorkSpeed, bool condition)
         {
