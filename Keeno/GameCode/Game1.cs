@@ -71,6 +71,8 @@ namespace Keeno
         // Fonts
 #if DEBUG
         public static SpriteFont debugFont;
+        public static SpriteFont monogramFont;
+
 #endif
 
         #endregion
@@ -118,6 +120,8 @@ namespace Keeno
             // Fonts
 #if DEBUG
             debugFont = Content.Load<SpriteFont>("Fonts\\debugFont");
+            monogramFont = Content.Load<SpriteFont>("Fonts\\monogram");
+
 #endif
 
             //testMap = new Map("Content/MapData/testLevel_Map.csv");
@@ -280,14 +284,14 @@ namespace Keeno
             _spriteBatch.End();
             _spriteBatch.Begin();
 #if DEBUG
-            _spriteBatch.DrawString(debugFont,
+            _spriteBatch.DrawString(monogramFont,
                 _renderTarget.Width + "x " + _renderTarget.Height
                 + "\nKeenos: " + keenos.Count
                 + "\nWood: " + ResourceTracker.GetAmount(ResourceType.Wood)
                 + "\nFood: " + ResourceTracker.GetAmount(ResourceType.Food)
                 + "\nGold: " + ResourceTracker.GetAmount(ResourceType.Gold)
                 + "\nStone: " + ResourceTracker.GetAmount(ResourceType.Stone)
-                + "\nSelected Resource" + debugResource,
+                + "\nSelected Resource:" + debugResource,
                 
                 new Vector2(10, 10), Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);
 #endif
