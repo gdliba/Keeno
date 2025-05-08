@@ -362,6 +362,7 @@ namespace Keeno
         public Building(Point position, Texture2D BuildingSpriteSheet)
             :base(position, -1)
         {
+            _impassable = false;
             _rect = new Rectangle(position.X, position.Y, _tileWidth, _tileHeight);
 
             _txr = BuildingSpriteSheet;
