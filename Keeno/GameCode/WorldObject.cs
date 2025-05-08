@@ -224,6 +224,7 @@ namespace Keeno
             {
                 //sb.Draw(_txr, _rect, _srcRect, Tint, _txrRotationRadians, origin, flip, Globals.WolrdObjectLD);
                 sb.Draw(_txr, Position, _srcRect, Tint, _txrRotationRadians, origin, 1, flip, Globals.WolrdObjectLD);
+                //sb.Draw(_testPixel, Bounds, Color.Red);
 
                 _HGWorkProgress.Draw(sb);
             }
@@ -235,6 +236,12 @@ namespace Keeno
             : base(position, globalTileIndex)
         {
             _impassable = false;
+        }
+        public override void Draw(SpriteBatch sb)
+        {
+            base.Draw(sb);
+            sb.Draw(_testPixel, Bounds, Color.Red);
+
         }
     }
     class SelectableWorldObject : WorldObject

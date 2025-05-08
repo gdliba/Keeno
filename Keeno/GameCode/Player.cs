@@ -212,8 +212,8 @@ namespace Keeno
             {
                 MoveInDirection(_direction);
             }
-            //else
-                //MoveInDirection(Vector2.Zero);
+            else
+                MoveInDirection(Vector2.Zero);
         }
         private void Player_Keeno_Interaction(GameTime gt)
         {

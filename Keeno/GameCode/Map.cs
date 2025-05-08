@@ -49,7 +49,6 @@ namespace Keeno
             _tilesetColumns = Globals.TilemapColumns;
             _tileset = Assets.TilesetTxr;
 
-
             // Loads the map data from the CSV
             LoadMap(csvPath);
 
@@ -123,6 +122,7 @@ namespace Keeno
                 for (int x = 0; x < _mapWidth; x++)
                 {
                     _mapData[y, x] = int.Parse(cols[x]);// Parse each tile index
+
                 }
             }
         }

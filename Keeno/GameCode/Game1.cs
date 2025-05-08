@@ -99,7 +99,7 @@ namespace Keeno
 
             currentGameState = GameState.Start;
             camera.Position = Vector2.Zero;
-            camera.Zoom = 5;
+            camera.Zoom = 3;
 
 
             #region List Initialisations
