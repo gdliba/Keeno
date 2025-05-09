@@ -402,7 +402,7 @@ namespace Keeno
             _rect = new Rectangle(position.X, position.Y, _tileWidth, _tileHeight);
 
             _txr = BuildingSpriteSheet;
-            _currLevel = 1;
+            _currLevel = 3;
             _stageSrcRects = new List<Rectangle>();
             _stageSrcRects.Add(new Rectangle(0, 0, _rect.Width, _rect.Height));
             _stageSrcRects.Add(new Rectangle(_stageSrcRects[0].X + _rect.Width, 0, _rect.Width, _rect.Height));
@@ -923,8 +923,24 @@ namespace Keeno
     }
     class EmptyTile : SelectableWorldObject
     {
-
         public EmptyTile(Point tilePosition, int globalTileIndex) 
+            : base(tilePosition, globalTileIndex)
+        {
+            _impassable = false;
+        }
+        public override void OnInteract()
+        {
+
+        }
+        public void Die()
+        {
+            _state = ObjectState.Dead;
+        }
+    }
+    class OccupiedTile : EmptyTile
+    {
+
+        public OccupiedTile(Point tilePosition, int globalTileIndex)
             : base(tilePosition, globalTileIndex)
         {
             _impassable = false;

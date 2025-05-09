@@ -190,6 +190,28 @@ namespace Keeno
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }
+        private void AddOccupiedTile(int x, int y)
+        {
+            _worldObjects.Add(new OccupiedTile(new Point(x, y), Globals.EmptyTileIndex));
+
+            _mapData[y, x] = Globals.EmptyTileIndex;
+        }
+        private void ReplaceEmptyWithOccupied(int x, int y)
+        {
+            x = x/16; y = y/16;
+
+            for (int i = 0; i < _worldObjects.Count; i++)
+            {
+                if (_worldObjects[i] is EmptyTile emptyTile &&
+                    emptyTile.TilePosition.X / Globals.Tile_Width_Height == x &&
+                    emptyTile.TilePosition.Y / Globals.Tile_Width_Height == y)
+                {
+                    _worldObjects.RemoveAt(i);
+                    AddOccupiedTile(x, y);
+                    break;
+                }
+            }
+        }
         private void AddBreakableWall(int x, int y)
         {
             _worldObjects.Add(new BreakableWall(new Point(x, y), Globals.BreakableWallTileIndex));
@@ -234,6 +256,15 @@ namespace Keeno
                     // Replace their tile with and Empty one so that the player can build on it
                     AddEmptyTile(x, y);
                     _worldObjects.RemoveAt(i);
+                }
+
+                // if there's a building on the tile, replace the Empty Tile with an occupied one
+                if (_worldObjects[i] is Building building)
+                {
+                    int y = building.TilePosition.Y / Globals.Tile_Width_Height;
+                    int x = building.TilePosition.X / Globals.Tile_Width_Height;
+
+                    ReplaceEmptyWithOccupied(x, y);
                 }
             }
 

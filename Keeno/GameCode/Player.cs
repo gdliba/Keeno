@@ -118,8 +118,11 @@ namespace Keeno
 
             foreach (EmptyTile tile in _worldObjects.OfType<EmptyTile>())
             {
-                if (_tileTargetedRect.Intersects(tile.Bounds))
-                    _emptyTilesNearPlayer.Add(tile);
+                if (tile is not OccupiedTile) 
+                {
+                    if (_tileTargetedRect.Intersects(tile.Bounds))
+                        _emptyTilesNearPlayer.Add(tile);
+                }
             }
             // Sort the list
             var sortedEmptyTileList = _emptyTilesNearPlayer.OrderBy(x => x.DistanceTo(
