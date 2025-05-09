@@ -123,6 +123,30 @@
 /processorParam:TextureFormat=Color
 /build:SpriteSheets/mono.png
 
+#begin WorldObjects/Buildings/Houses/houses_w.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:WorldObjects/Buildings/Houses/houses_w.png
+
+#begin WorldObjects/Buildings/Houses/houses.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:WorldObjects/Buildings/Houses/houses.png
+
 #begin WorldObjects/Buildings/Houses/tents_w.png
 /importer:TextureImporter
 /processor:TextureProcessor

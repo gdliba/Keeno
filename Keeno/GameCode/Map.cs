@@ -240,7 +240,7 @@ namespace Keeno
             // Test Item spawn
             if (Globals.UpArrow_KeyPress)
             {
-                var newBlueprint = new BuildingBlueprint(new Point(350, 300), Assets.TentsTxr);
+                var newBlueprint = new BuildingBlueprint(new Point(370, 300), BuildingType.House);
                 _worldObjects.Add(newBlueprint);
                 newBlueprint.BuildingSpawned += building => _worldObjects.Add(building);
 

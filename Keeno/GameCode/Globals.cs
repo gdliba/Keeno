@@ -212,6 +212,12 @@ namespace Keeno
         public static Texture2D InputsTilesetTxr { get; private set; }
         public static Texture2D ChoppedTreeTxr {  get; private set; }
         public static Texture2D TentsTxr { get; private set; }
+        public static Texture2D TentsWhiteTxr { get; private set; }
+
+        public static Texture2D HousesTxr { get; private set; }
+        public static Texture2D HousesWhiteTxr { get; private set; }
+
+
         public static Texture2D BlueprintTxr { get; private set; }
         public static Texture2D RockTxr { get; private set; }
 
@@ -242,7 +248,10 @@ namespace Keeno
 
 
             ChoppedTreeTxr = content.Load<Texture2D>("WorldObjects\\Flora\\choppedTree2");
-            TentsTxr = content.Load<Texture2D>("WorldObjects\\Buildings\\Houses\\tents_w");
+            TentsTxr = content.Load<Texture2D>("WorldObjects\\Buildings\\Houses\\tents");
+            TentsWhiteTxr = content.Load<Texture2D>("WorldObjects\\Buildings\\Houses\\tents_w");
+            HousesTxr = content.Load<Texture2D>("WorldObjects\\Buildings\\Houses\\houses");
+            HousesWhiteTxr = content.Load<Texture2D>("WorldObjects\\Buildings\\Houses\\houses_w");
             BlueprintTxr = content.Load<Texture2D>("WorldObjects\\Items\\scroll");
         }
     }

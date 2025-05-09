@@ -16,7 +16,8 @@ namespace Keeno
     }
     enum BuildingType
     {
-        Tent
+        Tent,
+        House
     }
     enum BuildingLevel { One, Two, Three,}
     class WorldObject
@@ -240,7 +241,7 @@ namespace Keeno
         public override void Draw(SpriteBatch sb)
         {
             base.Draw(sb);
-            sb.Draw(_testPixel, Bounds, Color.Red);
+            //sb.Draw(_testPixel, Bounds, Color.Red);
 
         }
     }
@@ -327,10 +328,26 @@ namespace Keeno
 
         protected List<Rectangle> _stageSrcRects;
 
+        protected BuildingType _buildingType;
+
+        protected Texture2D _buildingTxr;
+
         protected Building _building;
-        public BuildingBlueprint(Point position, Texture2D buildingSpritesheet)
-            : base(position, buildingSpritesheet)
+        public BuildingBlueprint(Point position, BuildingType type)
+            : base(position, null)
         {
+            _buildingType = type;
+
+            switch (type)
+            {
+                case BuildingType.Tent:
+                    _txr = Assets.TentsWhiteTxr;
+                    break;
+                case BuildingType.House:
+                    _txr = Assets.HousesWhiteTxr;
+                    break;
+
+            }
             // The BuildingSpritesheet has 3 stages of the building given
             // and is intended to be drawn as 3 sprites one on top of the other
             _stageSrcRects = new List<Rectangle>();
@@ -340,8 +357,20 @@ namespace Keeno
         }
         public override void Place(Rectangle onThisTile)
         {
+
+            switch (_buildingType)
+            {
+                case BuildingType.Tent:
+                    _blueprintTxr = Assets.TentsTxr;
+                    break;
+                case BuildingType.House:
+                    _blueprintTxr = Assets.HousesTxr;
+                    break;
+
+            }
+
             base.Place(onThisTile);
-            _building = new Building(new Point(onThisTile.X, onThisTile.Y), Assets.TentsTxr);
+            _building = new Building(new Point(onThisTile.X, onThisTile.Y), _blueprintTxr);
             BuildingSpawned?.Invoke(_building);
             // Remove Blueprint
             _state = ObjectState.Dead;
