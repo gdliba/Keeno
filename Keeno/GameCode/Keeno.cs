@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -234,6 +235,8 @@ namespace Keeno
         Working,
         DroppingOff,
         DroppingOffAndIdle,
+        DeliveringMaterials,
+        WalkingToIdleSpot,
         Dying,
         Dead
     }
@@ -243,6 +246,10 @@ namespace Keeno
         private List<WorldObject> _dropOffPoints;
         private Point _closestDropOffPoint;
 
+        private List<WorldObject> _constructionSites;
+        private Building _buildingImDeliveringTo;
+        private Point _closestConstructionSite;
+
         private ResourceType _resourceType;
         private int _resourceAmmount;
 
@@ -251,6 +258,7 @@ namespace Keeno
         private float _moveTimer;
         private float _idleTimer;
         private float _moveTimerReset;
+        private bool _isCarryingResource;
         private KeenoState _state;
         public KeenoState State { get{  return _state; } }
 
@@ -262,6 +270,7 @@ namespace Keeno
             _idleTimer = 3;
             _moveTimerReset = _moveTimer;
             _drawBounds = false;
+            _isCarryingResource = false;
 
             _defaultTint =_tint = new Color(Globals.RNG.Next(0, 256),
                 Globals.RNG.Next(0, 256), Globals.RNG.Next(0, 256));
@@ -274,6 +283,9 @@ namespace Keeno
 
             _dropOffPoints = new List<WorldObject>();
             _closestDropOffPoint = Point.Zero;
+
+            _constructionSites = new List<WorldObject>();
+            _closestConstructionSite = Point.Zero;
         }
         public override void Update(GameTime gt)
         {
@@ -282,8 +294,28 @@ namespace Keeno
             {
                 case KeenoState.Idle:
                     _moveSpeed = _normalMoveSpeed;
-                    MoveInDirection(IdleAndMove(gt));
+
+                    ScanForConstructionSites();
+
+                    if (_isCarryingResource)
+                    {
+                        _state = KeenoState.DeliveringMaterials;
+                    }
+                    //MoveInDirection(IdleAndMove(gt));
                     break;
+                    case KeenoState.DeliveringMaterials:
+                    _moveSpeed = _carryingMovementSpeed;
+                    // go to the construction site
+                    MoveTo(_closestConstructionSite);
+                    {
+                        // if you have arrived there
+                        if (_position == _closestConstructionSite.ToVector2())
+                        {
+                            _buildingImDeliveringTo.TakeThisResource(_resourceType);
+                            _state = KeenoState.WalkingToIdleSpot;
+                        }
+                    }
+                        break;
                 case KeenoState.Following:
                     _moveSpeed = _normalMoveSpeed;
                     break;
@@ -308,12 +340,71 @@ namespace Keeno
                         SwitchToIdle();
                     }
                     break;
+                    case KeenoState.WalkingToIdleSpot:
+                    _isCarryingResource = false;
+                    _moveSpeed = _normalMoveSpeed;
+
+                    FindClosestDropOffPoint();
+                    MoveTo(_closestDropOffPoint);
+                    if (_position == _closestDropOffPoint.ToVector2())
+                    {
+                        _state = KeenoState.Idle;
+                    }
+                    break;
                 case KeenoState.Dead:
                     break;
             }
             base.Update(gt);
 
         }
+
+        public void ScanForConstructionSites()
+        {
+            _constructionSites.Clear();
+            // Loop through the list of worldObjects
+            foreach (var worldObject in _worldObjects)
+            {
+                // find the drop off points and add them to the list
+                if (worldObject is Building building)
+                    if(building.State == ObjectState.UnderConstruction)
+                        _constructionSites.Add(building);
+            }
+            if(_constructionSites.Count > 0)
+            {
+                // Sort the list
+                var sortedConstructionSites = _constructionSites.OrderBy(x => x.DistanceTo(Position)).ToList();
+
+                // Check if you can deliver any resources to any construction site
+                // checking from closest to furthest
+                for (int i = 0; i < sortedConstructionSites.Count; i++)
+                {
+                    var closest = sortedConstructionSites[i] as Building;
+                    // Check what resources you can afford to bring to the Construction Site
+                    ResourceType type = closest.CheckCosts();
+                    // If you can afford to bring resources
+                    // And the site still needs it
+                    if (type != ResourceType.None)
+                    {
+                        PickUpOneResource(type);
+
+                        _closestConstructionSite = new Vector2(
+                            sortedConstructionSites[i].Position.X - Globals.Tile_Width_Height / 2,
+                            sortedConstructionSites[i].Position.Y - Globals.Tile_Width_Height / 2).ToPoint();
+                        // break the loop, don't check any other 
+                        // Construction sites.
+                        _buildingImDeliveringTo = sortedConstructionSites[i] as Building;
+                        break;
+                    }
+                }
+            }
+        }
+        public void PickUpOneResource(ResourceType type)
+        {
+            ResourceTracker.Add(type, -1);
+            _isCarryingResource = true;
+            _resourceType = type;
+        }
+
         public virtual void FollowPlayer(Point destination)
         {
             destination.X += _playerLocationOffsetX;
@@ -365,6 +456,7 @@ namespace Keeno
         }
         public void DropOffResources(ResourceType type, int amount)
         {
+            _dropOffPoints.Clear();
             FindClosestDropOffPoint();
             _state = KeenoState.DroppingOff;
             _resourceType = type;

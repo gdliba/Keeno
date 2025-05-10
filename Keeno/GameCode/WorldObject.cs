@@ -2,14 +2,13 @@
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
-using System.Diagnostics;
-using System.Security.Cryptography;
 
 namespace Keeno
 {
     enum ObjectState
     {
+        UnderConstruction,
+        Neutral,
         Harvestable,
         Broken,
         Dead
@@ -231,20 +230,6 @@ namespace Keeno
             }
         }
     }
-    class Door : WorldObject
-    {
-        public Door(Point position, int globalTileIndex)
-            : base(position, globalTileIndex)
-        {
-            _impassable = false;
-        }
-        public override void Draw(SpriteBatch sb)
-        {
-            base.Draw(sb);
-            //sb.Draw(_testPixel, Bounds, Color.Red);
-
-        }
-    }
     class SelectableWorldObject : WorldObject
     {
         public SelectableWorldObject(Point position, int globalTileIndex)
@@ -370,7 +355,7 @@ namespace Keeno
             }
 
             base.Place(onThisTile);
-            _building = new Building(new Point(onThisTile.X, onThisTile.Y), _blueprintTxr);
+            _building = new Building(new Point(onThisTile.X, onThisTile.Y), _blueprintTxr, _buildingType);
             BuildingSpawned?.Invoke(_building);
             // Remove Blueprint
             _state = ObjectState.Dead;
@@ -391,36 +376,224 @@ namespace Keeno
     }
     class Building : SelectableWorldObject
     {
+        protected List<Keeno> _workers;
+        protected float _workSpeed;
+        protected int _workerSlots;
+
+
+
+        protected BuildingType _buildingType;
 
         protected List<Rectangle> _stageSrcRects;
+
         protected int _currLevel;
 
-        public Building(Point position, Texture2D BuildingSpriteSheet)
+        protected Texture2D _defaultTxr;
+
+        protected bool _canBeUpgraded;
+        protected bool _constructionComplete;
+
+        protected int _woodCost, _stoneCost;
+        protected int _woodDelivered, _stoneDelivered;
+
+
+
+        public Building(Point position, Texture2D BuildingSpriteSheet, BuildingType type)
             :base(position, -1)
         {
-            _impassable = false;
-            _rect = new Rectangle(position.X, position.Y, _tileWidth, _tileHeight);
+            _defaultTxr = _txr = BuildingSpriteSheet;
+            _state = ObjectState.UnderConstruction;
+            _buildingType = type;
+            _woodCost = -1;
+            _stoneCost = -1;
+            _woodDelivered = 0;
+            _workerSlots = 10;
+            _stoneDelivered = 0;
+            _workSpeed = 0f; 
 
-            _txr = BuildingSpriteSheet;
             _currLevel = 3;
+            _impassable = false;
+            _canBeUpgraded = true;
+            _constructionComplete = false;
+
+            _rect = new Rectangle(position.X, position.Y, _tileWidth, _tileHeight);
+            _workers = new List<Keeno>();
             _stageSrcRects = new List<Rectangle>();
             _stageSrcRects.Add(new Rectangle(0, 0, _rect.Width, _rect.Height));
             _stageSrcRects.Add(new Rectangle(_stageSrcRects[0].X + _rect.Width, 0, _rect.Width, _rect.Height));
             _stageSrcRects.Add(new Rectangle(_stageSrcRects[1].X + _rect.Width, 0, _rect.Width, _rect.Height));
+
+            // Apply Resource costs appropriately
+            switch (type)
+            {
+                case BuildingType.Tent:
+                    _woodCost = Globals.TentWoodCost;
+                    _stoneCost = Globals.TentStoneCost;
+                    break;
+                case BuildingType.House:
+                    _woodCost = Globals.HouseWoodCost;
+                    _stoneCost = Globals.HouseStoneCost;
+                    break;
+            }
+
         }
-        public override void Draw(SpriteBatch sb)
+        public override void Update(GameTime gt)
         {
-            SelectedDraw(sb);
+            float deltaTime = (float)gt.ElapsedGameTime.TotalSeconds;
+            _canBeUpgraded = _currLevel < 3 ? true : false;
+
+
+            _workSpeed = 0f;
+            foreach (var worker in _workers)
+            {
+                if (!worker.IsWalking)  // Only apply when they have arrived at the Workstation
+                {
+                    // Get the worker's workspeed and apply it to the Workstation
+                    float kWorkspeed = worker.GetWorkSpeed();
+                    _workSpeed += kWorkspeed;
+                }
+            }
+
+            switch (_state)
+            {
+                case ObjectState.UnderConstruction:
+                    _impassable = true;
+                    break;
+                default:
+                    _impassable = false;
+                    break;
+            }
+            base.Update(gt);
+            if      (_woodDelivered == _woodCost
+                  && _stoneDelivered == _stoneCost)
+                _state = ObjectState.Neutral;
+        }
+        public void TakeThisResource(ResourceType type)
+        {
+            switch (type)
+            {
+                case ResourceType.Wood:
+                    _woodDelivered++;
+                        break;
+                case ResourceType.Stone:
+                    _stoneDelivered++;
+                    break;
+            }
+        }
+        public ResourceType CheckCosts()
+        {
+            var temp = _woodCost - _woodDelivered;
+            if (temp > 0 && ResourceTracker.CanSpend(ResourceType.Wood, 1))
+                return ResourceType.Wood;
+            else
+            {
+                temp = _stoneCost - _stoneDelivered;
+                if (temp > 0 && ResourceTracker.CanSpend(ResourceType.Stone, 1))
+                    return ResourceType.Stone;
+            }
+            return ResourceType.None;
+        }
+        public override void Selected()
+        {
+            base.Selected();
+        }
+        #region Workers
+        public virtual void ReduceWorkerSlots()
+        {
+            if (_workerSlots > 0)
+                _workerSlots--;
+        }
+        public virtual void IncreaseWorkerSlots()
+        {
+            _workerSlots++;
+        }
+        public virtual void TakeThisWorker(Keeno worker)
+        {
+            _workers.Add(worker);
+            worker.SwitchToWorking();
+            ReduceWorkerSlots();
+        }
+        public void ClearWorkerList()
+        {
+            _workers.Clear();
+        }
+        public virtual bool CanDropOffWorker(Keeno worker)
+        {
+            if (_canDropOff && _workerSlots > 0)
+            {
+                TakeThisWorker(worker);
+                return true;
+            }
+            return false;
+        }
+        #endregion
+        #region Draw Methods
+        public override void SelectedDraw(SpriteBatch sb)
+        {
+            if (_isSelected)
+            {
+
+                switch (_state)
+                {
+                    case ObjectState.UnderConstruction:
+                        break;
+                    case ObjectState.Neutral:
+                        if (_canBeUpgraded)
+                        {
+                            // Draw interface for upgrading
+                        }
+                        break;
+                }
+
+                // draw selected outline
+                sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+            }
+
+        }
+        public void UnderConstructionDraw(SpriteBatch sb)
+        {
+            _txr = Assets.TilesetTxr;
+            _srcRect = new Rectangle(
+              (Globals.ConstructionSiteTileIndex % _tilesetColumns) * _tileWidth,
+              (Globals.ConstructionSiteTileIndex / _tilesetColumns) * _tileHeight,
+              _tileWidth,
+              _tileHeight);
+            sb.Draw(_txr, _rect, _srcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
+        }
+        public void CurrLevelDraw(SpriteBatch sb)
+        {
+            _txr = _defaultTxr;
             // Draw based on level
             for (int i = 0; i < _currLevel; i++)
             {
                 sb.Draw(_txr, _rect, _stageSrcRects[i], Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
             }
         }
-    }
+        public override void Draw(SpriteBatch sb)
+        {
+            // Don't draw if dead
+            if(_state == ObjectState.Dead)
+                return;
 
+            SelectedDraw(sb);
+    
+
+            // Draw according to Current Building Type
+            switch (_state)
+            {
+                case ObjectState.UnderConstruction:
+                    UnderConstructionDraw(sb);
+                    break;
+                default:
+                    CurrLevelDraw(sb);
+                    break;
+            }
+        }
+        #endregion
+    }
     class WorkStation : SelectableWorldObject
     {
+        #region Variables
         protected List<Keeno> _workers;
 
         protected Texture2D _tilesetTxr;
@@ -451,7 +624,7 @@ namespace Keeno
         protected Rectangle _coreRect;
         public Rectangle CoreRect { get { return _coreRect; } protected set { _coreRect = value; } }
 
-
+        #endregion
         public WorkStation(Point tilePosition, int globalTileIndex)
             : base
             (tilePosition, globalTileIndex)
@@ -726,7 +899,7 @@ namespace Keeno
             base.Draw(sb);
         }
     }
-
+    #region Resources / Breakables
     class Tree : WorkStation
     {
         private Texture2D _choppedTreeTxr;
@@ -857,6 +1030,7 @@ namespace Keeno
     {
         public Vector2 Position { get; }
     }
+    #endregion
     class TownCentre : SelectableWorldObject, IDropOffPoint 
     {
         private Map _map;
@@ -921,6 +1095,21 @@ namespace Keeno
             }
         }
     }
+    #region Tile Property Related
+    class Door : WorldObject
+    {
+        public Door(Point position, int globalTileIndex)
+            : base(position, globalTileIndex)
+        {
+            _impassable = false;
+        }
+        public override void Draw(SpriteBatch sb)
+        {
+            base.Draw(sb);
+            //sb.Draw(_testPixel, Bounds, Color.Red);
+
+        }
+    }
     class EmptyTile : SelectableWorldObject
     {
         public EmptyTile(Point tilePosition, int globalTileIndex) 
@@ -950,4 +1139,5 @@ namespace Keeno
 
         }
     }
+    #endregion
 }

@@ -105,6 +105,9 @@ namespace Keeno
         public const int FixedBridgeTileIndex = 261;
         public const int RiverTileIndex = 204;
 
+        public const int ConstructionSiteTileIndex = 647;
+
+
 
 
         // HourGlass
@@ -147,7 +150,6 @@ namespace Keeno
         public static int TreeWorkerSlots = 2;
         public static float TreeWorkAmount = 2f;
 
-
         // Farm
         public static int FarmHealth = 10;
         public static int FarmFoodAmount = 1;
@@ -183,6 +185,14 @@ namespace Keeno
         public static float SelectedTxrLD = .091f;
         public static float WolrdObjectLD = .090f;
         public static float MapLD = 0f;
+
+        // Buildings
+            // Tent
+        public static int TentWoodCost = 3;
+        public static int TentStoneCost = 0;
+        // House
+        public static int HouseWoodCost = 10;
+        public static int HouseStoneCost = 10;
 
 
 
