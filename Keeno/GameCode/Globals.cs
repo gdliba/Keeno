@@ -147,32 +147,32 @@ namespace Keeno
         // Tree
         public static int TreeHealth = 10;
         public static int TreeWoodAmount = 1;
-        public static int TreeWorkerSlots = 2;
-        public static float TreeWorkAmount = 2f;
+        public static int TreeWorkerSlots = 1;
+        public static float TreeWorkAmount = 6f;
 
         // Farm
         public static int FarmHealth = 10;
         public static int FarmFoodAmount = 1;
         public static int FarmWorkerSlots = 1;
-        public static float FarmWorkAmount = 1f;
+        public static float FarmWorkAmount = 12f;
 
 
         // Rock / Stone
-        public static int RockHealth = 1;
+        public static int RockHealth = 10;
         public static int RockStoneAmount = 1;
         public static int RockWorkerSlots = 1;
-        public static float RockWorkAmount = 1f;
+        public static float RockWorkAmount = 42f;
 
         // Gold
         public static int GoldHealth = 1;
         public static int GoldGoldAmount = 1;
         public static int GoldWorkerSlots = 1;
-        public static float GoldWorkAmount = 10f;
+        public static float GoldWorkAmount = 42f;
 
         // BreakableWall
         public static int BreakableWallHealth = 1;
         public static int BreakableWallWorkerSlots = 10;
-        public static float BreakableWallWorkAmount = 1f;
+        public static float BreakableWallWorkAmount = 600f;
 
         // Layer Depths
         public static float ItemSelectedTxrLD = .098f;
