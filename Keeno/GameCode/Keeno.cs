@@ -10,7 +10,7 @@ namespace Keeno
     /// <summary>
     /// Class made to help with making both the Keeno and the player inherit
     /// their walk animation and relevant logic shared without making the Keeno
-    /// an odd child of the player, by not also making them a MobileSpawnPoint
+    /// an odd child of the player
     /// </summary>
     class AnimatedKeeno2D : Animated2D
     {
@@ -246,9 +246,12 @@ namespace Keeno
         private List<WorldObject> _dropOffPoints;
         private Point _closestDropOffPoint;
 
-        private List<WorldObject> _constructionSites;
+        private List<WorldObject> _buildingsAwaitingResources;
+        private List<WorldObject> _buildingUnderConstruction;
         private Building _buildingImDeliveringTo;
-        private Point _closestConstructionSite;
+        private Point _closestBuildingAwaitingResources;
+        private Point _closestBuildingUnderConstruction;
+
 
         private ResourceType _resourceType;
         private int _resourceAmmount;
@@ -284,8 +287,12 @@ namespace Keeno
             _dropOffPoints = new List<WorldObject>();
             _closestDropOffPoint = Point.Zero;
 
-            _constructionSites = new List<WorldObject>();
-            _closestConstructionSite = Point.Zero;
+            _buildingUnderConstruction = new List<WorldObject>();
+            _closestBuildingUnderConstruction = Point.Zero;
+
+
+            _buildingsAwaitingResources = new List<WorldObject>();
+            _closestBuildingAwaitingResources = Point.Zero;
         }
         public override void Update(GameTime gt)
         {
@@ -295,21 +302,21 @@ namespace Keeno
                 case KeenoState.Idle:
                     _moveSpeed = _normalMoveSpeed;
 
-                    ScanForConstructionSites();
+                    ScanForBuildingsUnderConstruction();
+                    ScanForBuildingsAwaitingResources();
 
                     if (_isCarryingResource)
                     {
                         _state = KeenoState.DeliveringMaterials;
                     }
-                    //MoveInDirection(IdleAndMove(gt));
                     break;
                     case KeenoState.DeliveringMaterials:
                     _moveSpeed = _carryingMovementSpeed;
                     // go to the construction site
-                    MoveTo(_closestConstructionSite);
+                    MoveTo(_closestBuildingAwaitingResources);
                     {
                         // if you have arrived there
-                        if (_position == _closestConstructionSite.ToVector2())
+                        if (_position == _closestBuildingAwaitingResources.ToVector2())
                         {
                             _buildingImDeliveringTo.TakeThisResource(_resourceType);
                             _state = KeenoState.WalkingToIdleSpot;
@@ -357,29 +364,53 @@ namespace Keeno
             base.Update(gt);
 
         }
-
-        public void ScanForConstructionSites()
+        public void ScanForBuildingsUnderConstruction()
         {
-            _constructionSites.Clear();
+            _buildingUnderConstruction.Clear();
             // Loop through the list of worldObjects
             foreach (var worldObject in _worldObjects)
             {
-                // find the drop off points and add them to the list
+                // find the buildings under construction
                 if (worldObject is Building building)
-                    if(building.State == ObjectState.UnderConstruction)
-                        _constructionSites.Add(building);
+                    if (building.State == ObjectState.UnderConstruction)
+                        _buildingUnderConstruction.Add(building);
             }
-            if(_constructionSites.Count > 0)
+            // if the list is populated (the worker notices that there's a building
+            // waiting to be constructed)
+            if (_buildingUnderConstruction.Count > 0)
             {
                 // Sort the list
-                var sortedConstructionSites = _constructionSites.OrderBy(x => x.DistanceTo(Position)).ToList();
+                var sortedBuildingUnderConstruction = _buildingUnderConstruction.OrderBy(x => x.DistanceTo(Position)).ToList();
 
-                // Check if you can deliver any resources to any construction site
+                // Find the closest one
+                var targetBuilding = sortedBuildingUnderConstruction[0] as Building;
+                // go to the closest one
+                targetBuilding.CanDropOffWorker(this);
+            }
+        }
+
+        public void ScanForBuildingsAwaitingResources()
+        {
+            _buildingsAwaitingResources.Clear();
+            // Loop through the list of worldObjects
+            foreach (var worldObject in _worldObjects)
+            {
+                // find the buildings awaiting resources
+                if (worldObject is Building building)
+                    if(building.State == ObjectState.AwaitingResourceDelivery)
+                        _buildingsAwaitingResources.Add(building);
+            }
+            if(_buildingsAwaitingResources.Count > 0)
+            {
+                // Sort the list
+                var sortedBuildingAwaitingResources = _buildingsAwaitingResources.OrderBy(x => x.DistanceTo(Position)).ToList();
+
+                // Check if you can deliver any resources to any buildings awaiting resources
                 // checking from closest to furthest
-                for (int i = 0; i < sortedConstructionSites.Count; i++)
+                for (int i = 0; i < sortedBuildingAwaitingResources.Count; i++)
                 {
-                    var closest = sortedConstructionSites[i] as Building;
-                    // Check what resources you can afford to bring to the Construction Site
+                    var closest = sortedBuildingAwaitingResources[i] as Building;
+                    // Check what resources you can afford to bring to the building awaiting resources
                     ResourceType type = closest.CheckCosts();
                     // If you can afford to bring resources
                     // And the site still needs it
@@ -387,12 +418,12 @@ namespace Keeno
                     {
                         PickUpOneResource(type);
 
-                        _closestConstructionSite = new Vector2(
-                            sortedConstructionSites[i].Position.X - Globals.Tile_Width_Height / 2,
-                            sortedConstructionSites[i].Position.Y - Globals.Tile_Width_Height / 2).ToPoint();
+                        _closestBuildingAwaitingResources = new Vector2(
+                            sortedBuildingAwaitingResources[i].Position.X - Globals.Tile_Width_Height / 2,
+                            sortedBuildingAwaitingResources[i].Position.Y - Globals.Tile_Width_Height / 2).ToPoint();
                         // break the loop, don't check any other 
                         // Construction sites.
-                        _buildingImDeliveringTo = sortedConstructionSites[i] as Building;
+                        _buildingImDeliveringTo = sortedBuildingAwaitingResources[i] as Building;
                         break;
                     }
                 }
@@ -453,6 +484,10 @@ namespace Keeno
         public void SwitchToIdle()
         {
             _state = KeenoState.Idle;
+        }
+        public void SwitchWalkingToIdleSpot()
+        {
+            _state = KeenoState.WalkingToIdleSpot;
         }
         public void DropOffResources(ResourceType type, int amount)
         {

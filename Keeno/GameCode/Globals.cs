@@ -188,8 +188,8 @@ namespace Keeno
 
         // Buildings
             // Tent
-        public static int TentWoodCost = 3;
-        public static int TentStoneCost = 0;
+        public static int TentWoodCost = 5;
+        public static int TentStoneCost = 1;
         // House
         public static int HouseWoodCost = 10;
         public static int HouseStoneCost = 10;
