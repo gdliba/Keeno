@@ -149,7 +149,7 @@ namespace Keeno
             {
                 // only consider tiles that aren't empty
                 if (InteractionRange.Contains(_map.WorldObjects[i].Position)
-                    && _map.WorldObjects[i].GetType() != typeof(EmptyTile)
+                    && _map.WorldObjects[i] is not EmptyTile
                     && _map.WorldObjects[i] is SelectableWorldObject)
                     _objectsNearPlayer.Add(_map.WorldObjects[i]);
             }
@@ -202,6 +202,10 @@ namespace Keeno
                 else if (sortedWorldObjectList[0] is Building building)
                 {
                     building.Selected();
+                }
+                else if (sortedWorldObjectList[0] is BuilderCabin builderCabin)
+                {
+                    builderCabin.Selected();
                 }
             }
         }

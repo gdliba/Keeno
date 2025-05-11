@@ -206,6 +206,7 @@ namespace Keeno
         {
             testMap.Update(gt);
 
+
             // Keeno
             foreach (var keeno in keenos)
             {
@@ -247,13 +248,19 @@ namespace Keeno
                     break;
                 case ResourceType.Gold:
                     if (Globals.Tab_KeyPress)
+                        debugResource = ResourceType.Stone;
+                    break;
+                case ResourceType.Stone:
+                    if (Globals.Tab_KeyPress)
                         debugResource = ResourceType.Food;
                     break;
             }
+            //if (Globals.X_KeyPress)
+            //    ResourceTracker.Reset();
             if (Globals.UpArrow_KeyPress)
                 ResourceTracker.Add(debugResource, 10);
-            if (Globals.DownArrow_KeyPress)
-                ResourceTracker.Add(debugResource, -10);
+            //if (Globals.DownArrow_KeyPress)
+            //    ResourceTracker.Add(debugResource, -10);
         }
 
         private void PlayingUpdate()
@@ -286,11 +293,12 @@ namespace Keeno
 #if DEBUG
             _spriteBatch.DrawString(monogramFont,
                 _renderTarget.Width + "x " + _renderTarget.Height
-                + "\nKeenos: " + keenos.Count
+                + "\nKeenos: " + keenos.Count + " / " + ResourceTracker.GetAmount(ResourceType.Housing)
                 + "\nWood: " + ResourceTracker.GetAmount(ResourceType.Wood)
                 + "\nFood: " + ResourceTracker.GetAmount(ResourceType.Food)
                 + "\nGold: " + ResourceTracker.GetAmount(ResourceType.Gold)
                 + "\nStone: " + ResourceTracker.GetAmount(ResourceType.Stone)
+
                 + "\nSelected Resource:" + debugResource,
                 
                 new Vector2(10, 10), Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);

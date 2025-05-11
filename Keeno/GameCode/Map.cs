@@ -90,6 +90,9 @@ namespace Keeno
                         case Globals.MineEntranceTileIndex:
                             AddDoor(x, y);
                             break;
+                            case Globals.BuilderCabinTileIndex:
+                            AddBuilderCabin(x, y);
+                            break;
                         default:
                             AddWorldObject(x,y);
                             break;
@@ -183,6 +186,14 @@ namespace Keeno
             _worldObjects.Add(new TownCentre(new Point(x, y), Globals.TownCentreTileIndex, this));
 
             _mapData[y, x] = Globals.EmptyTileIndex;
+            
+        }
+        private void AddBuilderCabin(int x, int y)
+        {
+            _worldObjects.Add(new BuilderCabin(new Point(x, y), Globals.BuilderCabinTileIndex));
+
+            _mapData[y, x] = Globals.EmptyTileIndex;
+            
         }
         private void AddEmptyTile(int x, int y)
         {
@@ -272,6 +283,14 @@ namespace Keeno
             if (Globals.UpArrow_KeyPress)
             {
                 var newBlueprint = new BuildingBlueprint(new Point(370, 300), BuildingType.Tent);
+                _worldObjects.Add(newBlueprint);
+                newBlueprint.BuildingSpawned += building => _worldObjects.Add(building);
+
+            }
+            // Test Item spawn
+            if (Globals.DownArrow_KeyPress)
+            {
+                var newBlueprint = new BuildingBlueprint(new Point(370, 332), BuildingType.House);
                 _worldObjects.Add(newBlueprint);
                 newBlueprint.BuildingSpawned += building => _worldObjects.Add(building);
 

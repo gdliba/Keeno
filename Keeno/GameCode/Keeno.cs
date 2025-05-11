@@ -231,12 +231,14 @@ namespace Keeno
     public enum KeenoState
     {
         Idle,
+        ReadyToBuild,
         Following,
         Working,
         DroppingOff,
         DroppingOffAndIdle,
         DeliveringMaterials,
         WalkingToIdleSpot,
+        WalkingToBuilderCabin,
         Dying,
         Dead
     }
@@ -251,6 +253,7 @@ namespace Keeno
         private Building _buildingImDeliveringTo;
         private Point _closestBuildingAwaitingResources;
         private Point _closestBuildingUnderConstruction;
+        private Point _placeOfWork;
 
 
         private ResourceType _resourceType;
@@ -301,14 +304,6 @@ namespace Keeno
             {
                 case KeenoState.Idle:
                     _moveSpeed = _normalMoveSpeed;
-
-                    ScanForBuildingsUnderConstruction();
-                    ScanForBuildingsAwaitingResources();
-
-                    if (_isCarryingResource)
-                    {
-                        _state = KeenoState.DeliveringMaterials;
-                    }
                     break;
                     case KeenoState.DeliveringMaterials:
                     _moveSpeed = _carryingMovementSpeed;
@@ -319,10 +314,24 @@ namespace Keeno
                         if (_position == _closestBuildingAwaitingResources.ToVector2())
                         {
                             _buildingImDeliveringTo.TakeThisResource(_resourceType);
-                            _state = KeenoState.WalkingToIdleSpot;
+                            _state = KeenoState.WalkingToBuilderCabin;
+                            _isCarryingResource = false;
                         }
                     }
                         break;
+                case KeenoState.ReadyToBuild:
+                    _moveSpeed = _normalMoveSpeed;
+
+                    //if there's a building that needs is ready to construct
+                    if(ScanForBuildingsUnderConstruction())
+                        break;
+                    ScanForBuildingsAwaitingResources();
+
+                    if (_isCarryingResource)
+                    {
+                        _state = KeenoState.DeliveringMaterials;
+                    }
+                    break;
                 case KeenoState.Following:
                     _moveSpeed = _normalMoveSpeed;
                     break;
@@ -358,13 +367,19 @@ namespace Keeno
                         _state = KeenoState.Idle;
                     }
                     break;
+                    case KeenoState.WalkingToBuilderCabin:
+                    _moveSpeed = _normalMoveSpeed;
+                    WalkToBuilderCabin();
+                    if (_position == _placeOfWork.ToVector2())
+                        _state = KeenoState.ReadyToBuild;
+                    break;
                 case KeenoState.Dead:
                     break;
             }
             base.Update(gt);
 
         }
-        public void ScanForBuildingsUnderConstruction()
+        public bool ScanForBuildingsUnderConstruction()
         {
             _buildingUnderConstruction.Clear();
             // Loop through the list of worldObjects
@@ -386,7 +401,9 @@ namespace Keeno
                 var targetBuilding = sortedBuildingUnderConstruction[0] as Building;
                 // go to the closest one
                 targetBuilding.CanDropOffWorker(this);
+                return true;
             }
+            return false;
         }
 
         public void ScanForBuildingsAwaitingResources()
@@ -429,13 +446,27 @@ namespace Keeno
                 }
             }
         }
+        public void RememberThisBuilderCabin(Point builderCabin)
+        {
+            builderCabin = new Point(builderCabin.X - Globals.Tile_Width_Height / 2,
+                builderCabin.Y - Globals.Tile_Width_Height / 2);
+
+            _placeOfWork = builderCabin;
+        }
+        public void SwitchToWalkingToBuilderCabin()
+        {
+            _state = KeenoState.WalkingToBuilderCabin;
+        }
+        public void WalkToBuilderCabin()
+        {
+            MoveTo(_placeOfWork);
+        }
         public void PickUpOneResource(ResourceType type)
         {
             ResourceTracker.Add(type, -1);
             _isCarryingResource = true;
             _resourceType = type;
         }
-
         public virtual void FollowPlayer(Point destination)
         {
             destination.X += _playerLocationOffsetX;
@@ -480,6 +511,10 @@ namespace Keeno
         public void SwitchToWorking()
         {
             _state = KeenoState.Working;
+        }
+        public void SwitchToReadyToBuild()
+        {
+            _state = KeenoState.ReadyToBuild;
         }
         public void SwitchToIdle()
         {

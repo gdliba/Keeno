@@ -209,6 +209,10 @@ namespace Keeno
                     if (_isSelected)
                         sb.Draw(_selectedTileTileset,_rect , _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
                     break;
+                case ObjectState.Neutral:
+                    if (_isSelected)
+                        sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+                    break;
                 case ObjectState.Broken:
                     if (_isSelected && _canBeSelectedWhenBroken)
                         sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
@@ -381,6 +385,8 @@ namespace Keeno
     }
     class Building : SelectableWorldObject
     {
+        public BuildingType Type { get { return _buildingType; } protected set { _buildingType = value; } }
+
         protected List<Keeno> _workers;
         protected float _workSpeed;
         protected int _workerSlots;
@@ -396,11 +402,15 @@ namespace Keeno
         protected Texture2D _defaultTxr;
 
         protected bool _canBeUpgraded;
+        protected bool _canAffordUpgrade;
+        protected bool _toggleUpgrade;
         protected bool _constructionComplete;
 
-        protected int _woodCost, _stoneCost;
+        protected int _populationCountExtention;
+        protected int _woodCost, _stoneCost, _woodUpgradeCost, _stoneUpgradeCost;
         protected int _woodDelivered, _stoneDelivered;
         protected int _woodToBeDelivered, _stoneToBeDelivered;
+        protected int _totalWoodSpent, _totalStoneSpent;
 
         public Building(Point position, Texture2D BuildingSpriteSheet, BuildingType type)
             :base(position, -1)
@@ -410,14 +420,19 @@ namespace Keeno
             _buildingType = type;
             _woodCost = -1;
             _stoneCost = -1;
+            _populationCountExtention = 0;
             _woodDelivered = _woodToBeDelivered = 0;
             _stoneDelivered = _stoneToBeDelivered = 0;
+            _woodUpgradeCost = _stoneUpgradeCost = 0;
+            _totalWoodSpent = _totalWoodSpent = 0;
             _workerSlots = 10;
             _workSpeed = 0f; 
-            _workDuration = 60f;
+            _workDuration = 6f;
 
-            _currLevel = 3;
+            _currLevel = 0;
             _impassable = false;
+            _canAffordUpgrade = false;
+            _toggleUpgrade = false;
             _canBeUpgraded = true;
             _constructionComplete = false;
 
@@ -437,10 +452,16 @@ namespace Keeno
                 case BuildingType.Tent:
                     _woodCost = Globals.TentWoodCost;
                     _stoneCost = Globals.TentStoneCost;
+                    _populationCountExtention = Globals.TentPopulationAddition;
+                    _woodUpgradeCost = Globals.TentUpgradeWoodCost;
+                    _stoneUpgradeCost = Globals.TentUpgradeStoneCost;
                     break;
                 case BuildingType.House:
                     _woodCost = Globals.HouseWoodCost;
                     _stoneCost = Globals.HouseStoneCost;
+                    _woodUpgradeCost = Globals.HouseUpgradeWoodCost;
+                    _stoneUpgradeCost = Globals.HouseUpgradeStoneCost;
+                    _populationCountExtention = Globals.HousePopulationAddition;
                     break;
             }
             LoadingBarsAndPrompts();
@@ -449,7 +470,7 @@ namespace Keeno
         {
             float deltaTime = (float)gt.ElapsedGameTime.TotalSeconds;
             _canBeUpgraded = _currLevel < 3 ? true : false;
-
+            
 
             _workSpeed = 0f;
             foreach (var worker in _workers)
@@ -472,7 +493,36 @@ namespace Keeno
             switch (_state)
             {
                 case ObjectState.Neutral:
+                    _impassable = true;
                     ClearWorkerList();
+                    if (_canBeUpgraded)
+                    {
+                        if (ResourceTracker.CanSpend(ResourceType.Wood, _woodUpgradeCost)
+                            && ResourceTracker.CanSpend(ResourceType.Stone, _stoneUpgradeCost))
+                            _canAffordUpgrade = true;
+                        else
+                            _canAffordUpgrade = false;
+                    }
+                    // Player Work Logic
+                    if (_isSelected)
+                    {
+                        if (_canBeUpgraded && _canAffordUpgrade)
+                        {
+                            // Interaction
+                            _toggleUpgrade = _HGInteract.Update(Globals.E_KeyDown, Globals.UpgradeInteractSpeed);
+                        }
+                        _destroyMe = _HGDestroy.Update(Globals.X_KeyDown, Globals.DestroyInteractSpeed);
+                    }
+                    if(_toggleUpgrade)
+                    {
+                        ResetDeliveredResources();
+                        _woodCost = _woodUpgradeCost;
+                        _stoneCost = _stoneUpgradeCost;
+                        _HGInteract.Reset();
+                        _HGWorkProgress.Reset();
+                        _toggleUpgrade = false;
+                        _state = ObjectState.AwaitingResourceDelivery;
+                    }
                     break;
                 case ObjectState.AwaitingResourceDelivery:
                     _impassable = true;
@@ -485,7 +535,12 @@ namespace Keeno
                     _impassable = true;
                     if (_constructionComplete)
                     {
+                        _totalWoodSpent += _woodDelivered;
+                        _totalStoneSpent += _stoneDelivered;
+                        _currLevel++;
+                        ResourceTracker.Add(ResourceType.Housing, _populationCountExtention);
                         ClearWorkerList();
+                        _constructionComplete = false;
                         _state = ObjectState.Neutral;
                     }
                     break;
@@ -494,6 +549,14 @@ namespace Keeno
                     break;
             }
 
+
+            if (_destroyMe)
+            {
+                ResourceTracker.Add(ResourceType.Housing, -_currLevel * _populationCountExtention);
+                ResourceTracker.Add(ResourceType.Wood, _totalWoodSpent);
+                ResourceTracker.Add(ResourceType.Stone, _totalStoneSpent);
+                DestroyMe();
+            }
 
             // Tell workers where to go
             foreach (Keeno keeno in _workers)
@@ -506,6 +569,11 @@ namespace Keeno
             }
             base.Update(gt);
 
+        }
+        private void ResetDeliveredResources()
+        {
+            _woodDelivered = 0;
+            _stoneDelivered = 0;
         }
         public void TakeThisResource(ResourceType type)
         {
@@ -566,7 +634,7 @@ namespace Keeno
         {
             foreach (var worker in _workers)
             {
-                worker.SwitchWalkingToIdleSpot();
+                worker.SwitchToWalkingToBuilderCabin();
                 IncreaseWorkerSlots();
             }
             _workers.Clear();
@@ -592,6 +660,10 @@ namespace Keeno
                     case ObjectState.AwaitingResourceDelivery:
                         break;
                     case ObjectState.Neutral:
+                        _HGInteract.Draw(sb);
+                        _buttonPrompt_E.Draw(sb);
+                        _HGDestroy.Draw(sb);
+                        _buttonPrompt_X.Draw(sb);
                         if (_canBeUpgraded)
                         {
                             // Draw interface for upgrading
@@ -813,6 +885,24 @@ namespace Keeno
                     }
 
                     break;
+                    case ObjectState.Neutral:
+                    if (_isSelected)
+                    {
+
+                        // worker DropOff
+                        if (_workerSlots > 0 && _selectedCondition && _state != ObjectState.Broken)
+                        {
+                            _canDropOff = _HGDropOff.Update(Globals.Q_KeyDown, Globals.DropOffKeenoSpeed);
+                        }
+                    }
+
+                    // Tell workers where to go
+                    foreach (Keeno keeno in _workers)
+                    {
+                        if (keeno.State == KeenoState.ReadyToBuild)
+                            keeno.MoveTo(_tilePosition);
+                    }
+                    break;
             }
             if (_destroyMe)
                 DestroyMe();
@@ -879,7 +969,10 @@ namespace Keeno
         public virtual void TakeThisWorker(Keeno worker)
         {
             _workers.Add(worker);
-            worker.SwitchToWorking();
+            if (_state == ObjectState.Harvestable)
+                worker.SwitchToWorking();
+            else if(_state == ObjectState.Neutral)
+                worker.SwitchToReadyToBuild();
             ReduceWorkerSlots();
         }
         public void ClearWorkerList()
@@ -942,6 +1035,15 @@ namespace Keeno
                         // Input Promts
                         _buttonPrompt_E.Draw(sb);
                         if(_workerSlots > 0 && _selectedCondition)
+                            _buttonPrompt_Q.Draw(sb);
+                    }
+                    break;
+                case ObjectState.Neutral:
+                    if (_isSelected)
+                    {
+                        _HGDropOff.Draw(sb);
+
+                        if (_workerSlots > 0 && _selectedCondition)
                             _buttonPrompt_Q.Draw(sb);
                     }
                     break;
@@ -1154,6 +1256,23 @@ namespace Keeno
                 _HGInteract.Draw(sb);
                 _buttonPrompt_E.Draw(sb);
             }
+        }
+    }
+    class BuilderCabin : WorkStation
+    {
+        public BuilderCabin(Point position, int globalTileIndex)
+            : base(position, globalTileIndex)
+        {
+            _state = ObjectState.Neutral;
+            _workerSlots = 10;
+        }
+        public override void Update(GameTime gt)
+        {
+            foreach (var worker in _workers)
+            {
+                worker.RememberThisBuilderCabin(Position.ToPoint());
+            }
+            base.Update(gt);
         }
     }
     #region Tile Property Related

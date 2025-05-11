@@ -89,7 +89,7 @@ namespace Keeno
         public const int FarmLandTileIndex = 306;
 
         public const int TownCentreTileIndex = 983;
-        public const int WorkShopTileIndex = 984;
+        public const int BuilderCabinTileIndex = 984;
 
         public const int RockTileIndex = 103;
         public const int HarvestedRockTileIndex = 68;
@@ -107,7 +107,7 @@ namespace Keeno
 
         public const int ConstructionSiteTileIndex = 647;
 
-
+        
 
 
         // HourGlass
@@ -139,6 +139,8 @@ namespace Keeno
         public static float DropOffKeenoSpeed = .03f;
         public static float NeutralInteractSpeed = .02f;
         public static float DestroyInteractSpeed = .02f;
+        public static float UpgradeInteractSpeed = .02f;
+
 
 
         // Keeno
@@ -148,7 +150,7 @@ namespace Keeno
         public static int TreeHealth = 10;
         public static int TreeWoodAmount = 1;
         public static int TreeWorkerSlots = 1;
-        public static float TreeWorkAmount = 6f;
+        public static float TreeWorkAmount = 12f;
 
         // Farm
         public static int FarmHealth = 10;
@@ -189,10 +191,18 @@ namespace Keeno
         // Buildings
             // Tent
         public static int TentWoodCost = 5;
-        public static int TentStoneCost = 1;
+        public static int TentStoneCost = 0;
+        public static int TentUpgradeWoodCost = 5;
+        public static int TentUpgradeStoneCost = 0;
+        public static int TentPopulationAddition = 3;
+
         // House
         public static int HouseWoodCost = 10;
         public static int HouseStoneCost = 10;
+        public static int HouseUpgradeWoodCost = 10;
+        public static int HouseUpgradeStoneCost = 10;
+        public static int HousePopulationAddition = 5;
+
 
 
 
@@ -271,6 +281,7 @@ namespace Keeno
         Food,
         Wood,
         Stone,
+        Housing,
         Gold
     }
 
