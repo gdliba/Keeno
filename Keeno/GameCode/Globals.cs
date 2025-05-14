@@ -150,7 +150,7 @@ namespace Keeno
         public static int TreeHealth = 10;
         public static int TreeWoodAmount = 1;
         public static int TreeWorkerSlots = 1;
-        public static float TreeWorkAmount = 12f;
+        public static float TreeWorkAmount = 2f;
 
         // Farm
         public static int FarmHealth = 10;
@@ -163,7 +163,9 @@ namespace Keeno
         public static int RockHealth = 10;
         public static int RockStoneAmount = 1;
         public static int RockWorkerSlots = 1;
-        public static float RockWorkAmount = 42f;
+        //public static float RockWorkAmount = 42f;
+        public static float RockWorkAmount = 2f;
+
 
         // Gold
         public static int GoldHealth = 1;
@@ -174,7 +176,7 @@ namespace Keeno
         // BreakableWall
         public static int BreakableWallHealth = 1;
         public static int BreakableWallWorkerSlots = 10;
-        public static float BreakableWallWorkAmount = 600f;
+        public static float BreakableWallWorkAmount = 6f;
 
         // Layer Depths
         public static float ItemSelectedTxrLD = .098f;
@@ -182,10 +184,11 @@ namespace Keeno
         public static float BlueprintTxrLD = .096f;
         public static float PlayerLD = .095f;
         public static float ButtonPromptLD = .094f;
-        public static float HourGlassLD = .093f;
-        public static float KeenoLD = .092f;
-        public static float SelectedTxrLD = .091f;
-        public static float WolrdObjectLD = .090f;
+        public static float ResourceBeingCarriedTxrLD = .093f;
+        public static float HourGlassLD = .092f;
+        public static float KeenoLD = .091f;
+        public static float SelectedTxrLD = .090f;
+        public static float WolrdObjectLD = .089f;
         public static float MapLD = 0f;
 
         // Buildings
@@ -245,6 +248,19 @@ namespace Keeno
         public static Texture2D GoldOreTxr { get; private set; }
 
 
+        // UI Objects
+        public static Texture2D UIWoodTxr { get; private set; }
+        public static Texture2D UIStoneTxr { get; private set; }
+        public static Texture2D UIFoodTxr { get; private set; }
+
+        // UI Icons
+        public static Texture2D UIWoodIconTxr { get; private set; }
+        public static Texture2D UIStoneIconTxr { get; private set; }
+        public static Texture2D UIFoodIconTxr { get; private set; }
+
+
+
+
 
 
 
@@ -262,7 +278,6 @@ namespace Keeno
 
             RockTxr = content.Load<Texture2D>("WorldObjects\\Minerals\\rock1");
             WhiteRockTxr = content.Load<Texture2D>("WorldObjects\\Minerals\\rock1_w");
-
             GoldOreTxr = content.Load<Texture2D>("WorldObjects\\Minerals\\gold");
 
 
@@ -273,6 +288,18 @@ namespace Keeno
             HousesTxr = content.Load<Texture2D>("WorldObjects\\Buildings\\Houses\\houses");
             HousesWhiteTxr = content.Load<Texture2D>("WorldObjects\\Buildings\\Houses\\houses_w");
             BlueprintTxr = content.Load<Texture2D>("WorldObjects\\Items\\scroll");
+
+
+            // UI Objects
+            UIWoodTxr= content.Load<Texture2D>("WorldObjects\\UI Objects\\Log");
+            UIStoneTxr = content.Load<Texture2D>("WorldObjects\\UI Objects\\Stone");
+            UIFoodTxr = content.Load<Texture2D>("WorldObjects\\UI Objects\\Bread");
+
+            // UI Icons
+            UIWoodIconTxr = content.Load<Texture2D>("WorldObjects\\UI Objects\\Icons\\WoodIcon");
+            UIStoneIconTxr = content.Load<Texture2D>("WorldObjects\\UI Objects\\Icons\\StoneIcon");
+            UIFoodIconTxr = content.Load<Texture2D>("WorldObjects\\UI Objects\\Icons\\FoodIcon");
+
         }
     }
     public enum ResourceType

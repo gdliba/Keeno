@@ -258,6 +258,7 @@ namespace Keeno
 
         private ResourceType _resourceType;
         private int _resourceAmmount;
+        private Texture2D _resourceTxr;
 
         private float _normalMoveSpeed;
         private float _carryingMovementSpeed;
@@ -267,6 +268,8 @@ namespace Keeno
         private bool _isCarryingResource;
         private KeenoState _state;
         public KeenoState State { get{  return _state; } }
+
+        private Rectangle _itemCarrySpot { get { return new Rectangle(_rect.X, _rect.Y-_rect.Height/4, _rect.Width, _rect.Height); } }
 
         public Keeno(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel, Map map)
             : base (spriteSheet, fps, rect, pixel, map)
@@ -299,13 +302,14 @@ namespace Keeno
         }
         public override void Update(GameTime gt)
         {
-
             switch (_state)
             {
                 case KeenoState.Idle:
+                    _isCarryingResource = false;
                     _moveSpeed = _normalMoveSpeed;
                     break;
                     case KeenoState.DeliveringMaterials:
+                    _isCarryingResource = true;
                     _moveSpeed = _carryingMovementSpeed;
                     // go to the construction site
                     MoveTo(_closestBuildingAwaitingResources);
@@ -320,6 +324,7 @@ namespace Keeno
                     }
                         break;
                 case KeenoState.ReadyToBuild:
+                    _isCarryingResource = false;
                     _moveSpeed = _normalMoveSpeed;
 
                     //if there's a building that needs is ready to construct
@@ -333,12 +338,15 @@ namespace Keeno
                     }
                     break;
                 case KeenoState.Following:
+                    _isCarryingResource = false;
                     _moveSpeed = _normalMoveSpeed;
                     break;
                 case KeenoState.Working:
+                    _isCarryingResource = false;
                     _moveSpeed = _normalMoveSpeed;
                     break;
                 case KeenoState.DroppingOff:
+                    _isCarryingResource = true;
                     _moveSpeed = _carryingMovementSpeed;
                     MoveTo(_closestDropOffPoint);
                     if (_position == _closestDropOffPoint.ToVector2())
@@ -348,6 +356,7 @@ namespace Keeno
                     }
                     break;
                 case KeenoState.DroppingOffAndIdle:
+                    _isCarryingResource = true;
                     _moveSpeed = _carryingMovementSpeed;
                     MoveTo(_closestDropOffPoint);
                     if (_position == _closestDropOffPoint.ToVector2())
@@ -368,6 +377,7 @@ namespace Keeno
                     }
                     break;
                     case KeenoState.WalkingToBuilderCabin:
+                    _isCarryingResource = false;
                     _moveSpeed = _normalMoveSpeed;
                     WalkToBuilderCabin();
                     if (_position == _placeOfWork.ToVector2())
@@ -583,6 +593,25 @@ namespace Keeno
                 _tint = _defaultTint;
             sb.Draw(_txr, _rect, _srcRect, _tint, 0f,
                     Vector2.Zero, flip, Globals.KeenoLD);
+
+
+            if (_isCarryingResource)
+            {
+                switch (_resourceType)
+                {
+                    case ResourceType.Wood:
+                        _resourceTxr = Assets.UIWoodTxr;
+                        break;
+                        case ResourceType.Stone:
+                        _resourceTxr = Assets.UIStoneTxr;
+                        break;
+                        case ResourceType.Food:
+                        _resourceTxr = Assets.UIFoodTxr;
+                        break;
+                }
+                sb.Draw(_resourceTxr, _itemCarrySpot, null, Color.White, 0f,
+                    Vector2.Zero, flip, Globals.ResourceBeingCarriedTxrLD);
+            }
         }
     }
 }
