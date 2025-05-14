@@ -88,12 +88,12 @@ namespace Keeno
         protected override void Initialize()
         {
             // Match the resolution to the current display
-            _graphics.PreferredBackBufferWidth = 
-                GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            _graphics.PreferredBackBufferHeight = 
-                GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            _graphics.PreferredBackBufferWidth = 1920;
+            //GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            _graphics.PreferredBackBufferHeight = 1080;
+                //GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             // Set screen to Fullscreen
-            _graphics.IsFullScreen = false;
+            _graphics.IsFullScreen = true;
             _graphics.ApplyChanges();
 
 
@@ -289,7 +289,12 @@ namespace Keeno
             testPlayer.Draw(_spriteBatch);
 
             _spriteBatch.End();
-            _spriteBatch.Begin();
+
+            // Draw the Hud
+            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+
+
+            _spriteBatch.Draw(Assets.UITest, new Rectangle(0,0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
 #if DEBUG
             _spriteBatch.DrawString(monogramFont,
                 _renderTarget.Width + "x " + _renderTarget.Height

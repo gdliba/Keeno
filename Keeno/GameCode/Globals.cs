@@ -258,6 +258,8 @@ namespace Keeno
         public static Texture2D UIStoneIconTxr { get; private set; }
         public static Texture2D UIFoodIconTxr { get; private set; }
 
+        // Hud
+        public static Texture2D UITest { get; private set; }
 
 
 
@@ -296,9 +298,13 @@ namespace Keeno
             UIFoodTxr = content.Load<Texture2D>("WorldObjects\\UI Objects\\Bread");
 
             // UI Icons
-            UIWoodIconTxr = content.Load<Texture2D>("WorldObjects\\UI Objects\\Icons\\WoodIcon");
-            UIStoneIconTxr = content.Load<Texture2D>("WorldObjects\\UI Objects\\Icons\\StoneIcon");
-            UIFoodIconTxr = content.Load<Texture2D>("WorldObjects\\UI Objects\\Icons\\FoodIcon");
+            UIWoodIconTxr = content.Load<Texture2D>("UI\\Icons\\WoodIcon");
+            UIStoneIconTxr = content.Load<Texture2D>("UI\\Icons\\StoneIcon");
+            UIFoodIconTxr = content.Load<Texture2D>("UI\\Icons\\FoodIcon");
+
+            // Hud
+            UITest = content.Load<Texture2D>("UI\\UITest");
+
 
         }
     }
