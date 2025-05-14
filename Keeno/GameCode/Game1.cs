@@ -292,9 +292,10 @@ namespace Keeno
 
             // Draw the Hud
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-
-
+            // Hud Test
             _spriteBatch.Draw(Assets.UITest, new Rectangle(0,0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
+
+
 #if DEBUG
             _spriteBatch.DrawString(monogramFont,
                 _renderTarget.Width + "x " + _renderTarget.Height
