@@ -357,6 +357,8 @@ namespace Keeno
                             ResourceTracker.Add(_resourceType, _resourceAmmount);
                             _state = KeenoState.Working;
                         }
+                        else
+                            MoveTo(_closestDropOffPoint);
                     }
                     break;
                 case KeenoState.DroppingOffAndIdle:
@@ -371,6 +373,8 @@ namespace Keeno
                             ResourceTracker.Add(_resourceType, _resourceAmmount);
                             SwitchToIdle();
                         }
+                        else
+                            MoveTo(_closestDropOffPoint);
                     }
                     break;
                     case KeenoState.WalkingToIdleSpot:
@@ -544,7 +548,6 @@ namespace Keeno
         }
         public void DropOffResources(ResourceType type, int amount)
         {
-            _dropOffPoints.Clear();
             FindClosestDropOffPoint();
             _state = KeenoState.DroppingOff;
             _resourceType = type;
@@ -559,6 +562,7 @@ namespace Keeno
         }
         private void FindClosestDropOffPoint()
         {
+            _dropOffPoints.Clear();
             // Loop through the list of worldObjects
             foreach (var worldObject in _worldObjects)
             {
