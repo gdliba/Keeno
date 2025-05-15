@@ -285,7 +285,7 @@ namespace Keeno
                 Globals.RNG.Next(0, 256), Globals.RNG.Next(0, 256));
 
             _moveSpeed = _normalMoveSpeed = Globals.RNG.Next(20, 26) + (float)Globals.RNG.NextDouble();
-            _carryingMovementSpeed = 50f;
+            _carryingMovementSpeed = 10f;
             _facingRight = Globals.RNG.Next(2) == 0;
 
             _workSpeed = 1f;
@@ -305,12 +305,10 @@ namespace Keeno
             switch (_state)
             {
                 case KeenoState.Idle:
-                    _isCarryingResource = false;
-                    _moveSpeed = _normalMoveSpeed;
+                    DontCarryResource();
                     break;
                     case KeenoState.DeliveringMaterials:
-                    _isCarryingResource = true;
-                    _moveSpeed = _carryingMovementSpeed;
+                    CarryResource();
                     // go to the construction site
                     MoveTo(_closestBuildingAwaitingResources);
                     {
@@ -324,8 +322,7 @@ namespace Keeno
                     }
                         break;
                 case KeenoState.ReadyToBuild:
-                    _isCarryingResource = false;
-                    _moveSpeed = _normalMoveSpeed;
+                    DontCarryResource();
 
                     //if there's a building that needs is ready to construct
                     if(ScanForBuildingsUnderConstruction())
@@ -338,16 +335,13 @@ namespace Keeno
                     }
                     break;
                 case KeenoState.Following:
-                    _isCarryingResource = false;
-                    _moveSpeed = _normalMoveSpeed;
+                    DontCarryResource();
                     break;
                 case KeenoState.Working:
-                    _isCarryingResource = false;
-                    _moveSpeed = _normalMoveSpeed;
+                    DontCarryResource();
                     break;
                 case KeenoState.DroppingOff:
-                    _isCarryingResource = true;
-                    _moveSpeed = _carryingMovementSpeed;
+                    CarryResource();
                     MoveTo(_closestDropOffPoint);
                     if (_position == _closestDropOffPoint.ToVector2())
                     {
@@ -362,8 +356,7 @@ namespace Keeno
                     }
                     break;
                 case KeenoState.DroppingOffAndIdle:
-                    _isCarryingResource = true;
-                    _moveSpeed = _carryingMovementSpeed;
+                    CarryResource();
                     MoveTo(_closestDropOffPoint);
                     if (_position == _closestDropOffPoint.ToVector2())
                     {
@@ -378,9 +371,7 @@ namespace Keeno
                     }
                     break;
                     case KeenoState.WalkingToIdleSpot:
-                    _isCarryingResource = false;
-                    _moveSpeed = _normalMoveSpeed;
-
+                    DontCarryResource();
                     FindClosestDropOffPoint();
                     MoveTo(_closestDropOffPoint);
                     if (_position == _closestDropOffPoint.ToVector2())
@@ -389,8 +380,7 @@ namespace Keeno
                     }
                     break;
                     case KeenoState.WalkingToBuilderCabin:
-                    _isCarryingResource = false;
-                    _moveSpeed = _normalMoveSpeed;
+                    DontCarryResource();
                     WalkToBuilderCabin();
                     if (_position == _placeOfWork.ToVector2())
                         _state = KeenoState.ReadyToBuild;
@@ -400,6 +390,24 @@ namespace Keeno
             }
             base.Update(gt);
 
+        }
+        private void CarryResource()
+        {
+            WalkSlow();
+            _isCarryingResource = true;
+        }
+        private void DontCarryResource()
+        {
+            _isCarryingResource = false;
+            WalkNormal();
+        }
+        private void WalkNormal()
+        {
+            _moveSpeed = _normalMoveSpeed;
+        }
+        private void WalkSlow()
+        {
+            _moveSpeed = _carryingMovementSpeed;
         }
         public bool ScanForBuildingsUnderConstruction()
         {
