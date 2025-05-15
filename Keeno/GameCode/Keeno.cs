@@ -555,7 +555,7 @@ namespace Keeno
             foreach (var worldObject in _worldObjects)
             {
                 // find the drop off points and add them to the list
-                if (worldObject is IDropOffPoint)
+                if (worldObject is IDropOffPoint && worldObject.GetDropOffPointState())
                     _dropOffPoints.Add(worldObject);
             }
             // Sort the list

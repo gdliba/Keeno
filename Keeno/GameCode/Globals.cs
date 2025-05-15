@@ -90,6 +90,8 @@ namespace Keeno
 
         public const int TownCentreTileIndex = 983;
         public const int BuilderCabinTileIndex = 984;
+        public const int ResourceStorageTileIndex = 980;
+
 
         public const int RockTileIndex = 103;
         public const int HarvestedRockTileIndex = 68;
@@ -199,15 +201,19 @@ namespace Keeno
         public static int TentUpgradeStoneCost = 0;
         public static int TentPopulationAddition = 3;
 
-        // House
+            // House
         public static int HouseWoodCost = 10;
         public static int HouseStoneCost = 10;
         public static int HouseUpgradeWoodCost = 10;
         public static int HouseUpgradeStoneCost = 10;
         public static int HousePopulationAddition = 5;
 
+        // ResourceStorage
 
-
+        public static int ResourceStorageWoodCost = 10;
+        public static int ResourceStorageStoneCost = 10;
+        public static int ResourceStorageUpgradeWoodCost = 10;
+        public static int ResourceStorageUpgradeStoneCost = 10;
 
 
 

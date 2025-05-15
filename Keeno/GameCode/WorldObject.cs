@@ -17,7 +17,8 @@ namespace Keeno
     enum BuildingType
     {
         Tent,
-        House
+        House,
+        ResourceStorage
     }
     enum BuildingLevel { One, Two, Three,}
     class WorldObject
@@ -66,6 +67,7 @@ namespace Keeno
         protected bool _cannotUse;
         protected bool _destroyMe;
         protected bool _impassable;
+        protected bool _isDropOffPointActive;
         public bool Impassable { get { return _impassable;} protected set { _impassable = value; } }
 
         public Color Tint;
@@ -83,7 +85,8 @@ namespace Keeno
             _cannotUse = false;
             _flipped = false;
             _canBeSelectedWhenBroken = true;
-            
+            _isDropOffPointActive = false;
+
 
             _testPixel = Assets.DebugPixelTxr; 
             _selectedTileTileset = Assets.MonochromaticTilesetTxr;
@@ -174,6 +177,10 @@ namespace Keeno
         public float DistanceTo(Vector2 destination)
         {
             return (destination - Position).Length();
+        }
+        public bool GetDropOffPointState()
+        {
+            return _isDropOffPointActive;
         }
         public virtual void Update(GameTime gt)
         {
@@ -383,7 +390,7 @@ namespace Keeno
             sb.Draw(_blueprintTxr, _rect, null, Color.RoyalBlue, 0f, Vector2.Zero, SpriteEffects.None, Globals.BlueprintTxrLD);
         }
     }
-    class Building : SelectableWorldObject
+    class Building : SelectableWorldObject, IDropOffPoint
     {
         public BuildingType Type { get { return _buildingType; } protected set { _buildingType = value; } }
 
@@ -391,6 +398,7 @@ namespace Keeno
         protected float _workSpeed;
         protected int _workerSlots;
         protected float _workDuration;
+        public Vector2 Position => base.Position;
 
 
         protected BuildingType _buildingType;
@@ -405,6 +413,7 @@ namespace Keeno
         protected bool _canAffordUpgrade;
         protected bool _toggleUpgrade;
         protected bool _constructionComplete;
+        protected bool _singleTxrDraw;
 
         protected int _populationCountExtention;
         protected int _woodCost, _stoneCost, _woodUpgradeCost, _stoneUpgradeCost;
@@ -435,12 +444,15 @@ namespace Keeno
             _toggleUpgrade = false;
             _canBeUpgraded = true;
             _constructionComplete = false;
+            _isDropOffPointActive = false;
+            _singleTxrDraw = false;
 
             _tilePosition.X = position.X;
             _tilePosition.Y = position.Y;
 
             _rect = new Rectangle(position.X, position.Y, _tileWidth, _tileHeight);
             _workers = new List<Keeno>();
+
             _stageSrcRects = new List<Rectangle>();
             _stageSrcRects.Add(new Rectangle(0, 0, _rect.Width, _rect.Height));
             _stageSrcRects.Add(new Rectangle(_stageSrcRects[0].X + _rect.Width, 0, _rect.Width, _rect.Height));
@@ -462,6 +474,22 @@ namespace Keeno
                     _woodUpgradeCost = Globals.HouseUpgradeWoodCost;
                     _stoneUpgradeCost = Globals.HouseUpgradeStoneCost;
                     _populationCountExtention = Globals.HousePopulationAddition;
+                    break;
+                case BuildingType.ResourceStorage:
+                    _currLevel = 2;
+                    _singleTxrDraw = true;
+                    _txr = Assets.MonochromaticTilesetTxr;
+
+                    _woodCost = Globals.ResourceStorageWoodCost;
+                    _stoneCost = Globals.ResourceStorageStoneCost;
+                    _woodUpgradeCost = Globals.ResourceStorageUpgradeWoodCost;
+                    _stoneUpgradeCost = Globals.ResourceStorageUpgradeStoneCost;
+                    _populationCountExtention = 0;
+                    _srcRect = new Rectangle(
+                  (Globals.ResourceStorageTileIndex % Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  (Globals.ResourceStorageTileIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height);
                     break;
             }
             LoadingBarsAndPrompts();
@@ -695,6 +723,10 @@ namespace Keeno
                 sb.Draw(_txr, _rect, _stageSrcRects[i], Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
             }
         }
+        public void SingleTxrDraw(SpriteBatch sb)
+        {
+            sb.Draw(_txr, _rect, _srcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
+        }
         public override void Draw(SpriteBatch sb)
         {
             // Don't draw if dead
@@ -715,7 +747,10 @@ namespace Keeno
                     _HGWorkProgress.Draw(sb);
                     break;
                 default:
-                    CurrLevelDraw(sb);
+                    if (_singleTxrDraw)
+                        SingleTxrDraw(sb);
+                    else
+                        CurrLevelDraw(sb);
                     break;
             }
         }
@@ -1206,6 +1241,7 @@ namespace Keeno
             : base(tilePosition, globalTileIndex)
         {
             _keenosISpawned = new List<Keeno>();
+            _isDropOffPointActive = false;
             _map = map;
         }
         public override void Update(GameTime gt)
