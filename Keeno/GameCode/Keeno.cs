@@ -381,6 +381,8 @@ namespace Keeno
                     break;
                     case KeenoState.WalkingToBuilderCabin:
                     DontCarryResource();
+                    if (ScanForBuildingsUnderConstruction())
+                        break;
                     WalkToBuilderCabin();
                     if (_position == _placeOfWork.ToVector2())
                         _state = KeenoState.ReadyToBuild;

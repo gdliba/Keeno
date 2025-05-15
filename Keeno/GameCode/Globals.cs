@@ -89,7 +89,7 @@ namespace Keeno
         public const int FarmLandTileIndex = 306;
 
         public const int TownCentreTileIndex = 983;
-        public const int BuilderCabinTileIndex = 984;
+        public const int BuilderCabinTileIndex = 985;
         public const int ResourceStorageTileIndex = 980;
 
 
@@ -149,7 +149,7 @@ namespace Keeno
         //public static float KeenoMovementSpeed = 20;
 
         // Tree
-        public static int TreeHealth = 10;
+        public static int TreeHealth = 1;
         public static int TreeWoodAmount = 1;
         public static int TreeWorkerSlots = 1;
         public static float TreeWorkAmount = 2f;

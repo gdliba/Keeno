@@ -204,6 +204,7 @@ namespace Keeno
         }
         public virtual void DestroyMe()
         {
+            
             _state = ObjectState.Dead;
         }
         public virtual void SelectedDraw(SpriteBatch sb)
@@ -1053,7 +1054,8 @@ namespace Keeno
         }
         public virtual bool CanDropOffWorker(Keeno worker)
         {
-            if (_canDropOff && _workerSlots > 0)
+            if (_canDropOff && _workerSlots > 0
+                && _state !=ObjectState.Broken)
             {
                 TakeThisWorker(worker);
                 _HGDropOff.Reset();
