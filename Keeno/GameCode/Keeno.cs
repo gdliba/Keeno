@@ -285,7 +285,7 @@ namespace Keeno
                 Globals.RNG.Next(0, 256), Globals.RNG.Next(0, 256));
 
             _moveSpeed = _normalMoveSpeed = Globals.RNG.Next(20, 26) + (float)Globals.RNG.NextDouble();
-            _carryingMovementSpeed = 10f;
+            _carryingMovementSpeed = 50f;
             _facingRight = Globals.RNG.Next(2) == 0;
 
             _workSpeed = 1f;
@@ -351,8 +351,12 @@ namespace Keeno
                     MoveTo(_closestDropOffPoint);
                     if (_position == _closestDropOffPoint.ToVector2())
                     {
-                        ResourceTracker.Add(_resourceType, _resourceAmmount);
-                        _state = KeenoState.Working;
+                        FindClosestDropOffPoint();
+                        if (_position == _closestDropOffPoint.ToVector2())
+                        {
+                            ResourceTracker.Add(_resourceType, _resourceAmmount);
+                            _state = KeenoState.Working;
+                        }
                     }
                     break;
                 case KeenoState.DroppingOffAndIdle:
@@ -361,8 +365,12 @@ namespace Keeno
                     MoveTo(_closestDropOffPoint);
                     if (_position == _closestDropOffPoint.ToVector2())
                     {
-                        ResourceTracker.Add(_resourceType, _resourceAmmount);
-                        SwitchToIdle();
+                        FindClosestDropOffPoint();
+                        if(_position == _closestDropOffPoint.ToVector2())
+                        {
+                            ResourceTracker.Add(_resourceType, _resourceAmmount);
+                            SwitchToIdle();
+                        }
                     }
                     break;
                     case KeenoState.WalkingToIdleSpot:

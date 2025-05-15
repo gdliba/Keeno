@@ -93,7 +93,7 @@ namespace Keeno
             _graphics.PreferredBackBufferHeight = 1080;
                 //GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             // Set screen to Fullscreen
-            _graphics.IsFullScreen = true;
+            _graphics.IsFullScreen = false;
             _graphics.ApplyChanges();
 
 

@@ -382,12 +382,27 @@ namespace Keeno
                 return;
             if (_isSelected)
                 sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Color.DeepSkyBlue, 0, Vector2.Zero, SpriteEffects.None, Globals.ItemSelectedTxrLD);
-            // Draw based on level
-            for (int i = 0; i < 3; i++)
+
+            if(_buildingType == BuildingType.ResourceStorage)
             {
-                sb.Draw(_txr, _rect, _stageSrcRects[i], Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.ItemTxrLD);
+                _txr = Assets.MonochromaticTilesetTxr;
+                _srcRect = new Rectangle(
+                  (Globals.ResourceStorageTileIndex % Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  (Globals.ResourceStorageTileIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height);
+                var temp = new Rectangle(_rect.X + _rect.Width / 5, _rect.Y+ _rect.Height / 6, 2*_rect.Width / 3, 2*_rect.Height / 3);
+                sb.Draw(_txr, temp, _srcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.ItemTxrLD);
             }
-            sb.Draw(_blueprintTxr, _rect, null, Color.RoyalBlue, 0f, Vector2.Zero, SpriteEffects.None, Globals.BlueprintTxrLD);
+            else
+            {
+                // Draw based on level
+                for (int i = 0; i < 3; i++)
+                {
+                    sb.Draw(_txr, _rect, _stageSrcRects[i], Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.ItemTxrLD);
+                }
+            }
+                sb.Draw(_blueprintTxr, _rect, null, Color.RoyalBlue, 0f, Vector2.Zero, SpriteEffects.None, Globals.BlueprintTxrLD);
         }
     }
     class Building : SelectableWorldObject, IDropOffPoint
@@ -404,6 +419,7 @@ namespace Keeno
         protected BuildingType _buildingType;
 
         protected List<Rectangle> _stageSrcRects;
+        protected Rectangle _buildingSrcRect;
 
         protected int _currLevel;
 
@@ -485,7 +501,7 @@ namespace Keeno
                     _woodUpgradeCost = Globals.ResourceStorageUpgradeWoodCost;
                     _stoneUpgradeCost = Globals.ResourceStorageUpgradeStoneCost;
                     _populationCountExtention = 0;
-                    _srcRect = new Rectangle(
+                    _buildingSrcRect = new Rectangle(
                   (Globals.ResourceStorageTileIndex % Globals.TilemapColumns) * Globals.Tile_Width_Height,
                   (Globals.ResourceStorageTileIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
                   Globals.Tile_Width_Height,
@@ -521,6 +537,8 @@ namespace Keeno
             switch (_state)
             {
                 case ObjectState.Neutral:
+                    if(_buildingType == BuildingType.ResourceStorage)
+                        _isDropOffPointActive = true;
                     _impassable = true;
                     ClearWorkerList();
                     if (_canBeUpgraded)
@@ -689,11 +707,11 @@ namespace Keeno
                         break;
                     case ObjectState.Neutral:
                         _HGInteract.Draw(sb);
-                        _buttonPrompt_E.Draw(sb);
                         _HGDestroy.Draw(sb);
                         _buttonPrompt_X.Draw(sb);
                         if (_canBeUpgraded)
                         {
+                            _buttonPrompt_E.Draw(sb);
                             // Draw interface for upgrading
                         }
                         break;
@@ -725,7 +743,7 @@ namespace Keeno
         }
         public void SingleTxrDraw(SpriteBatch sb)
         {
-            sb.Draw(_txr, _rect, _srcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
+            sb.Draw(_txr, _rect, _buildingSrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
         }
         public override void Draw(SpriteBatch sb)
         {
@@ -1241,7 +1259,7 @@ namespace Keeno
             : base(tilePosition, globalTileIndex)
         {
             _keenosISpawned = new List<Keeno>();
-            _isDropOffPointActive = false;
+            _isDropOffPointActive = true;
             _map = map;
         }
         public override void Update(GameTime gt)

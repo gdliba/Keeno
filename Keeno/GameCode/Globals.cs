@@ -210,10 +210,10 @@ namespace Keeno
 
         // ResourceStorage
 
-        public static int ResourceStorageWoodCost = 10;
-        public static int ResourceStorageStoneCost = 10;
-        public static int ResourceStorageUpgradeWoodCost = 10;
-        public static int ResourceStorageUpgradeStoneCost = 10;
+        public static int ResourceStorageWoodCost = 1;
+        public static int ResourceStorageStoneCost = 0;
+        public static int ResourceStorageUpgradeWoodCost = 1;
+        public static int ResourceStorageUpgradeStoneCost = 0;
 
 
 
