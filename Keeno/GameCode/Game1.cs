@@ -205,7 +205,8 @@ namespace Keeno
         {
             testMap.Update(gt);
 
-
+            if (Globals.I_KeyPress)
+                Globals.HidePromtsAndNames = !Globals.HidePromtsAndNames;
             // Keeno
             foreach (var keeno in keenos)
             {

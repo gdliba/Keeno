@@ -15,6 +15,8 @@ namespace Keeno
 
         public static readonly Random RNG = new Random();
 
+        public static bool HidePromtsAndNames = true;
+
         #region Input Properties
         public static MouseState MsCurr { get; private set; }
         public static MouseState MsOld { get; private set; }
@@ -38,6 +40,7 @@ namespace Keeno
         public static bool Q_KeyPress => KeyPress(Keys.Q);
         public static bool E_KeyPress => KeyPress(Keys.E);
         public static bool X_KeyPress => KeyPress(Keys.X);
+        public static bool I_KeyPress => KeyPress(Keys.I);
         public static bool UpArrow_KeyPress=> KeyPress(Keys.Up);
         public static bool DownArrow_KeyPress => KeyPress(Keys.Down);
         public static bool Tab_KeyPress => KeyPress(Keys.Tab);

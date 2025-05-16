@@ -12,7 +12,10 @@ namespace Keeno
 
         private Rectangle _emptySrcRect;
         private Rectangle _fullSrcRect;
+        private Rectangle _originalRect;
 
+
+        public Rectangle Bounds { get { return _rect; } }
 
         public HourGlass(Texture2D Spritesheet, Rectangle rect, Color tint)
             : base(rect, Spritesheet)
@@ -32,6 +35,15 @@ namespace Keeno
                                Globals.Tile_Width_Height, Globals.Tile_Width_Height);
             _tint = tint;
             _defaultTint = tint;
+            _originalRect = _rect;
+        }
+        public void ChangePosition(Rectangle rectangle)
+        {
+            _rect = rectangle;
+        }
+        public void DefaultPosition()
+        {
+            _rect = _originalRect;
         }
         public bool Update(bool input, float deltaFill)
         {
@@ -60,7 +72,7 @@ namespace Keeno
         {
             _tint = _defaultTint;
 
-            if (_fill > 0 && _fill < 1f)
+            if (_fill > 0 && _fill <= 1f)
             {
                 _fill -= deltaFill;
             }
@@ -108,7 +120,6 @@ namespace Keeno
     }
     class ButtonPrompt : StaticGraphic
     {
-
         public ButtonPrompt(Texture2D tileset, Rectangle rect, int tileIndex)
             : base(rect, tileset)
         {
@@ -120,6 +131,8 @@ namespace Keeno
         }
         public override void Draw(SpriteBatch sb)
         {
+            if (Globals.HidePromtsAndNames)
+                return;
             sb.Draw(_txr, new Vector2(_rect.X, _rect.Y), _staticSrcRect, 
                 Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, Globals.ButtonPromptLD);
         }

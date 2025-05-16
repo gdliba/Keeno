@@ -130,6 +130,8 @@ namespace Keeno
         }
         protected virtual void TextDescription(SpriteBatch sb)
         {
+            if (Globals.HidePromtsAndNames)
+                return;
             Vector2 textSize = _descriptionFont.MeasureString(_name);
             sb.DrawString(_descriptionFont, _name, new Vector2(_rect.Center.X-textSize.X/2, _rect.Bottom-textSize.Y/4), Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
         }
@@ -169,7 +171,7 @@ namespace Keeno
             _HGWorkProgress = new HourGlass(Assets.MonochromaticTilesetTxr,
                 new Rectangle(_tilePosition.X,
                 _tilePosition.Y,
-                _tileWidth,
+                _tileWidth+1,
                 _tileHeight),
                 Color.Yellow);
 
@@ -196,6 +198,18 @@ namespace Keeno
         }
         public virtual void Update(GameTime gt)
         {
+            if (Globals.HidePromtsAndNames)
+            {
+                _HGInteract.ChangePosition(_HGWorkProgress.Bounds);
+                _HGDestroy.ChangePosition(_HGWorkProgress.Bounds);
+                _HGDropOff.ChangePosition(_HGWorkProgress.Bounds);
+            }
+            else
+            {
+                _HGInteract.DefaultPosition();
+                _HGDestroy.DefaultPosition();
+                _HGDropOff.DefaultPosition();
+            }
             if (!_isSelected)
             {
                 _HGInteract.Reset();
@@ -221,7 +235,6 @@ namespace Keeno
         }
         public virtual void SelectedDraw(SpriteBatch sb)
         {
-
             //Rectangle temp = new Rectangle(_rect.X + _rect.Width / 16, _rect.Y + _rect.Height / 16, 7 * _rect.Width / 8, 7 * _rect.Height / 8);
             switch (_state)
             {
@@ -466,6 +479,8 @@ namespace Keeno
         protected int _woodToBeDelivered, _stoneToBeDelivered;
         protected int _totalWoodSpent, _totalStoneSpent;
 
+        protected float _flashingFontTimer, _flashingFontTimerReset;
+
         public Building(Point position, Texture2D BuildingSpriteSheet, BuildingType type)
             :base(position, -1)
         {
@@ -477,7 +492,7 @@ namespace Keeno
             _populationCountExtention = 0;
             _woodDelivered = _woodToBeDelivered = 0;
             _stoneDelivered = _stoneToBeDelivered = 0;
-            _woodUpgradeCost = _stoneUpgradeCost = 0;
+            _woodUpgradeCost = _stoneUpgradeCost = -1;
             _totalWoodSpent = _totalWoodSpent = 0;
             _workerSlots = 10;
             _workSpeed = 0f; 
@@ -532,7 +547,6 @@ namespace Keeno
                     _stoneCost = Globals.ResourceStorageStoneCost;
                     _woodUpgradeCost = Globals.ResourceStorageUpgradeWoodCost;
                     _stoneUpgradeCost = Globals.ResourceStorageUpgradeStoneCost;
-                    _populationCountExtention = 0;
                     _buildingSrcRect = new Rectangle(
                   (Globals.ResourceStorageTileIndex % Globals.TilemapColumns) * Globals.Tile_Width_Height,
                   (Globals.ResourceStorageTileIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
@@ -541,12 +555,25 @@ namespace Keeno
                     break;
             }
             LoadingBarsAndPrompts();
+
+            _flashingFontTimer = 0f;
+            _flashingFontTimerReset = .1f;
         }
         public override void Update(GameTime gt)
         {
             float deltaTime = (float)gt.ElapsedGameTime.TotalSeconds;
             _canBeUpgraded = _currLevel < 3 ? true : false;
-            
+
+            // apply the appropriate effect
+            if (_flashingFontTimer > 0)
+            {
+                _flashingFontTimer -= Globals.DeltaTime;
+                _fontColour = Color.Red;
+            }
+            else
+            {
+                _fontColour = Color.White;
+            }
 
             _workSpeed = 0f;
             foreach (var worker in _workers)
@@ -588,6 +615,10 @@ namespace Keeno
                         {
                             // Interaction
                             _toggleUpgrade = _HGInteract.Update(Globals.E_KeyDown, Globals.UpgradeInteractSpeed);
+                        }
+                        else if (Globals.E_KeyDown)
+                        {
+                            _flashingFontTimer = _flashingFontTimerReset;
                         }
                         _destroyMe = _HGDestroy.Update(Globals.X_KeyDown, Globals.DestroyInteractSpeed);
                     }
@@ -742,6 +773,9 @@ namespace Keeno
                         _HGInteract.Draw(sb);
                         _HGDestroy.Draw(sb);
                         _buttonPrompt_X.Draw(sb);
+                        // if the structure isn't upgradable
+                        if (_woodUpgradeCost == -1 || _stoneUpgradeCost == -1)
+                            break;
                         UpgradeUI(sb);
                         break;
                 }
@@ -766,15 +800,15 @@ namespace Keeno
                 
                 if(_woodUpgradeCost > 0)
                 {
-                    sb.DrawString(_descriptionFont, woodUpgradeText, woodUpgradeTextPos, Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
+                    sb.DrawString(_descriptionFont, woodUpgradeText, woodUpgradeTextPos, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
                     Vector2 woodUIPos = new Vector2(woodUpgradeTextPos.X - 8, woodUpgradeTextPos.Y + 4);
-                    sb.Draw(Assets.UIWoodIconTxr, woodUIPos, Color.White);
+                    sb.Draw(Assets.UIWoodIconTxr, woodUIPos, _fontColour);
                 }
                 if(_stoneUpgradeCost > 0)
                 {
-                    sb.DrawString(_descriptionFont, stoneUpgradeText, stoneUpgradeTextPos, Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
+                    sb.DrawString(_descriptionFont, stoneUpgradeText, stoneUpgradeTextPos, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
                     Vector2 stoneUIPos = new Vector2(stoneUpgradeTextPos.X - 8, stoneUpgradeTextPos.Y + 5);
-                    sb.Draw(Assets.UIStoneIconTxr, stoneUIPos, Color.White);
+                    sb.Draw(Assets.UIStoneIconTxr, stoneUIPos, _fontColour);
                 }
             }
         }
