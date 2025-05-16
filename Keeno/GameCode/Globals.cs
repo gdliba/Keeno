@@ -238,6 +238,10 @@ namespace Keeno
     static class Assets
     {
         public static Texture2D KeenoTxr {  get; private set; }
+        public static Texture2D WorkerKeenoTxr { get; private set; }
+        public static Texture2D KeenoCarryingTxr { get; private set; }
+
+
         public static Texture2D DebugPixelTxr { get; private set; }
         public static Texture2D TilesetTxr { get; private set; }
         public static Texture2D MonochromaticTilesetTxr { get; private set; }
@@ -283,6 +287,10 @@ namespace Keeno
         public static void Load(ContentManager content)
         {
             KeenoTxr = content.Load<Texture2D>("Characters\\Keeno");
+            WorkerKeenoTxr = content.Load<Texture2D>("Characters\\WorkerKeeno");
+            KeenoCarryingTxr = content.Load<Texture2D>("Characters\\KeenoCarrying");
+
+
 
             DebugPixelTxr = content.Load<Texture2D>("Pixel");
 
@@ -321,6 +329,7 @@ namespace Keeno
 
             MonogramFont = content.Load<SpriteFont>("Fonts\\monogram");
             MonogramDescriptionFont = content.Load<SpriteFont>("Fonts\\monogramDescription");
+
 
 
         }

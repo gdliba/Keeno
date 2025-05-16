@@ -613,8 +613,14 @@ namespace Keeno
                 _tint = Color.Gray;
             else
                 _tint = _defaultTint;
-            sb.Draw(_txr, _rect, _srcRect, _tint, 0f,
-                    Vector2.Zero, flip, Globals.KeenoLD);
+            //sb.Draw(_txr, _rect, _srcRect, _tint, 0f,
+            //        Vector2.Zero, flip, Globals.KeenoLD);
+            if(_isCarryingResource)
+                _txr = Assets.KeenoCarryingTxr;
+            else
+                _txr = Assets.KeenoTxr;
+            sb.Draw(_txr, new Vector2(_rect.X,_rect.Y), _srcRect, Color.White, 0f, Vector2.Zero, .9f, flip, Globals.KeenoLD);
+
 
 
             if (_isCarryingResource)
