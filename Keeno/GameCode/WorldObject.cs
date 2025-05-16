@@ -198,6 +198,7 @@ namespace Keeno
         }
         public virtual void Update(GameTime gt)
         {
+            // Change the HourGlass positions if propts are hidden
             if (Globals.HidePromtsAndNames)
             {
                 _HGInteract.ChangePosition(_HGWorkProgress.Bounds);
@@ -1358,6 +1359,8 @@ namespace Keeno
             _map = map;
             _flashingFontTimer = 0f;
             _flashingFontTimerReset = .1f;
+
+            ResourceTracker.Add(ResourceType.Housing, 5);
         }
         public override void Update(GameTime gt)
         {
@@ -1375,24 +1378,24 @@ namespace Keeno
             if (_isSelected)
             {
                 if (ResourceTracker.CanSpend(ResourceType.Food,
-                ResourceTracker.KeenoCost))
+                ResourceTracker.KeenoCost) && ResourceTracker.HasHousingSpace(1))
                     _canUse = _HGInteract.Update(Globals.E_KeyDown, Globals.NeutralInteractSpeed);
                 else if (Globals.E_KeyDown)
                     _flashingFontTimer = _flashingFontTimerReset;
-
+                else 
+                    _canUse = false; 
             }
             if (_canUse)
             {
                 if (ResourceTracker.CanSpend(ResourceType.Food,
-                ResourceTracker.KeenoCost))
+                               ResourceTracker.KeenoCost) && ResourceTracker.HasHousingSpace(1))
                 {
                     ResourceTracker.Spend(ResourceType.Food,
-                ResourceTracker.KeenoCost);
+                    ResourceTracker.KeenoCost);
                     SpawnKeeno();
                     _fontColour = Color.White;
                 }
                 _HGInteract.Reset();
-                _HGCantInteract.Reset();
             }
             base.Update(gt);
         }
@@ -1408,6 +1411,7 @@ namespace Keeno
             _keenosISpawned.Add(newKeeno);
             //Debug.WriteLine("Spawning Keeno: firing event");
             KeenoSpawned?.Invoke(newKeeno);
+            ResourceTracker.Add(ResourceType.Keeno, 1);
         }
         public override void Draw(SpriteBatch sb)
         {
@@ -1424,14 +1428,22 @@ namespace Keeno
         private void KeenoCostDisplay(SpriteBatch sb)
         {
             _buttonPrompt_E.Draw(sb);
-            string keenoBuyText = ResourceTracker.KeenoCost.ToString();
-            Vector2 keenoBuyTextSize = _descriptionFont.MeasureString(keenoBuyText);
-            Vector2 keenoBuyTextPos = new Vector2(_rect.Right + keenoBuyTextSize.X + 10, _rect.Top - 16);
+            string keenoFoodCostText = ResourceTracker.KeenoCost.ToString();
+            Vector2 KeenoFoodCostTextSize = _descriptionFont.MeasureString(keenoFoodCostText);
+            Vector2 keenoFoodCostTextPos = new Vector2(_rect.Right + KeenoFoodCostTextSize.X + 10, _rect.Top - 16);
             
-            sb.DrawString(_descriptionFont, keenoBuyText, keenoBuyTextPos, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
-            Vector2 foodUIPos = new Vector2(keenoBuyTextPos.X - 8, keenoBuyTextPos.Y + 4);
+            sb.DrawString(_descriptionFont, keenoFoodCostText, keenoFoodCostTextPos, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
+            Vector2 foodUIPos = new Vector2(keenoFoodCostTextPos.X - 8, keenoFoodCostTextPos.Y + 4);
             sb.Draw(Assets.UIFoodIconTxr, foodUIPos, _fontColour);
-            
+
+            string keenoHousingCostText = "1";
+            Vector2 keenoHousingCostTextSize = _descriptionFont.MeasureString(keenoHousingCostText);
+            Vector2 keenoHousingCostTextPos = new Vector2(_rect.Right + keenoHousingCostTextSize.X + 10, _rect.Top - 16+ KeenoFoodCostTextSize.Y);
+
+            sb.DrawString(_descriptionFont, keenoHousingCostText, keenoHousingCostTextPos, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
+            Vector2 housingUIPos = new Vector2(keenoHousingCostTextPos.X - 8, keenoHousingCostTextPos.Y + 5);
+            sb.Draw(Assets.UIHousingIconTxr, housingUIPos, _fontColour);
+
         }
     }
     class BuilderCabin : WorkStation

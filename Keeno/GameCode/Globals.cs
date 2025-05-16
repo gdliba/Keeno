@@ -266,6 +266,8 @@ namespace Keeno
         public static Texture2D UIWoodIconTxr { get; private set; }
         public static Texture2D UIStoneIconTxr { get; private set; }
         public static Texture2D UIFoodIconTxr { get; private set; }
+        public static Texture2D UIHousingIconTxr { get; private set; }
+
 
         // Hud
         public static Texture2D UITest { get; private set; }
@@ -312,6 +314,7 @@ namespace Keeno
             UIWoodIconTxr = content.Load<Texture2D>("UI\\Icons\\WoodIcon");
             UIStoneIconTxr = content.Load<Texture2D>("UI\\Icons\\StoneIcon");
             UIFoodIconTxr = content.Load<Texture2D>("UI\\Icons\\FoodIcon");
+            UIHousingIconTxr = content.Load<Texture2D>("UI\\Icons\\HousingIcon");
 
             // Hud
             UITest = content.Load<Texture2D>("UI\\UITest");
@@ -329,6 +332,7 @@ namespace Keeno
         Wood,
         Stone,
         Housing,
+        Keeno,
         Gold
     }
 
@@ -387,6 +391,13 @@ namespace Keeno
         public static bool CanSpend(ResourceType type, int cost)
         {
             if (_amounts[type] < cost)
+                return false;
+
+            return true;
+        }
+        public static bool HasHousingSpace(int cost)
+        {
+            if (_amounts[ResourceType.Housing] < cost + _amounts[ResourceType.Keeno])
                 return false;
 
             return true;
