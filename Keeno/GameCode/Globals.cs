@@ -267,7 +267,9 @@ namespace Keeno
         // Hud
         public static Texture2D UITest { get; private set; }
 
-
+        // Fonts
+        public static SpriteFont MonogramFont { get; private set; }
+        public static SpriteFont MonogramDescriptionFont { get; private set; }
 
 
 
@@ -310,6 +312,9 @@ namespace Keeno
 
             // Hud
             UITest = content.Load<Texture2D>("UI\\UITest");
+
+            MonogramFont = content.Load<SpriteFont>("Fonts\\monogram");
+            MonogramDescriptionFont = content.Load<SpriteFont>("Fonts\\monogramDescription");
 
 
         }
@@ -366,19 +371,15 @@ namespace Keeno
         /// Tries to spend (subtract) the given cost from the specified resource.
         /// Returns true if successful, false if insufficient funds.
         /// </summary>
-        public static bool TrySpend(ResourceType type, int cost)
+        public static void Spend(ResourceType type, int cost)
         {
             // debugging
             //if (cost <= 0)
             //    throw new ArgumentException(
             //        "Cost must be positive", nameof(cost));
 
-            if (_amounts[type] < cost)
-                return false;
-
             _amounts[type] -= cost;
             ResourceChanged?.Invoke(type, _amounts[type]);
-            return true;
         }
         public static bool CanSpend(ResourceType type, int cost)
         {

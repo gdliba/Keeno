@@ -71,7 +71,6 @@ namespace Keeno
         // Fonts
 #if DEBUG
         public static SpriteFont debugFont;
-        public static SpriteFont monogramFont;
 
 #endif
 
@@ -99,7 +98,7 @@ namespace Keeno
 
             currentGameState = GameState.Start;
             camera.Position = Vector2.Zero;
-            camera.Zoom = 6;
+            camera.Zoom =5;
 
 
             #region List Initialisations
@@ -120,9 +119,9 @@ namespace Keeno
             // Fonts
 #if DEBUG
             debugFont = Content.Load<SpriteFont>("Fonts\\debugFont");
-            monogramFont = Content.Load<SpriteFont>("Fonts\\monogram");
 
 #endif
+            //monogramFont = Content.Load<SpriteFont>("Fonts\\monogram");
 
             //testMap = new Map("Content/MapData/testLevel_Map.csv");
             testMap = new Map("Content/MapData/testLevel4.csv");
@@ -297,7 +296,7 @@ namespace Keeno
 
 
 #if DEBUG
-            _spriteBatch.DrawString(monogramFont,
+            _spriteBatch.DrawString(Assets.MonogramFont,
                 _renderTarget.Width + "x " + _renderTarget.Height
                 + "\nKeenos: " + keenos.Count + " / " + ResourceTracker.GetAmount(ResourceType.Housing)
                 + "\nWood: " + ResourceTracker.GetAmount(ResourceType.Wood)

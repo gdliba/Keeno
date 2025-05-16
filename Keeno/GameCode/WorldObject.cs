@@ -28,6 +28,9 @@ namespace Keeno
         protected ObjectState _state;
         protected ResourceType _resourceType;
 
+        protected string _name;
+        protected SpriteFont _descriptionFont;
+
         protected ButtonPrompt _buttonPrompt_E;
         protected ButtonPrompt _buttonPrompt_Q;
         protected ButtonPrompt _buttonPrompt_X;
@@ -70,12 +73,16 @@ namespace Keeno
         protected bool _isDropOffPointActive;
         public bool Impassable { get { return _impassable;} protected set { _impassable = value; } }
 
-        public Color Tint;
+        protected Color _tint;
+        protected Color _fontColour;
+
         public Rectangle Bounds { get{ return _rect; } protected set { _rect = value; } }
         public Vector2 Position { get { return new Vector2(_rect.X + _tileWidth / 2, _rect.Y + _tileHeight / 2); } }
         #endregion
         public WorldObject(Point tilePosition, int globalTileIndex)
         {
+            _name = "name";
+            _descriptionFont = Assets.MonogramDescriptionFont;
             _state = ObjectState.Harvestable;
             _impassable = true;
             _isSelected = false;
@@ -107,7 +114,7 @@ namespace Keeno
                   (globalTileIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
                   Globals.Tile_Width_Height,
                   Globals.Tile_Width_Height);
-            Tint = Color.White;
+            _tint = Color.White;
 
 
             _selectedTileSrcRect = 
@@ -120,6 +127,11 @@ namespace Keeno
             _txrRotationDegrees = 0f;
 
             LoadingBarsAndPrompts();
+        }
+        protected virtual void TextDescription(SpriteBatch sb)
+        {
+            Vector2 textSize = _descriptionFont.MeasureString(_name);
+            sb.DrawString(_descriptionFont, _name, new Vector2(_rect.Center.X-textSize.X/2, _rect.Bottom-textSize.Y/4), Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
         }
         protected virtual void LoadingBarsAndPrompts()
         {
@@ -138,7 +150,7 @@ namespace Keeno
 
             _buttonPrompt_X = new ButtonPrompt(Assets.InputsTilesetTxr,
                 new Rectangle(_tilePosition.X,
-                _tilePosition.Y + _tileHeight,
+                _tilePosition.Y + _tileHeight + 8,
                 _tileWidth,
                 _tileHeight), Globals.InputsTilesetIndex_X);
 
@@ -163,7 +175,7 @@ namespace Keeno
 
             _HGDestroy = new HourGlass(Assets.MonochromaticTilesetTxr,
                 new Rectangle(_tilePosition.X,
-                _tilePosition.Y + _tileHeight,
+                _tilePosition.Y + _tileHeight + 8,
                 _tileWidth,
                 _tileHeight), Color.Red);
 
@@ -215,15 +227,18 @@ namespace Keeno
             {
                 case ObjectState.Harvestable:
                     if (_isSelected)
-                        sb.Draw(_selectedTileTileset,_rect , _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+                        sb.Draw(_selectedTileTileset,_rect , _selectedTileSrcRect, _tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
                     break;
                 case ObjectState.Neutral:
                     if (_isSelected)
-                        sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+                    {
+                        TextDescription(sb);
+                        sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, _tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+                    }
                     break;
                 case ObjectState.Broken:
                     if (_isSelected && _canBeSelectedWhenBroken)
-                        sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+                        sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, _tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
                     break;
             }
         }
@@ -240,7 +255,7 @@ namespace Keeno
             if (_state != ObjectState.Dead)
             {
                 //sb.Draw(_txr, _rect, _srcRect, Tint, _txrRotationRadians, origin, flip, Globals.WolrdObjectLD);
-                sb.Draw(_txr, Position, _srcRect, Tint, _txrRotationRadians, origin, 1, flip, Globals.WolrdObjectLD);
+                sb.Draw(_txr, Position, _srcRect, _tint, _txrRotationRadians, origin, 1, flip, Globals.WolrdObjectLD);
                 //sb.Draw(_testPixel, Bounds, Color.Red);
 
                 _HGWorkProgress.Draw(sb);
@@ -300,7 +315,7 @@ namespace Keeno
         public override void Draw(SpriteBatch sb)
         {
             if (_isSelected)
-                sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+                sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, _tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
             //sb.Draw(_testPixel, Bounds, Color.Red * .75f);
             //sb.Draw(_txr, _rect, Color.White);
             sb.Draw(_txr, _rect, null, Color.White, 0f,Vector2.Zero,SpriteEffects.None,.1f);
@@ -348,6 +363,14 @@ namespace Keeno
                 case BuildingType.House:
                     _txr = Assets.HousesWhiteTxr;
                     break;
+                case BuildingType.ResourceStorage:
+                    _txr = Assets.MonochromaticTilesetTxr;
+                    _srcRect = new Rectangle(
+                  (Globals.ResourceStorageTileIndex % Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  (Globals.ResourceStorageTileIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height);
+                    break;
 
             }
             // The BuildingSpritesheet has 3 stages of the building given
@@ -368,6 +391,8 @@ namespace Keeno
                 case BuildingType.House:
                     _blueprintTxr = Assets.HousesTxr;
                     break;
+                default:
+                    break;
 
             }
 
@@ -386,12 +411,7 @@ namespace Keeno
 
             if(_buildingType == BuildingType.ResourceStorage)
             {
-                _txr = Assets.MonochromaticTilesetTxr;
-                _srcRect = new Rectangle(
-                  (Globals.ResourceStorageTileIndex % Globals.TilemapColumns) * Globals.Tile_Width_Height,
-                  (Globals.ResourceStorageTileIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
-                  Globals.Tile_Width_Height,
-                  Globals.Tile_Width_Height);
+                
                 var temp = new Rectangle(_rect.X + _rect.Width / 5, _rect.Y+ _rect.Height / 6, 2*_rect.Width / 3, 2*_rect.Height / 3);
                 sb.Draw(_txr, temp, _srcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.ItemTxrLD);
             }
@@ -404,6 +424,14 @@ namespace Keeno
                 }
             }
                 sb.Draw(_blueprintTxr, _rect, null, Color.RoyalBlue, 0f, Vector2.Zero, SpriteEffects.None, Globals.BlueprintTxrLD);
+        }
+    }
+    class ShopBuildingBlueprint : BuildingBlueprint
+    {
+        ShopBuildingBlueprint(Point position, BuildingType type)
+            : base(position, type)
+        {
+
         }
     }
     class Building : SelectableWorldObject, IDropOffPoint
@@ -479,6 +507,7 @@ namespace Keeno
             switch (type)
             {
                 case BuildingType.Tent:
+                    _name = "Tent";
                     _woodCost = Globals.TentWoodCost;
                     _stoneCost = Globals.TentStoneCost;
                     _populationCountExtention = Globals.TentPopulationAddition;
@@ -486,6 +515,7 @@ namespace Keeno
                     _stoneUpgradeCost = Globals.TentUpgradeStoneCost;
                     break;
                 case BuildingType.House:
+                    _name = "House";
                     _woodCost = Globals.HouseWoodCost;
                     _stoneCost = Globals.HouseStoneCost;
                     _woodUpgradeCost = Globals.HouseUpgradeWoodCost;
@@ -493,6 +523,7 @@ namespace Keeno
                     _populationCountExtention = Globals.HousePopulationAddition;
                     break;
                 case BuildingType.ResourceStorage:
+                    _name = "Storage";
                     _currLevel = 2;
                     _singleTxrDraw = true;
                     _txr = Assets.MonochromaticTilesetTxr;
@@ -599,7 +630,7 @@ namespace Keeno
 
             if (_destroyMe)
             {
-                ResourceTracker.Add(ResourceType.Housing, -_currLevel * _populationCountExtention);
+                ResourceTracker.Spend(ResourceType.Housing, _currLevel * _populationCountExtention);
                 ResourceTracker.Add(ResourceType.Wood, _totalWoodSpent);
                 ResourceTracker.Add(ResourceType.Stone, _totalStoneSpent);
                 DestroyMe();
@@ -707,21 +738,45 @@ namespace Keeno
                     case ObjectState.AwaitingResourceDelivery:
                         break;
                     case ObjectState.Neutral:
+                        TextDescription(sb);
                         _HGInteract.Draw(sb);
                         _HGDestroy.Draw(sb);
                         _buttonPrompt_X.Draw(sb);
-                        if (_canBeUpgraded)
-                        {
-                            _buttonPrompt_E.Draw(sb);
-                            // Draw interface for upgrading
-                        }
+                        UpgradeUI(sb);
                         break;
                 }
 
                 // draw selected outline
-                sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+                sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, _tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
             }
 
+        }
+        protected void UpgradeUI(SpriteBatch sb)
+        {
+            if (_canBeUpgraded)
+            {
+                _buttonPrompt_E.Draw(sb);
+                string woodUpgradeText = _woodUpgradeCost.ToString();
+                Vector2 woodUpgradetextSize = _descriptionFont.MeasureString(woodUpgradeText);
+                Vector2 woodUpgradeTextPos = new Vector2(_rect.Right + woodUpgradetextSize.X + 10, _rect.Top - 16);
+
+                string stoneUpgradeText = _stoneCost.ToString();
+                Vector2 stoneUpgradetextSize = _descriptionFont.MeasureString(stoneUpgradeText);
+                Vector2 stoneUpgradeTextPos = new Vector2(_rect.Right + stoneUpgradetextSize.X + 10, woodUpgradeTextPos.Y+ woodUpgradetextSize.Y/2+2);
+                
+                if(_woodUpgradeCost > 0)
+                {
+                    sb.DrawString(_descriptionFont, woodUpgradeText, woodUpgradeTextPos, Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
+                    Vector2 woodUIPos = new Vector2(woodUpgradeTextPos.X - 8, woodUpgradeTextPos.Y + 4);
+                    sb.Draw(Assets.UIWoodIconTxr, woodUIPos, Color.White);
+                }
+                if(_stoneUpgradeCost > 0)
+                {
+                    sb.DrawString(_descriptionFont, stoneUpgradeText, stoneUpgradeTextPos, Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
+                    Vector2 stoneUIPos = new Vector2(stoneUpgradeTextPos.X - 8, stoneUpgradeTextPos.Y + 5);
+                    sb.Draw(Assets.UIStoneIconTxr, stoneUIPos, Color.White);
+                }
+            }
         }
         public void UnderConstructionDraw(SpriteBatch sb)
         {
@@ -1256,33 +1311,52 @@ namespace Keeno
         public event Action<Keeno> KeenoSpawned;
         public List<Keeno> KeenosISpwaned { get { return _keenosISpawned; } }
         public Vector2 Position => base.Position;
-            
+
+        private float _flashingFontTimer, _flashingFontTimerReset;
+
         public TownCentre(Point tilePosition, int globalTileIndex, Map map) 
             : base(tilePosition, globalTileIndex)
         {
+            _name = "Town Centre";
+            _state = ObjectState.Neutral;
             _keenosISpawned = new List<Keeno>();
             _isDropOffPointActive = true;
             _map = map;
+            _flashingFontTimer = 0f;
+            _flashingFontTimerReset = .1f;
         }
         public override void Update(GameTime gt)
         {
-
+            // apply the appropriate effect
+            if (_flashingFontTimer > 0)
+            {
+                _flashingFontTimer -= Globals.DeltaTime;
+                _fontColour = Color.Red;
+            }
+            else
+            {
+                _fontColour = Color.White;
+            }
+            
             if (_isSelected)
             {
                 if (ResourceTracker.CanSpend(ResourceType.Food,
                 ResourceTracker.KeenoCost))
                     _canUse = _HGInteract.Update(Globals.E_KeyDown, Globals.NeutralInteractSpeed);
-                else
-                    _canUse = _HGCantInteract.Update(Globals.E_KeyDown, Globals.NeutralInteractSpeed);
+                else if (Globals.E_KeyDown)
+                    _flashingFontTimer = _flashingFontTimerReset;
+
             }
             if (_canUse)
             {
-                if (ResourceTracker.TrySpend(ResourceType.Food,
+                if (ResourceTracker.CanSpend(ResourceType.Food,
                 ResourceTracker.KeenoCost))
                 {
+                    ResourceTracker.Spend(ResourceType.Food,
+                ResourceTracker.KeenoCost);
                     SpawnKeeno();
+                    _fontColour = Color.White;
                 }
-
                 _HGInteract.Reset();
                 _HGCantInteract.Reset();
             }
@@ -1310,8 +1384,20 @@ namespace Keeno
             {
                 _HGCantInteract.Draw(sb);
                 _HGInteract.Draw(sb);
-                _buttonPrompt_E.Draw(sb);
+                KeenoCostDisplay(sb);
             }
+        }
+        private void KeenoCostDisplay(SpriteBatch sb)
+        {
+            _buttonPrompt_E.Draw(sb);
+            string keenoBuyText = ResourceTracker.KeenoCost.ToString();
+            Vector2 keenoBuyTextSize = _descriptionFont.MeasureString(keenoBuyText);
+            Vector2 keenoBuyTextPos = new Vector2(_rect.Right + keenoBuyTextSize.X + 10, _rect.Top - 16);
+            
+            sb.DrawString(_descriptionFont, keenoBuyText, keenoBuyTextPos, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
+            Vector2 foodUIPos = new Vector2(keenoBuyTextPos.X - 8, keenoBuyTextPos.Y + 4);
+            sb.Draw(Assets.UIFoodIconTxr, foodUIPos, _fontColour);
+            
         }
     }
     class BuilderCabin : WorkStation
@@ -1321,6 +1407,7 @@ namespace Keeno
         {
             _state = ObjectState.Neutral;
             _workerSlots = 10;
+            _name = "Builders Cabin";
         }
         public override void Update(GameTime gt)
         {

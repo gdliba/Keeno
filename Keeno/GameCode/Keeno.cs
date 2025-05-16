@@ -495,7 +495,7 @@ namespace Keeno
         }
         public void PickUpOneResource(ResourceType type)
         {
-            ResourceTracker.Add(type, -1);
+            ResourceTracker.Spend(type, 1);
             _isCarryingResource = true;
             _resourceType = type;
         }
