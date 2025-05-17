@@ -1,12 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using System;
 
-namespace Keeno.GameCode
+namespace Keeno
 {
-    internal class Quest
+    enum QuestState { Inactive, Active, Completed }
+
+    class Quest
     {
+        public string Id;
+        public string Title;        
+        public string Description;  
+        public QuestState State;
+
+        // Here’s one pattern: a delegate that checks completion.
+        public Func<bool> CheckCompletion;
+        public Action OnActivate;
+        public Action OnComplete;
     }
 }
