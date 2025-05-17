@@ -37,6 +37,7 @@ namespace Keeno
         //private Texture2D debugPixel;
 
         // TESTS
+        TimeManager timeManager;
         //private StaticSwarmPoint testSwarmPoint;
         //private MobileSwarmPoint testMobileSwarmPoint;
         Map testMap;
@@ -98,7 +99,7 @@ namespace Keeno
 
             currentGameState = GameState.Start;
             camera.Position = Vector2.Zero;
-            camera.Zoom =5;
+            camera.Zoom =1;
 
 
             #region List Initialisations
@@ -141,6 +142,8 @@ namespace Keeno
                 townCentre.KeenoSpawned += keeno => keenos.Add(keeno);
                 Debug.WriteLine("Subscribed to KeenoSpawned on TownCentre");
             }
+
+            timeManager = new TimeManager();
         }
 
         protected override void Update(GameTime gt)
@@ -203,6 +206,7 @@ namespace Keeno
         #region STATE UPDATES
         private void StartUpdate(GameTime gt)
         {
+            timeManager.UpdateTime((float)gt.ElapsedGameTime.TotalSeconds);
             testMap.Update(gt);
 
             if (Globals.I_KeyPress)
@@ -288,6 +292,30 @@ namespace Keeno
             }
             testPlayer.Draw(_spriteBatch);
 
+
+            #region Night Time Overlay
+            // Night Time Overlay
+            float t = timeManager.TimeOfDay / timeManager.DayLengthSeconds;
+            float brightness = 0.5f + 0.5f * (float)Math.Cos(Math.PI * t);
+            if (t < 0.75f)
+                brightness = 1f;
+            else
+            {
+                float ramp = (t - 0.75f) / 0.25f;
+                ramp = MathHelper.Clamp(ramp, 0f, 1f);
+
+                // Fade linearly
+                brightness = 1f - ramp;
+            }
+            int screenwidth = _graphics.PreferredBackBufferWidth;
+            int screenHeight = _graphics.PreferredBackBufferHeight;
+
+            Rectangle worldRect = new Rectangle(-screenwidth / 2, -screenHeight / 2, 2 * screenwidth, 2 * screenHeight);
+            Color tintColor = Color.Lerp(Color.Black * .75f, Color.Transparent, brightness);
+
+            _spriteBatch.Draw(Assets.DebugPixelTxr, worldRect,
+                null, tintColor, 0f, Vector2.Zero, SpriteEffects.None, .099f);
+            #endregion
             _spriteBatch.End();
 
             // Draw the Hud
@@ -304,8 +332,8 @@ namespace Keeno
                 + "\nFood: " + ResourceTracker.GetAmount(ResourceType.Food)
                 + "\nGold: " + ResourceTracker.GetAmount(ResourceType.Gold)
                 + "\nStone: " + ResourceTracker.GetAmount(ResourceType.Stone)
-
-                + "\nSelected Resource:" + debugResource,
+                + "\nSelected Resource:" + debugResource
+                + "\nTime Of Day: " + timeManager._timeOfDay,
                 
                 new Vector2(10, 10), Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);
 #endif

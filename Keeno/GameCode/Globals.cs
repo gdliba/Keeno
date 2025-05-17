@@ -45,8 +45,6 @@ namespace Keeno
         public static bool DownArrow_KeyPress => KeyPress(Keys.Down);
         public static bool Tab_KeyPress => KeyPress(Keys.Tab);
 
-        public static bool E_FakeKeyPress => FakeKeyPress(Keys.E);
-
 
         /// <summary>
         /// Key is newly pressed this frame.
@@ -56,10 +54,6 @@ namespace Keeno
         public static bool KeyPress(Keys key)
         {
             return KbCurr.IsKeyDown(key) && KbOld.IsKeyUp(key);
-        }
-        public static bool FakeKeyPress(Keys key)
-        {
-            return KbOld.IsKeyDown(key) && KbCurr.IsKeyUp(key);
         }
 
         /// <summary>

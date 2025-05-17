@@ -619,7 +619,7 @@ namespace Keeno
                 _txr = Assets.KeenoCarryingTxr;
             else
                 _txr = Assets.KeenoTxr;
-            sb.Draw(_txr, new Vector2(_rect.X,_rect.Y), _srcRect, Color.White, 0f, Vector2.Zero, .9f, flip, Globals.KeenoLD);
+            sb.Draw(_txr, new Vector2(_rect.X,_rect.Y), _srcRect, _tint, 0f, Vector2.Zero, .9f, flip, Globals.KeenoLD);
 
 
 
