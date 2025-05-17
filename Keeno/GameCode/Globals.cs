@@ -165,7 +165,7 @@ namespace Keeno
 
 
         // Rock / Stone
-        public static int RockHealth = 10;
+        public static int RockHealth = 1;
         public static int RockStoneAmount = 1;
         public static int RockWorkerSlots = 1;
         //public static float RockWorkAmount = 42f;
@@ -176,7 +176,7 @@ namespace Keeno
         public static int GoldHealth = 1;
         public static int GoldGoldAmount = 1;
         public static int GoldWorkerSlots = 1;
-        public static float GoldWorkAmount = 42f;
+        public static float GoldWorkAmount = 2f;
 
         // BreakableWall
         public static int BreakableWallHealth = 1;

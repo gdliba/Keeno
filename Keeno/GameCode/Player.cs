@@ -150,7 +150,8 @@ namespace Keeno
                 // only consider tiles that aren't empty
                 if (InteractionRange.Contains(_map.WorldObjects[i].Position)
                     && _map.WorldObjects[i] is not EmptyTile
-                    && _map.WorldObjects[i] is SelectableWorldObject)
+                    && _map.WorldObjects[i] is SelectableWorldObject
+                    && _map.WorldObjects[i].State != ObjectState.Dead)
                     _objectsNearPlayer.Add(_map.WorldObjects[i]);
             }
             // Sort the list

@@ -995,7 +995,7 @@ namespace Keeno
                         // Interaction
                         _playerHarvestedResource = _HGInteract.Update(Globals.E_KeyDown, playerFill);
                         // worker DropOff
-                        if (_workerSlots > 0 && _selectedCondition && _state != ObjectState.Broken)
+                        if (_workerSlots > 0 && _selectedCondition)
                         {
                             _canDropOff = _HGDropOff.Update(Globals.Q_KeyDown, Globals.DropOffKeenoSpeed);
                         }
@@ -1025,7 +1025,7 @@ namespace Keeno
                         if (!_hasToBeCollected)
                             WorkerHarvestedResource(_resourceType, _resourceAmount);
                         else
-                            WorkerHarvestedResource(_resourceType, 0);
+                            WorkerBrokeResource();
                     }
 
                     break;
@@ -1068,6 +1068,24 @@ namespace Keeno
                 if (!_workers[i].IsWalking)
                 {
                     _workers[i].DropOffResources(type, amount);
+                    break;
+                }
+            }
+
+            ApplyHitEffect();
+            _health--;
+            //ResourceTracker.Add(type, amount);
+            _HGWorkProgress.Reset();
+            _HGInteract.Reset();
+
+        }
+        public virtual void WorkerBrokeResource()
+        {
+            for (int i = 0; i < _workers.Count; i++)
+            {
+                if (!_workers[i].IsWalking)
+                {
+                    _workers[i].SwitchWalkingToIdleSpot();
                     break;
                 }
             }
@@ -1124,7 +1142,7 @@ namespace Keeno
             foreach (var keeno in _workers)
             {
                 if(_hasToBeCollected)
-                    keeno.DropOffAndIdle(_resourceType, 0);
+                    keeno.SwitchWalkingToIdleSpot();
                 else if(keeno.State == KeenoState.Working && !_brokenByPlayer)
                 {
                     if(keeno.IsWalking)
@@ -1145,7 +1163,7 @@ namespace Keeno
         public virtual bool CanDropOffWorker(Keeno worker)
         {
             if (_canDropOff && _workerSlots > 0
-                && _state !=ObjectState.Broken)
+                && _state !=ObjectState.Broken && _state != ObjectState.Dead)
             {
                 TakeThisWorker(worker);
                 _HGDropOff.Reset();
