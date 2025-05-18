@@ -186,10 +186,10 @@ namespace Keeno
         //public static float KeenoMovementSpeed = 20;
 
         // Tree
-        public static int TreeHealth = 1;
+        public static int TreeHealth = 10;
         public static int TreeWoodAmount = 1;
         public static int TreeWorkerSlots = 1;
-        public static float TreeWorkAmount = 2f;
+        public static float TreeWorkAmount = 12f;
 
         // Farm
         public static int FarmHealth = 10;
@@ -199,11 +199,11 @@ namespace Keeno
 
 
         // Rock / Stone
-        public static int RockHealth = 1;
+        public static int RockHealth = 20;
         public static int RockStoneAmount = 1;
         public static int RockWorkerSlots = 1;
         //public static float RockWorkAmount = 42f;
-        public static float RockWorkAmount = 2f;
+        public static float RockWorkAmount = 22f;
 
 
         // Gold
@@ -313,6 +313,13 @@ namespace Keeno
 
         // Buildings
         public static SoundEffect BuildingPlacedSFX { get; private set; }
+        public static SoundEffect KeenoSpawnSFX { get; private set; }
+
+
+        // Player
+        public static SoundEffect PlayerAddingFollowerSFX { get; private set; }
+        public static SoundEffect PlayerDroppingOffFollowerSFX { get; private set; }
+
 
         // Keeno
         public static SoundEffect WoodCuttingLoopSFX { get; private set; }
@@ -387,6 +394,13 @@ namespace Keeno
 
             //Buildings
             BuildingPlacedSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\BuildingPlacedSFX");
+            KeenoSpawnSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\KeenoSpawnSFX");
+
+            // Player
+            PlayerAddingFollowerSFX = content.Load<SoundEffect>("Sounds\\Keeno\\PlayerAddingFollowerSFX");
+            PlayerDroppingOffFollowerSFX = content.Load<SoundEffect>("Sounds\\Keeno\\PlayerDroppingOffFollowerSFX");
+
+
 
             // Keeno
             WoodCuttingLoopSFX = content.Load<SoundEffect>("Sounds\\Keeno\\WoodCuttingLoopSFX");
@@ -452,6 +466,28 @@ namespace Keeno
 
             _amounts[type] += amount;
             ResourceChanged?.Invoke(type, _amounts[type]);
+
+            SoundEffectInstance sfx = null;
+            switch (type)
+            {
+                case ResourceType.None:
+                case ResourceType.Housing:
+                case ResourceType.Keeno:
+                    return;
+                case ResourceType.Gold:
+                    sfx = Assets.StoneDropOffSFX.CreateInstance();
+                    break;
+                case ResourceType.Food:
+                    sfx = Assets.WoodDropOffSFX.CreateInstance();
+                    break;
+                case ResourceType.Wood:
+                    sfx = Assets.WoodDropOffSFX.CreateInstance();
+                    break;
+                case ResourceType.Stone:
+                    sfx = Assets.StoneDropOffSFX.CreateInstance();
+                    break;
+            }
+            sfx.Play();
         }
 
         /// <summary>

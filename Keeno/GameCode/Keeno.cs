@@ -325,7 +325,6 @@ namespace Keeno
                             _buildingImDeliveringTo.TakeThisResource(_resourceType);
                             _state = KeenoState.WalkingToBuilderCabin;
                             _isCarryingResource = false;
-                            PlayDropOffSound();
                         }
                     }
                         break;
@@ -371,7 +370,6 @@ namespace Keeno
                         {
                             ResourceTracker.Add(_resourceType, _resourceAmmount);
                             _state = KeenoState.Working;
-                            PlayDropOffSound();
                         }
                         else
                             MoveTo(_closestDropOffPoint);
@@ -389,7 +387,6 @@ namespace Keeno
                         {
                             ResourceTracker.Add(_resourceType, _resourceAmmount);
                             SwitchToIdle();
-                            PlayDropOffSound();
                         }
                         else
                             MoveTo(_closestDropOffPoint);
@@ -425,36 +422,11 @@ namespace Keeno
             base.Update(gt);
 
         }
-        public void PlayDropOffSound()
-        {
-            switch (_resourceType)
-            {
-                case ResourceType.Wood:
-                    _dropOffInst = Assets.WoodDropOffSFX.CreateInstance();
-                    break;
-                case ResourceType.Stone:
-                    _dropOffInst = Assets.StoneDropOffSFX.CreateInstance();
-                    break;
-                case ResourceType.Food:
-                    default:
-                    break;
-            }
-            if (_dropOffInst == null)
-                return;
-            _dropOffInst.Volume = .3f;
-            _dropOffInst.Play();
-        }
-        public void StopDropOffSound()
-        {
-            if (_dropOffInst == null)
-                return;
-            _dropOffInst.Volume = 0;
-            _dropOffInst.Stop();
-        }
         public void PlayWorkSound()
         {
             if (_workInst == null)
                 return;
+            _workInst.Volume = 1;
             _workInst.Play();
         }
         public void StopWorkSound()
@@ -468,6 +440,7 @@ namespace Keeno
         {
             if (_constructingInst == null)
                 return;
+            _constructingInst.Volume = 1;
             _constructingInst.Play();
         }
         public void StopConstructingSound()
@@ -633,6 +606,8 @@ namespace Keeno
         }
         public void SwitchToFollowing()
         {
+            var temp = Assets.PlayerAddingFollowerSFX.CreateInstance();
+            temp.Play();
             _state = KeenoState.Following;
         }
         public void SwitchToWorking()

@@ -192,7 +192,11 @@ namespace Keeno
                     {
                         // Check if the WORKSTATION has available worker slots
                         if (selectedWorkStation.CanDropOffWorker(_followers[0])) // Give the follower to the WORKSTATION
+                        {
+                            var sfx = Assets.PlayerDroppingOffFollowerSFX.CreateInstance();
+                            sfx.Play();
                             _followers.RemoveAt(0);
+                        }
                     }
                 }
                 // At this time only TownCentre

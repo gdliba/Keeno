@@ -124,6 +124,18 @@
 /processorParam:Quality=Best
 /build:Sounds/Keeno/ConstructingLoopSFX.wav
 
+#begin Sounds/Keeno/PlayerAddingFollowerSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Keeno/PlayerAddingFollowerSFX.wav
+
+#begin Sounds/Keeno/PlayerDroppingOffFollowerSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Keeno/PlayerDroppingOffFollowerSFX.wav
+
 #begin Sounds/Keeno/StoneCuttingLoopSFX.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -171,6 +183,12 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Sounds/WorldObjects/BuildingPlacedSFX.wav
+
+#begin Sounds/WorldObjects/KeenoSpawnSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/WorldObjects/KeenoSpawnSFX.wav
 
 #begin SpriteSheets/color_t.png
 /importer:TextureImporter

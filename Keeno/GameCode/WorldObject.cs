@@ -1437,6 +1437,10 @@ namespace Keeno
         }
         private void SpawnKeeno()
         {
+            var SFX = Assets.KeenoSpawnSFX.CreateInstance();
+            SFX.Play();
+
+
             Rectangle temp = new Rectangle(_rect.X-_rect.Width/2, _rect.Y , 16, 16);
 
             var newKeeno = new Keeno(Assets.KeenoTxr, 5, temp, Assets.DebugPixelTxr, _map);
