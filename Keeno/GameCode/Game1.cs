@@ -13,6 +13,7 @@ namespace Keeno
     {
         Start,
         Playing,
+        Pause,
         GameOver
     }
 
@@ -38,6 +39,7 @@ namespace Keeno
 
         // TESTS
         TimeManager timeManager;
+        UIManager uiManager;
         //private StaticSwarmPoint testSwarmPoint;
         //private MobileSwarmPoint testMobileSwarmPoint;
         Map testMap;
@@ -79,27 +81,29 @@ namespace Keeno
 
         public Game1()
         {
-            _graphics = new GraphicsDeviceManager(this);
+            Globals.Graphics = _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             Window.Title = "Keeno";
             IsMouseVisible = true;
+            Globals.ChangeResolution(1920, 1080);
+
         }
 
         protected override void Initialize()
         {
             // Match the resolution to the current display
-            _graphics.PreferredBackBufferWidth = 1920;
+            //_graphics.PreferredBackBufferWidth = 1920;
             //GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            _graphics.PreferredBackBufferHeight = 1080;
+            //_graphics.PreferredBackBufferHeight = 1080;
                 //GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             // Set screen to Fullscreen
-            _graphics.IsFullScreen = false;
-            _graphics.ApplyChanges();
+            //_graphics.IsFullScreen = false;
+            //_graphics.ApplyChanges();
 
 
-            currentGameState = GameState.Start;
+            currentGameState = GameState.Playing;
             camera.Position = Vector2.Zero;
-            camera.Zoom =1;
+            camera.Zoom =6;
 
 
             #region List Initialisations
@@ -144,13 +148,37 @@ namespace Keeno
             }
 
             timeManager = new TimeManager();
+            uiManager = new UIManager();
+            #region Button Presses
+            uiManager.OnStartPressed = () =>
+            {
+                currentGameState = GameState.Playing;
+            };
+            uiManager.OnContinuePressed = () =>
+            {
+                currentGameState = GameState.Playing;
+            };
+            uiManager.OnRestartPressed = () =>
+            {
+                //Restart Logic
+            };
+            uiManager.OnMainMenuPressed = () =>
+            {
+                currentGameState = GameState.Start;
+            };
+            uiManager.OnExitPressed = () =>
+            {
+                Exit();
+            };
+            #endregion
+            uiManager.Load();
         }
 
         protected override void Update(GameTime gt)
         {
             Globals.Update(gt);
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            //if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            //    Exit();
 
             // GameState Switch
             switch (currentGameState)
@@ -159,7 +187,10 @@ namespace Keeno
                     StartUpdate(gt);
                     break;
                 case GameState.Playing:
-                    PlayingUpdate();
+                    PlayingUpdate(gt);
+                    break;
+                case GameState.Pause:
+                    PauseUpdate();
                     break;
                 case GameState.GameOver:
                     GameOverUpdate();
@@ -186,6 +217,9 @@ namespace Keeno
                 case GameState.Playing:
                     PlayingDraw();
                     break;
+                case GameState.Pause:
+                    PauseDraw();
+                    break;
                 case GameState.GameOver:
                     GameOverDraw();
                     break;
@@ -206,6 +240,15 @@ namespace Keeno
         #region STATE UPDATES
         private void StartUpdate(GameTime gt)
         {
+            uiManager.UpdateStart();
+
+        }
+
+        private void PlayingUpdate(GameTime gt)
+        {
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                currentGameState = GameState.Pause;
+
             timeManager.UpdateTime((float)gt.ElapsedGameTime.TotalSeconds);
             testMap.Update(gt);
 
@@ -235,7 +278,7 @@ namespace Keeno
             // Testing ResourceTracker
             //if (Globals.Q_KeyPress)
             //    ResourceTracker.Add(ResourceType.Wood, 10);
-           
+
             switch (debugResource)
             {
                 case ResourceType.None:
@@ -243,7 +286,7 @@ namespace Keeno
                         debugResource = ResourceType.Food;
                     break;
                 case ResourceType.Food:
-                    if(Globals.Tab_KeyPress)
+                    if (Globals.Tab_KeyPress)
                         debugResource = ResourceType.Wood;
                     break;
                 case ResourceType.Wood:
@@ -266,9 +309,9 @@ namespace Keeno
             //if (Globals.DownArrow_KeyPress)
             //    ResourceTracker.Add(debugResource, -10);
         }
-
-        private void PlayingUpdate()
+        private void PauseUpdate()
         {
+            uiManager.UpdatePause();
 
         }
 
@@ -279,6 +322,13 @@ namespace Keeno
         #endregion
         #region STATE DRAWS
         private void StartDraw(GameTime gt)
+        {
+            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            uiManager.DrawStart(_spriteBatch);
+            _spriteBatch.End();
+        }
+
+        private void PlayingDraw()
         {
             _spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, camera.getCam());
 
@@ -321,7 +371,8 @@ namespace Keeno
             // Draw the Hud
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
             // Hud Test
-            _spriteBatch.Draw(Assets.UITest, new Rectangle(0,0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
+            _spriteBatch.Draw(Assets.UITest, new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
+            //uiManager.Draw(_spriteBatch);
 
 
 #if DEBUG
@@ -334,15 +385,17 @@ namespace Keeno
                 + "\nStone: " + ResourceTracker.GetAmount(ResourceType.Stone)
                 + "\nSelected Resource:" + debugResource
                 + "\nTime Of Day: " + timeManager._timeOfDay,
-                
+
                 new Vector2(10, 10), Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);
 #endif
             _spriteBatch.End();
         }
-
-        private void PlayingDraw()
+        private void PauseDraw()
         {
-
+            PlayingDraw();
+            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            uiManager.DrawPause(_spriteBatch);
+            _spriteBatch.End();
         }
 
         private void GameOverDraw()

@@ -17,7 +17,13 @@ namespace Keeno
 
         public static bool HidePromtsAndNames = true;
 
+        public static GraphicsDeviceManager Graphics;
+        public static int ScreenWidth { get => Graphics.PreferredBackBufferWidth; }
+        public static int ScreenHeight { get => Graphics.PreferredBackBufferHeight; }
+
         #region Input Properties
+        public static Point MousePosition { get; private set; }
+
         public static MouseState MsCurr { get; private set; }
         public static MouseState MsOld { get; private set; }
 
@@ -64,6 +70,28 @@ namespace Keeno
         public static bool KeyDown(Keys key)
         {
             return KbCurr.IsKeyDown(key);
+        }
+        public static void ChangeResolution(int width, int height)
+        {
+            Graphics.PreferredBackBufferWidth = width;
+            Graphics.PreferredBackBufferHeight = height;
+            Graphics.ApplyChanges();
+        }
+        public static void Update(GameTime gt)
+        {
+            DeltaTime = (float)gt.ElapsedGameTime.TotalSeconds;
+
+            MousePosition = Mouse.GetState().Position;
+
+            MsOld = MsCurr;
+            MsCurr = Mouse.GetState();
+
+            KbOld = KbCurr;
+            KbCurr = Keyboard.GetState();
+
+            LeftClick = MsCurr.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed && MsOld.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Released;
+            RightClick = MsCurr.RightButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed && MsOld.RightButton == Microsoft.Xna.Framework.Input.ButtonState.Released;
+            MiddleClick = MsCurr.MiddleButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed && MsOld.MiddleButton == Microsoft.Xna.Framework.Input.ButtonState.Released;
         }
         #endregion
 
@@ -131,7 +159,20 @@ namespace Keeno
 
         #endregion
 
-        //public static Rectangle TileSelectSrcRect { get { return new Rectangle(1, 1, 1, 1); } }
+        #region UI
+        public static readonly List<string> StartScreenButtons = new List<string>()
+        {
+            "Start",
+            "Exit"
+        };
+        public static readonly List<string> PauseScreenButtons = new List<string>()
+        {
+            "Continue",
+            "Restart",
+            "Main Menu",
+            "Quit"
+        };
+        #endregion
 
         // Player
         public static int PlayerMovementSpeed = 50;
@@ -139,8 +180,6 @@ namespace Keeno
         public static float NeutralInteractSpeed = .02f;
         public static float DestroyInteractSpeed = .02f;
         public static float UpgradeInteractSpeed = .02f;
-
-
 
         // Keeno
         //public static float KeenoMovementSpeed = 20;
@@ -178,16 +217,19 @@ namespace Keeno
         public static float BreakableWallWorkAmount = 6f;
 
         // Layer Depths
-        public static float ItemSelectedTxrLD = .098f;
-        public static float ItemTxrLD = .097f;
-        public static float BlueprintTxrLD = .096f;
-        public static float PlayerLD = .095f;
-        public static float ButtonPromptLD = .094f;
-        public static float ResourceBeingCarriedTxrLD = .093f;
-        public static float HourGlassLD = .092f;
-        public static float KeenoLD = .091f;
-        public static float SelectedTxrLD = .090f;
-        public static float WolrdObjectLD = .089f;
+        public static float UIHighlightLD = .051f;
+        public static float UIButtonLD = .050f;
+        public static float UIPannelLD = .049f;
+        public static float ItemSelectedTxrLD = .048f;
+        public static float ItemTxrLD = .047f;
+        public static float BlueprintTxrLD = .046f;
+        public static float PlayerLD = .045f;
+        public static float ButtonPromptLD = .044f;
+        public static float ResourceBeingCarriedTxrLD = .043f;
+        public static float HourGlassLD = .042f;
+        public static float KeenoLD = .041f;
+        public static float SelectedTxrLD = .040f;
+        public static float WolrdObjectLD = .039f;
         public static float MapLD = 0f;
 
         // Buildings
@@ -211,23 +253,6 @@ namespace Keeno
         public static int ResourceStorageStoneCost = 0;
         public static int ResourceStorageUpgradeWoodCost = 1;
         public static int ResourceStorageUpgradeStoneCost = 0;
-
-
-
-        public static void Update(GameTime gt)
-        {
-            DeltaTime = (float)gt.ElapsedGameTime.TotalSeconds;
-
-            MsOld = MsCurr;
-            MsCurr = Mouse.GetState();
-
-            KbOld = KbCurr;
-            KbCurr = Keyboard.GetState();
-
-            LeftClick = MsCurr.LeftButton == ButtonState.Pressed && MsOld.LeftButton == ButtonState.Released;
-            RightClick = MsCurr.RightButton == ButtonState.Pressed && MsOld.RightButton == ButtonState.Released;
-            MiddleClick = MsCurr.MiddleButton == ButtonState.Pressed && MsOld.MiddleButton == ButtonState.Released;
-        }
     }
     static class Assets
     {
@@ -265,6 +290,14 @@ namespace Keeno
         public static Texture2D UIStoneIconTxr { get; private set; }
         public static Texture2D UIFoodIconTxr { get; private set; }
         public static Texture2D UIHousingIconTxr { get; private set; }
+
+        // UI Interface
+        public static Texture2D UIPanelTxr { get; private set; }
+        public static Texture2D UIHighlightTxr { get; private set; }
+        public static Texture2D UIPanelBorderTxr { get; private set; }
+
+
+
 
 
         // Hud
@@ -318,12 +351,15 @@ namespace Keeno
             UIFoodIconTxr = content.Load<Texture2D>("UI\\Icons\\FoodIcon");
             UIHousingIconTxr = content.Load<Texture2D>("UI\\Icons\\HousingIcon");
 
+            UIPanelTxr = content.Load<Texture2D>("UI\\Interface\\UIPanel");
+            UIPanelBorderTxr = content.Load<Texture2D>("UI\\Interface\\UIPanelBorder");
+            UIHighlightTxr = content.Load<Texture2D>("UI\\Interface\\UIHighlight");
+
             // Hud
             UITest = content.Load<Texture2D>("UI\\UITest");
 
             MonogramFont = content.Load<SpriteFont>("Fonts\\monogram");
             MonogramDescriptionFont = content.Load<SpriteFont>("Fonts\\monogramDescription");
-
 
 
         }
