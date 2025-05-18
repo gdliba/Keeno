@@ -448,6 +448,7 @@ namespace Keeno
         {
             if (_dropOffInst == null)
                 return;
+            _dropOffInst.Volume = 0;
             _dropOffInst.Stop();
         }
         public void PlayWorkSound()
@@ -473,6 +474,7 @@ namespace Keeno
         {
             if (_constructingInst == null)
                 return;
+            _constructingInst.Volume = 0;
             _constructingInst.Stop();
         }
         public void TakeWorkSoundEffect(SoundEffect workSound)
