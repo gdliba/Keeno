@@ -118,6 +118,24 @@
 /processorParam:TextureFormat=Color
 /build:Pixel.png
 
+#begin Sounds/Keeno/ConstructingLoopSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Keeno/ConstructingLoopSFX.wav
+
+#begin Sounds/Keeno/StoneCuttingLoopSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Keeno/StoneCuttingLoopSFX.wav
+
+#begin Sounds/Keeno/StoneDropOffSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Keeno/StoneDropOffSFX.wav
+
 #begin Sounds/Keeno/WoodCuttingLoopSFX.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor

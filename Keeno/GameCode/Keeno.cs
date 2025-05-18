@@ -240,13 +240,14 @@ namespace Keeno
         DeliveringMaterials,
         WalkingToIdleSpot,
         WalkingToBuilderCabin,
+        Building,
         Dying,
         Dead
     }
 
     class Keeno : AnimatedKeeno2D
     {
-        private SoundEffectInstance _workInst, _dropOffInst;
+        private SoundEffectInstance _workInst, _dropOffInst, _constructingInst;
         private List<WorldObject> _dropOffPoints;
         private Point _closestDropOffPoint;
 
@@ -301,6 +302,9 @@ namespace Keeno
 
             _buildingsAwaitingResources = new List<WorldObject>();
             _closestBuildingAwaitingResources = Point.Zero;
+
+            _constructingInst = Assets.ConstructingLoopSFX.CreateInstance();
+            _constructingInst.Volume = .2f;
         }
         public override void Update(GameTime gt)
         {
@@ -321,6 +325,7 @@ namespace Keeno
                             _buildingImDeliveringTo.TakeThisResource(_resourceType);
                             _state = KeenoState.WalkingToBuilderCabin;
                             _isCarryingResource = false;
+                            PlayDropOffSound();
                         }
                     }
                         break;
@@ -328,7 +333,7 @@ namespace Keeno
                 case KeenoState.ReadyToBuild:
                     DontCarryResource();
 
-                    //if there's a building that needs is ready to construct
+                    //if there's a building that is ready to construct
                     if(ScanForBuildingsUnderConstruction())
                         break;
 
@@ -338,6 +343,13 @@ namespace Keeno
                         _state = KeenoState.DeliveringMaterials;
                     }
                     break;
+
+                case KeenoState.Building:
+                    DontCarryResource();
+                    if (!_isWalking)
+                        PlayConstructingSound();
+                    break;
+
                 case KeenoState.Following:
                     DontCarryResource();
                     break;
@@ -386,6 +398,8 @@ namespace Keeno
 
                     case KeenoState.WalkingToIdleSpot:
                     DontCarryResource();
+                    StopConstructingSound();
+                    StopWorkSound();
                     FindClosestDropOffPoint();
                     MoveTo(_closestDropOffPoint);
                     if (_position == _closestDropOffPoint.ToVector2())
@@ -396,6 +410,7 @@ namespace Keeno
 
                     case KeenoState.WalkingToBuilderCabin:
                     DontCarryResource();
+                    StopConstructingSound();
                     if (ScanForBuildingsUnderConstruction())
                         break;
 
@@ -418,6 +433,7 @@ namespace Keeno
                     _dropOffInst = Assets.WoodDropOffSFX.CreateInstance();
                     break;
                 case ResourceType.Stone:
+                    _dropOffInst = Assets.StoneDropOffSFX.CreateInstance();
                     break;
                 case ResourceType.Food:
                     default:
@@ -444,7 +460,20 @@ namespace Keeno
         {
             if (_workInst == null)
                 return;
+            _workInst.Volume = 0;
             _workInst.Stop();
+        }
+        public void PlayConstructingSound()
+        {
+            if (_constructingInst == null)
+                return;
+            _constructingInst.Play();
+        }
+        public void StopConstructingSound()
+        {
+            if (_constructingInst == null)
+                return;
+            _constructingInst.Stop();
         }
         public void TakeWorkSoundEffect(SoundEffect workSound)
         {
@@ -548,6 +577,10 @@ namespace Keeno
         public void SwitchToWalkingToBuilderCabin()
         {
             _state = KeenoState.WalkingToBuilderCabin;
+        }
+        public void SwitchToBuilding()
+        {
+            _state = KeenoState.Building;
         }
         public void WalkToBuilderCabin()
         {

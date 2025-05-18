@@ -318,6 +318,11 @@ namespace Keeno
         public static SoundEffect WoodCuttingLoopSFX { get; private set; }
         public static SoundEffect WoodDropOffSFX { get; private set; }
 
+        public static SoundEffect StoneCuttingLoopSFX { get; private set; }
+        public static SoundEffect StoneDropOffSFX { get; private set; }
+
+        public static SoundEffect ConstructingLoopSFX { get; private set; }
+
 
 
 
@@ -385,8 +390,15 @@ namespace Keeno
 
             // Keeno
             WoodCuttingLoopSFX = content.Load<SoundEffect>("Sounds\\Keeno\\WoodCuttingLoopSFX");
-
             WoodDropOffSFX = content.Load<SoundEffect>("Sounds\\Keeno\\WoodDropOffSFX");
+
+            StoneCuttingLoopSFX = content.Load<SoundEffect>("Sounds\\Keeno\\StoneCuttingLoopSFX");
+            StoneDropOffSFX = content.Load<SoundEffect>("Sounds\\Keeno\\StoneDropOffSFX");
+
+
+            ConstructingLoopSFX = content.Load<SoundEffect>("Sounds\\Keeno\\ConstructingLoopSFX");
+
+
 
 
 

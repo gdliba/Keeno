@@ -499,7 +499,7 @@ namespace Keeno
             _totalWoodSpent = _totalWoodSpent = 0;
             _workerSlots = 10;
             _workSpeed = 0f; 
-            _workDuration = 6f;
+            _workDuration = 60f;
 
             _currLevel = 0;
             _impassable = false;
@@ -676,7 +676,8 @@ namespace Keeno
                 var temp = Position.ToPoint();
                 temp.X -= 8;
                 temp.Y -= 8;
-                if (keeno.State == KeenoState.Working)
+                if (keeno.State == KeenoState.Working
+                    || keeno.State == KeenoState.Building)
                     keeno.MoveTo(temp);
             }
             base.Update(gt);
@@ -739,7 +740,10 @@ namespace Keeno
         public virtual void TakeThisWorker(Keeno worker)
         {
             _workers.Add(worker);
-            worker.SwitchToWorking();
+            if(_state == ObjectState.UnderConstruction)
+                worker.SwitchToBuilding();
+            else
+                worker.SwitchToWorking();
             ReduceWorkerSlots();
         }
         public void ClearWorkerList()
@@ -1291,6 +1295,7 @@ namespace Keeno
             _health = Globals.RockHealth;
             _workerSlots = Globals.RockWorkerSlots;
             _workDuration = Globals.RockWorkAmount;
+            _workSFX = Assets.StoneCuttingLoopSFX;
 
             _impassable = true;
 
@@ -1320,6 +1325,7 @@ namespace Keeno
             _health = Globals.GoldHealth;
             _workerSlots = Globals.GoldWorkerSlots;
             _workDuration = Globals.GoldWorkAmount;
+            _workSFX = Assets.StoneCuttingLoopSFX;
 
             _impassable = true;
             _canBeSelectedWhenBroken = false;
