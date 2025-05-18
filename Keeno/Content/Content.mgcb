@@ -118,6 +118,42 @@
 /processorParam:TextureFormat=Color
 /build:Pixel.png
 
+#begin Sounds/Keeno/WoodCuttingLoopSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Keeno/WoodCuttingLoopSFX.wav
+
+#begin Sounds/Keeno/WoodDropOffSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Keeno/WoodDropOffSFX.wav
+
+#begin Sounds/UI/Buttons/ButtonHoverSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/UI/Buttons/ButtonHoverSFX.wav
+
+#begin Sounds/UI/Buttons/ButtonPressSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/UI/Buttons/ButtonPressSFX.wav
+
+#begin Sounds/UI/Buttons/PauseSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/UI/Buttons/PauseSFX.wav
+
+#begin Sounds/WorldObjects/BuildingPlacedSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/WorldObjects/BuildingPlacedSFX.wav
+
 #begin SpriteSheets/color_t.png
 /importer:TextureImporter
 /processor:TextureProcessor

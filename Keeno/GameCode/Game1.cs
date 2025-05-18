@@ -247,7 +247,10 @@ namespace Keeno
         private void PlayingUpdate(GameTime gt)
         {
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            {
                 currentGameState = GameState.Pause;
+                Assets.PauseSFX.Play();
+            }
 
             timeManager.UpdateTime((float)gt.ElapsedGameTime.TotalSeconds);
             testMap.Update(gt);

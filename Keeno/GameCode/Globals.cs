@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -256,6 +257,7 @@ namespace Keeno
     }
     static class Assets
     {
+        #region Textures
         public static Texture2D KeenoTxr {  get; private set; }
         public static Texture2D WorkerKeenoTxr { get; private set; }
         public static Texture2D KeenoCarryingTxr { get; private set; }
@@ -296,42 +298,51 @@ namespace Keeno
         public static Texture2D UIHighlightTxr { get; private set; }
         public static Texture2D UIPanelBorderTxr { get; private set; }
 
-
-
-
-
         // Hud
         public static Texture2D UITest { get; private set; }
-
+        #endregion
         // Fonts
         public static SpriteFont MonogramFont { get; private set; }
         public static SpriteFont MonogramDescriptionFont { get; private set; }
 
+        #region Sound Effects
+        // Buttons
+        public static SoundEffect PauseSFX { get; private set; }
+        public static SoundEffect ButtonHoverSFX { get; private set; }
+        public static SoundEffect ButtonPressSFX { get; private set; }
+
+        // Buildings
+        public static SoundEffect BuildingPlacedSFX { get; private set; }
+
+        // Keeno
+        public static SoundEffect WoodCuttingLoopSFX { get; private set; }
+        public static SoundEffect WoodDropOffSFX { get; private set; }
 
 
 
+
+        #endregion
 
         public static void Load(ContentManager content)
         {
+            #region Textures
+            DebugPixelTxr = content.Load<Texture2D>("Pixel");
+
+            // Keeno
             KeenoTxr = content.Load<Texture2D>("Characters\\Keeno");
             WorkerKeenoTxr = content.Load<Texture2D>("Characters\\WorkerKeeno");
             KeenoCarryingTxr = content.Load<Texture2D>("Characters\\KeenoCarrying");
 
-
-
-            DebugPixelTxr = content.Load<Texture2D>("Pixel");
 
             // TileSets
             TilesetTxr = content.Load<Texture2D>("SpriteSheets\\color_t");
             MonochromaticTilesetTxr = content.Load<Texture2D>("SpriteSheets\\mono_t");
             InputsTilesetTxr = content.Load<Texture2D>("SpriteSheets\\inputs_t");
 
+            // World Objects
             RockTxr = content.Load<Texture2D>("WorldObjects\\Minerals\\rock1");
             WhiteRockTxr = content.Load<Texture2D>("WorldObjects\\Minerals\\rock1_w");
             GoldOreTxr = content.Load<Texture2D>("WorldObjects\\Minerals\\gold");
-
-
-
             ChoppedTreeTxr = content.Load<Texture2D>("WorldObjects\\Flora\\choppedTree2");
             TentsTxr = content.Load<Texture2D>("WorldObjects\\Buildings\\Houses\\tents");
             TentsWhiteTxr = content.Load<Texture2D>("WorldObjects\\Buildings\\Houses\\tents_w");
@@ -358,10 +369,28 @@ namespace Keeno
             // Hud
             UITest = content.Load<Texture2D>("UI\\UITest");
 
+            #endregion
+            // Font
             MonogramFont = content.Load<SpriteFont>("Fonts\\monogram");
             MonogramDescriptionFont = content.Load<SpriteFont>("Fonts\\monogramDescription");
 
+            #region Sound Effects
+            // Buttons
+            PauseSFX = content.Load<SoundEffect>("Sounds\\UI\\Buttons\\PauseSFX");
+            ButtonHoverSFX = content.Load<SoundEffect>("Sounds\\UI\\Buttons\\ButtonHoverSFX");
+            ButtonPressSFX = content.Load<SoundEffect>("Sounds\\UI\\Buttons\\ButtonPressSFX");
 
+            //Buildings
+            BuildingPlacedSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\BuildingPlacedSFX");
+
+            // Keeno
+            WoodCuttingLoopSFX = content.Load<SoundEffect>("Sounds\\Keeno\\WoodCuttingLoopSFX");
+
+            WoodDropOffSFX = content.Load<SoundEffect>("Sounds\\Keeno\\WoodDropOffSFX");
+
+
+
+            #endregion
         }
     }
     public enum ResourceType

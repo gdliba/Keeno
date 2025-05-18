@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -245,6 +246,7 @@ namespace Keeno
 
     class Keeno : AnimatedKeeno2D
     {
+        private SoundEffectInstance _workInst, _dropOffInst;
         private List<WorldObject> _dropOffPoints;
         private Point _closestDropOffPoint;
 
@@ -307,6 +309,7 @@ namespace Keeno
                 case KeenoState.Idle:
                     DontCarryResource();
                     break;
+
                     case KeenoState.DeliveringMaterials:
                     CarryResource();
                     // go to the construction site
@@ -321,14 +324,15 @@ namespace Keeno
                         }
                     }
                         break;
+
                 case KeenoState.ReadyToBuild:
                     DontCarryResource();
 
                     //if there's a building that needs is ready to construct
                     if(ScanForBuildingsUnderConstruction())
                         break;
-                    ScanForBuildingsAwaitingResources();
 
+                    ScanForBuildingsAwaitingResources();
                     if (_isCarryingResource)
                     {
                         _state = KeenoState.DeliveringMaterials;
@@ -337,10 +341,15 @@ namespace Keeno
                 case KeenoState.Following:
                     DontCarryResource();
                     break;
+
                 case KeenoState.Working:
+                    if(!_isWalking)
+                        PlayWorkSound();
                     DontCarryResource();
                     break;
+
                 case KeenoState.DroppingOff:
+                    StopWorkSound();
                     CarryResource();
                     MoveTo(_closestDropOffPoint);
                     if (_position == _closestDropOffPoint.ToVector2())
@@ -350,12 +359,15 @@ namespace Keeno
                         {
                             ResourceTracker.Add(_resourceType, _resourceAmmount);
                             _state = KeenoState.Working;
+                            PlayDropOffSound();
                         }
                         else
                             MoveTo(_closestDropOffPoint);
                     }
                     break;
+
                 case KeenoState.DroppingOffAndIdle:
+                    StopWorkSound();
                     CarryResource();
                     MoveTo(_closestDropOffPoint);
                     if (_position == _closestDropOffPoint.ToVector2())
@@ -365,11 +377,13 @@ namespace Keeno
                         {
                             ResourceTracker.Add(_resourceType, _resourceAmmount);
                             SwitchToIdle();
+                            PlayDropOffSound();
                         }
                         else
                             MoveTo(_closestDropOffPoint);
                     }
                     break;
+
                     case KeenoState.WalkingToIdleSpot:
                     DontCarryResource();
                     FindClosestDropOffPoint();
@@ -379,19 +393,65 @@ namespace Keeno
                         _state = KeenoState.Idle;
                     }
                     break;
+
                     case KeenoState.WalkingToBuilderCabin:
                     DontCarryResource();
                     if (ScanForBuildingsUnderConstruction())
                         break;
+
                     WalkToBuilderCabin();
                     if (_position == _placeOfWork.ToVector2())
                         _state = KeenoState.ReadyToBuild;
                     break;
+
                 case KeenoState.Dead:
                     break;
             }
             base.Update(gt);
 
+        }
+        public void PlayDropOffSound()
+        {
+            switch (_resourceType)
+            {
+                case ResourceType.Wood:
+                    _dropOffInst = Assets.WoodDropOffSFX.CreateInstance();
+                    break;
+                case ResourceType.Stone:
+                    break;
+                case ResourceType.Food:
+                    default:
+                    break;
+            }
+            if (_dropOffInst == null)
+                return;
+            _dropOffInst.Volume = .3f;
+            _dropOffInst.Play();
+        }
+        public void StopDropOffSound()
+        {
+            if (_dropOffInst == null)
+                return;
+            _dropOffInst.Stop();
+        }
+        public void PlayWorkSound()
+        {
+            if (_workInst == null)
+                return;
+            _workInst.Play();
+        }
+        public void StopWorkSound()
+        {
+            if (_workInst == null)
+                return;
+            _workInst.Stop();
+        }
+        public void TakeWorkSoundEffect(SoundEffect workSound)
+        {
+            if (workSound==null)
+                return;
+            _workInst = workSound.CreateInstance();
+            _workInst.Volume = .3f;
         }
         private void CarryResource()
         {

@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework.Audio;
 
 namespace Keeno
 {
@@ -396,6 +397,7 @@ namespace Keeno
         }
         public override void Place(Rectangle onThisTile)
         {
+            Assets.BuildingPlacedSFX.Play();
 
             switch (_buildingType)
             {
@@ -870,6 +872,8 @@ namespace Keeno
         #region Variables
         protected List<Keeno> _workers;
 
+        protected SoundEffect _workSFX;
+
         protected Texture2D _tilesetTxr;
         protected Texture2D _whiteTxr;
         protected Texture2D _defaultTxr;
@@ -1130,6 +1134,8 @@ namespace Keeno
         }
         public virtual void TakeThisWorker(Keeno worker)
         {
+            worker.TakeWorkSoundEffect(_workSFX);
+
             _workers.Add(worker);
             if (_state == ObjectState.Harvestable)
                 worker.SwitchToWorking();
@@ -1241,6 +1247,8 @@ namespace Keeno
 
             _choppedTreeTxr = Assets.ChoppedTreeTxr;
             _impassable = true;
+
+            _workSFX = Assets.WoodCuttingLoopSFX;
         }
         public override void ChangeTextureToBroken()
         {

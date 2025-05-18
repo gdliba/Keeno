@@ -54,6 +54,10 @@ namespace Keeno
             _flashingFontTimerReset = .1f;
 
             _fontColour = Color.Gray;
+
+            _hoverSfx = Assets.ButtonHoverSFX;
+            _pressedSfx = Assets.ButtonPressSFX;
+
         }
         public void Update()
         {
@@ -98,7 +102,7 @@ namespace Keeno
 
             if (!_hoverSoundHasPlayed)
             {
-                //_hoverSfx.Play();
+                _hoverSfx.Play();
                 _hoverSoundHasPlayed = true;
             }
 
@@ -114,6 +118,8 @@ namespace Keeno
         }
         public void DoPressed()
         {
+            _pressedSfx.Play();
+
             OnClick.Invoke();
             _state = ButtonState.Pressed;
             _flashingFontTimer = _flashingFontTimerReset;
@@ -121,11 +127,11 @@ namespace Keeno
 
         public void PressedLogic(Point mousepos)
         {
-            if (!_pressedSoundHasPlayed)
-            {
-                //_pressedSfx.Play();
-                _pressedSoundHasPlayed = true;
-            }
+            //if (!_pressedSoundHasPlayed)
+            //{
+            //    _pressedSfx.Play();
+            //    _pressedSoundHasPlayed = true;
+            //}
             if (!_rect.Contains(mousepos))
             {
                 _state = ButtonState.Neutral;
