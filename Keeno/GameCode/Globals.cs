@@ -218,9 +218,10 @@ namespace Keeno
         public static float BreakableWallWorkAmount = 6f;
 
         // Layer Depths
-        public static float UIHighlightLD = .051f;
-        public static float UIButtonLD = .050f;
-        public static float UIPannelLD = .049f;
+        public static float UIHighlightLD = .052f;
+        public static float UIButtonLD = .051f;
+        public static float UIPannelLD = .050f;
+        public static float InGameUILD = .049f;
         public static float ItemSelectedTxrLD = .048f;
         public static float ItemTxrLD = .047f;
         public static float BlueprintTxrLD = .046f;
@@ -248,12 +249,17 @@ namespace Keeno
         public static int HouseUpgradeStoneCost = 10;
         public static int HousePopulationAddition = 5;
 
-        // ResourceStorage
-
+            // ResourceStorage
         public static int ResourceStorageWoodCost = 1;
         public static int ResourceStorageStoneCost = 0;
         public static int ResourceStorageUpgradeWoodCost = 1;
         public static int ResourceStorageUpgradeStoneCost = 0;
+        
+        // Bridge
+        public static int BridgeWoodCost = 1;
+        public static int BridgeStoneCost = 0;
+        public static int BridgeUpgradeWoodCost = 50;
+        public static int BridgeUpgradeStoneCost = 0;
     }
     static class Assets
     {

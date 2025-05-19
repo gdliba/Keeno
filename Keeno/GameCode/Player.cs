@@ -10,7 +10,7 @@ namespace Keeno
     enum PlayerState
     {
         Normal,
-        Building,
+        BuildingMode,
         Dying,
         Dead
     }
@@ -94,11 +94,11 @@ namespace Keeno
                 _state++;
             if (_state == PlayerState.Dead)
                 _state = PlayerState.Normal;
-            if(_state == PlayerState.Building)
+            if(_state == PlayerState.BuildingMode)
             {
                 BuildingMode();
             }
-            if (_state != PlayerState.Building)
+            if (_state != PlayerState.BuildingMode)
             {
                 Player_Object_Interaction();
                 Player_Keeno_Interaction(gt);
@@ -164,11 +164,15 @@ namespace Keeno
                 if (sortedWorldObjectList[0] is Item selectedItem)
                 {
                     // Call the Selected method of the closest World Object
-                    selectedItem.Selected(_state != PlayerState.Building);
-                    if (Globals.E_KeyPress)
+                    selectedItem.Selected(_state != PlayerState.BuildingMode);
+                    if (Globals.E_KeyPress && selectedItem is not ShopBuildingBlueprint)
                     {
-                        _itemCarrying = sortedWorldObjectList[0] as Item;
-                        _state = PlayerState.Building;
+                        _itemCarrying = selectedItem as Item;
+                        _state = PlayerState.BuildingMode;
+                    }
+                    else if (Globals.E_KeyPress && selectedItem is ShopBuildingBlueprint)
+                    {
+                        selectedItem.OnInteract();
                     }
                 }
 

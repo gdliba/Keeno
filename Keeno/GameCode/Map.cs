@@ -93,6 +93,9 @@ namespace Keeno
                             case Globals.BuilderCabinTileIndex:
                             AddBuilderCabin(x, y);
                             break;
+                        case Globals.BrokenBridgeTileIndex:
+                            AddBrokenBridge(x, y);
+                            break;
                         default:
                             AddWorldObject(x,y);
                             break;
@@ -195,6 +198,14 @@ namespace Keeno
             _mapData[y, x] = Globals.EmptyTileIndex;
             
         }
+        private void AddBrokenBridge(int x, int y)
+        {
+            _mapData[y, x] = Globals.EmptyTileIndex;
+            x *= 16;
+            y *= 16;
+            _worldObjects.Add(new Building(new Point(x, y), null,BuildingType.Bridge));
+
+        }
         private void AddEmptyTile(int x, int y)
         {
             _worldObjects.Add(new EmptyTile(new Point(x, y), Globals.EmptyTileIndex));
@@ -281,15 +292,23 @@ namespace Keeno
             // Test Item spawn
             if (Globals.UpArrow_KeyPress)
             {
-                var newBlueprint = new BuildingBlueprint(new Point(370, 300), BuildingType.Tent);
+                var newBlueprint = new BuildingBlueprint(new Point(370, 300), BuildingType.House);
                 _worldObjects.Add(newBlueprint);
                 newBlueprint.BuildingSpawned += building => _worldObjects.Add(building);
 
             }
+            //// Test Item spawn
+            //if (Globals.DownArrow_KeyPress)
+            //{
+            //    var newBlueprint = new BuildingBlueprint(new Point(370, 332), BuildingType.ResourceStorage);
+            //    _worldObjects.Add(newBlueprint);
+            //    newBlueprint.BuildingSpawned += building => _worldObjects.Add(building);
+
+            //}
             // Test Item spawn
             if (Globals.DownArrow_KeyPress)
             {
-                var newBlueprint = new BuildingBlueprint(new Point(370, 332), BuildingType.ResourceStorage);
+                var newBlueprint = new ShopBuildingBlueprint(new Point(370, 332), BuildingType.Tent);
                 _worldObjects.Add(newBlueprint);
                 newBlueprint.BuildingSpawned += building => _worldObjects.Add(building);
 

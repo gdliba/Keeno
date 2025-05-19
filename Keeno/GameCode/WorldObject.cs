@@ -19,7 +19,8 @@ namespace Keeno
     {
         Tent,
         House,
-        ResourceStorage
+        ResourceStorage,
+        Bridge
     }
     enum BuildingLevel { One, Two, Three,}
     class WorldObject
@@ -444,10 +445,36 @@ namespace Keeno
     }
     class ShopBuildingBlueprint : BuildingBlueprint
     {
-        ShopBuildingBlueprint(Point position, BuildingType type)
+        public ShopBuildingBlueprint(Point position, BuildingType type)
             : base(position, type)
         {
+            _buildingType = type;
+        }
+        public override void OnInteract()
+        {
+            
+            if ((int)++_buildingType > (int)BuildingType.ResourceStorage)
+                _buildingType = 0;
+            switch (_buildingType)
+            {
 
+                case BuildingType.Tent:
+                    _txr = Assets.TentsWhiteTxr;
+                    break;
+                case BuildingType.House:
+                    _txr = Assets.HousesWhiteTxr;
+                    break;
+                case BuildingType.ResourceStorage:
+                    _txr = Assets.MonochromaticTilesetTxr;
+                    _srcRect = new Rectangle(
+                  (Globals.ResourceStorageTileIndex % Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  (Globals.ResourceStorageTileIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height);
+                    break;
+
+            }
+            return;
         }
     }
     class Building : SelectableWorldObject, IDropOffPoint
@@ -556,6 +583,24 @@ namespace Keeno
                   Globals.Tile_Width_Height,
                   Globals.Tile_Width_Height);
                     break;
+                case BuildingType.Bridge:
+                    _state = ObjectState.Neutral;
+                    _name = "Broken Bridge";
+                    _currLevel = 2;
+                    _singleTxrDraw = true;
+                    _txr = Assets.TilesetTxr;
+
+                    _woodCost = Globals.BridgeWoodCost;
+                    _stoneCost = Globals.BridgeStoneCost;
+                    _woodUpgradeCost = Globals.BridgeUpgradeWoodCost;
+                    _stoneUpgradeCost = Globals.BridgeStoneCost;
+                    _buildingSrcRect = new Rectangle(
+                  (Globals.BrokenBridgeTileIndex % Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  (Globals.BrokenBridgeTileIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height);
+                    break;
+
             }
             LoadingBarsAndPrompts();
 
@@ -599,10 +644,10 @@ namespace Keeno
             switch (_state)
             {
                 case ObjectState.Neutral:
+
+                    ClearWorkerList();
                     if(_buildingType == BuildingType.ResourceStorage)
                         _isDropOffPointActive = true;
-                    _impassable = true;
-                    ClearWorkerList();
                     if (_canBeUpgraded)
                     {
                         if (ResourceTracker.CanSpend(ResourceType.Wood, _woodUpgradeCost)
@@ -610,6 +655,22 @@ namespace Keeno
                             _canAffordUpgrade = true;
                         else
                             _canAffordUpgrade = false;
+                    }
+                    if(_toggleUpgrade)
+                    {
+                        ResetDeliveredResources();
+                        _woodCost = _woodUpgradeCost;
+                        _stoneCost = _stoneUpgradeCost;
+                        _HGInteract.Reset();
+                        _HGWorkProgress.Reset();
+                        _toggleUpgrade = false;
+                        _state = ObjectState.AwaitingResourceDelivery;
+                    }
+                    if(_buildingType == BuildingType.Bridge && _currLevel == 3)
+                    {
+                        _name = "Bridge";
+                        _impassable = false;
+                        break;
                     }
                     // Player Work Logic
                     if (_isSelected)
@@ -625,16 +686,7 @@ namespace Keeno
                         }
                         _destroyMe = _HGDestroy.Update(Globals.X_KeyDown, Globals.DestroyInteractSpeed);
                     }
-                    if(_toggleUpgrade)
-                    {
-                        ResetDeliveredResources();
-                        _woodCost = _woodUpgradeCost;
-                        _stoneCost = _stoneUpgradeCost;
-                        _HGInteract.Reset();
-                        _HGWorkProgress.Reset();
-                        _toggleUpgrade = false;
-                        _state = ObjectState.AwaitingResourceDelivery;
-                    }
+                    _impassable = true;
                     break;
                 case ObjectState.AwaitingResourceDelivery:
                     _impassable = true;
@@ -725,6 +777,8 @@ namespace Keeno
         }
         public override void Selected()
         {
+            if (_buildingType == BuildingType.Bridge && _currLevel == 3)
+                return;
             base.Selected();
         }
         #region Workers
@@ -799,23 +853,24 @@ namespace Keeno
                 _buttonPrompt_E.Draw(sb);
                 string woodUpgradeText = _woodUpgradeCost.ToString();
                 Vector2 woodUpgradetextSize = _descriptionFont.MeasureString(woodUpgradeText);
-                Vector2 woodUpgradeTextPos = new Vector2(_rect.Right + woodUpgradetextSize.X + 10, _rect.Top - 16);
+                Vector2 woodUpgradeTextPos = new Vector2(_rect.Right + 16, _rect.Top - 16);
 
                 string stoneUpgradeText = _stoneCost.ToString();
                 Vector2 stoneUpgradetextSize = _descriptionFont.MeasureString(stoneUpgradeText);
-                Vector2 stoneUpgradeTextPos = new Vector2(_rect.Right + stoneUpgradetextSize.X + 10, woodUpgradeTextPos.Y+ woodUpgradetextSize.Y/2+2);
+                Vector2 stoneUpgradeTextPos = new Vector2(_rect.Right + 16, woodUpgradeTextPos.Y+ woodUpgradetextSize.Y/2+2);
                 
                 if(_woodUpgradeCost > 0)
                 {
                     sb.DrawString(_descriptionFont, woodUpgradeText, woodUpgradeTextPos, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
                     Vector2 woodUIPos = new Vector2(woodUpgradeTextPos.X - 8, woodUpgradeTextPos.Y + 4);
-                    sb.Draw(Assets.UIWoodIconTxr, woodUIPos, _fontColour);
+                    sb.Draw(Assets.UIWoodIconTxr, woodUIPos, null, _fontColour, 0f, Vector2.Zero, 1,SpriteEffects.None,Globals.InGameUILD);
                 }
                 if(_stoneUpgradeCost > 0)
                 {
                     sb.DrawString(_descriptionFont, stoneUpgradeText, stoneUpgradeTextPos, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
                     Vector2 stoneUIPos = new Vector2(stoneUpgradeTextPos.X - 8, stoneUpgradeTextPos.Y + 5);
-                    sb.Draw(Assets.UIStoneIconTxr, stoneUIPos, _fontColour);
+                    sb.Draw(Assets.UIStoneIconTxr, stoneUIPos, null, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, Globals.InGameUILD);
+
                 }
             }
         }
@@ -840,6 +895,17 @@ namespace Keeno
         }
         public void SingleTxrDraw(SpriteBatch sb)
         {
+            if (_buildingType == BuildingType.Bridge && _currLevel == 3)
+            {
+                _buildingSrcRect= new Rectangle(
+                  (Globals.FixedBridgeTileIndex % Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  (Globals.FixedBridgeTileIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height);
+                sb.Draw(_txr, _rect, _buildingSrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
+                return;
+            }
+
             sb.Draw(_txr, _rect, _buildingSrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
         }
         public override void Draw(SpriteBatch sb)
@@ -1025,7 +1091,7 @@ namespace Keeno
                         if (!_hasToBeCollected)
                             PlayerHarvestedResource(_resourceType, _resourceAmount);
                         else
-                            PlayerHarvestedResource(_resourceType, 0);
+                            PlayerHarvestedResource(ResourceType.None, 0);
                     }
                     // Worker Harvested Resource
                     if (_workerHarvestedResource)
