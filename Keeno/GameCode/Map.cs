@@ -209,7 +209,6 @@ namespace Keeno
         }
         private void ReplaceEmptyWithOccupied(int x, int y)
         {
-            x = x/16; y = y/16;
 
             for (int i = 0; i < _worldObjects.Count; i++)
             {
