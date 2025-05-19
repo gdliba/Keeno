@@ -302,10 +302,11 @@ namespace Keeno
 
             //_tilePosition.X = position.X / _tileWidth;
             //_tilePosition.Y = position.Y / _tileHeight;
-            _rect = new Rectangle(position.X, position.Y, _tileWidth, _tileHeight);
+            //_rect = new Rectangle(position.X, position.Y, _tileWidth, _tileHeight);
 
             _impassable = false;
             _selectedTileSrcRect = _srcRect;
+                LoadingBarsAndPrompts();
         }
         public virtual void Selected(bool IsConditionMet)
         {
@@ -445,10 +446,12 @@ namespace Keeno
     }
     class ShopBuildingBlueprint : BuildingBlueprint
     {
+        private Texture2D _swapIconTxr;
         public ShopBuildingBlueprint(Point position, BuildingType type)
             : base(position, type)
         {
             _buildingType = type;
+            _swapIconTxr = Assets.UISwapIconTxr;
         }
         public override void OnInteract()
         {
@@ -476,6 +479,17 @@ namespace Keeno
             }
             return;
         }
+        public override void Draw(SpriteBatch sb)
+        {
+            base.Draw(sb);
+
+            if (_isSelected && !Globals.HidePromtsAndNames)
+            {
+                _buttonPrompt_Q.Draw(sb);
+                var temp = new Rectangle(_rect.X-6-_tileWidth, _rect.Y-_tileHeight, _rect.Width, _rect.Height);
+                sb.Draw(_swapIconTxr, temp, Color.White);
+            }
+        } 
     }
     class Building : SelectableWorldObject, IDropOffPoint
     {

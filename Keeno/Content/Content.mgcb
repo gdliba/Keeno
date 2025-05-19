@@ -514,3 +514,15 @@
 /processorParam:TextureFormat=Color
 /build:WorldObjects/UI Objects/Stone.png
 
+#begin WorldObjects/UI Objects/Swap.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:WorldObjects/UI Objects/Swap.png
+
