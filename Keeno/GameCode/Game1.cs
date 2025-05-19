@@ -379,17 +379,17 @@ namespace Keeno
 
 
 #if DEBUG
-            //_spriteBatch.DrawString(Assets.MonogramFont,
-            //    _renderTarget.Width + "x " + _renderTarget.Height
-            //    + "\nKeenos: " + keenos.Count + " / " + ResourceTracker.GetAmount(ResourceType.Housing)
-            //    + "\nWood: " + ResourceTracker.GetAmount(ResourceType.Wood)
-            //    + "\nFood: " + ResourceTracker.GetAmount(ResourceType.Food)
-            //    + "\nGold: " + ResourceTracker.GetAmount(ResourceType.Gold)
-            //    + "\nStone: " + ResourceTracker.GetAmount(ResourceType.Stone)
-            //    + "\nSelected Resource:" + debugResource
-            //    + "\nTime Of Day: " + timeManager._timeOfDay,
+            _spriteBatch.DrawString(Assets.MonogramFont,
+                _renderTarget.Width + "x " + _renderTarget.Height
+                + "\nKeenos: " + keenos.Count + " / " + ResourceTracker.GetAmount(ResourceType.Housing)
+                + "\nWood: " + ResourceTracker.GetAmount(ResourceType.Wood)
+                + "\nFood: " + ResourceTracker.GetAmount(ResourceType.Food)
+                + "\nGold: " + ResourceTracker.GetAmount(ResourceType.Gold)
+                + "\nStone: " + ResourceTracker.GetAmount(ResourceType.Stone)
+                + "\nSelected Resource:" + debugResource
+                + "\nTime Of Day: " + timeManager._timeOfDay,
 
-            //    new Vector2(10, 10), Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);
+                new Vector2(10, 10), Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);
 #endif
             _spriteBatch.End();
         }
