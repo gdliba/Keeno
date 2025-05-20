@@ -246,7 +246,7 @@ namespace Keeno
 
         private void PlayingUpdate(GameTime gt)
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (Globals.Escape_KeyPress)
             {
                 currentGameState = GameState.Pause;
                 Assets.PauseSFX.Play();
@@ -315,6 +315,11 @@ namespace Keeno
         private void PauseUpdate()
         {
             uiManager.UpdatePause();
+            if (Globals.Escape_KeyPress)
+            {
+                currentGameState = GameState.Playing;
+                Assets.ButtonPressSFX.Play();
+            }
 
         }
 

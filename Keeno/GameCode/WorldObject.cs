@@ -83,6 +83,7 @@ namespace Keeno
         #endregion
         public WorldObject(Point tilePosition, int globalTileIndex)
         {
+            _fontColour = Color.White;
             _name = "name";
             _descriptionFont = Assets.MonogramDescriptionFont;
             _state = ObjectState.Harvestable;
@@ -447,28 +448,66 @@ namespace Keeno
     class ShopBuildingBlueprint : BuildingBlueprint
     {
         private Texture2D _swapIconTxr;
+        private float _flashingFontTimer, _flashingFontTimerReset;
+        private int _price;
+        public event Action<BuildingBlueprint> BuildingBlueprintPurchaced;
+
         public ShopBuildingBlueprint(Point position, BuildingType type)
             : base(position, type)
         {
             _buildingType = type;
             _swapIconTxr = Assets.UISwapIconTxr;
+            _flashingFontTimer = 0;
+            _flashingFontTimerReset = .3f;
+
+            // Set the price
+            switch (_buildingType)
+            {
+                case BuildingType.Tent:
+                    _price = Globals.TentBLGoldPrice;
+                    break;
+                case BuildingType.House:
+                    _price = Globals.HouseBLGoldPrice;
+                    break;
+                case BuildingType.ResourceStorage:
+                    _price = Globals.ResourceStorageBLGoldPrice;
+                    break;
+
+            }
         }
-        public override void OnInteract()
+        public override void Update(GameTime gt)
         {
-            
-            if ((int)++_buildingType > (int)BuildingType.ResourceStorage)
-                _buildingType = 0;
+            // apply the appropriate effect
+            if (_flashingFontTimer > 0)
+            {
+                _flashingFontTimer -= Globals.DeltaTime;
+                _fontColour = Color.Red;
+            }
+            else
+            {
+                _fontColour = Color.White;
+            }
+            base.Update(gt);
+        }
+        public virtual void OnQInteract()
+        {
+            _buildingType = (BuildingType) ((int) (_buildingType + 1) % (int) BuildingType.Bridge);
+
+
             switch (_buildingType)
             {
 
                 case BuildingType.Tent:
                     _txr = Assets.TentsWhiteTxr;
+                    _price = Globals.TentBLGoldPrice;
                     break;
                 case BuildingType.House:
-                    _txr = Assets.HousesWhiteTxr;
+                    _txr = Assets.HousesWhiteTxr; 
+                    _price = Globals.HouseBLGoldPrice;
                     break;
                 case BuildingType.ResourceStorage:
                     _txr = Assets.MonochromaticTilesetTxr;
+                    _price = Globals.ResourceStorageBLGoldPrice;
                     _srcRect = new Rectangle(
                   (Globals.ResourceStorageTileIndex % Globals.TilemapColumns) * Globals.Tile_Width_Height,
                   (Globals.ResourceStorageTileIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
@@ -479,20 +518,51 @@ namespace Keeno
             }
             return;
         }
+        public Item OnInteract(Point itemCarryPoint)
+        {
+            if(ResourceTracker.CanSpend(ResourceType.Gold, _price))
+            {
+                ResourceTracker.Spend(ResourceType.Gold, _price);
+                var bp = new BuildingBlueprint(Point.Zero, _buildingType);
+                BuildingBlueprintPurchaced?.Invoke(bp);
+                bp.OnInteract(itemCarryPoint);
+                return bp;
+            }
+            _flashingFontTimer = _flashingFontTimerReset;
+            return null;
+        }
+        protected void PurchaceUI(SpriteBatch sb)
+        {
+            string priceText = _price.ToString();
+            Vector2 priceTextSize = _descriptionFont.MeasureString(priceText);
+            Vector2 priceTextPos = new Vector2(_rect.Right + 16, _rect.Top - 16);
+
+            
+            sb.DrawString(_descriptionFont, priceText, priceTextPos, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
+            Vector2 goldUIPos = new Vector2(priceTextPos.X - 8, priceTextPos.Y + 4);
+            sb.Draw(Assets.UIGoldIconTxr, goldUIPos, null, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, Globals.InGameUILD);
+        }
         public override void Draw(SpriteBatch sb)
         {
             base.Draw(sb);
 
-            if (_isSelected && !Globals.HidePromtsAndNames)
+            if (_isSelected)
             {
-                _buttonPrompt_Q.Draw(sb);
-                var temp = new Rectangle(_rect.X-6-_tileWidth, _rect.Y-_tileHeight, _rect.Width, _rect.Height);
-                sb.Draw(_swapIconTxr, temp, Color.White);
+                PurchaceUI(sb);
+                if (!Globals.HidePromtsAndNames)
+                {
+                    _buttonPrompt_E.Draw(sb);
+                    _buttonPrompt_Q.Draw(sb);
+                    var temp = new Rectangle(_rect.X-6-_tileWidth, _rect.Y-_tileHeight, _rect.Width, _rect.Height);
+                    sb.Draw(_swapIconTxr, temp, Color.White);
+
+                }
             }
         } 
     }
     class Building : SelectableWorldObject, IDropOffPoint
     {
+        protected Rectangle _riverSrcRect;
         public BuildingType Type { get { return _buildingType; } protected set { _buildingType = value; } }
 
         protected List<Keeno> _workers;
@@ -540,7 +610,7 @@ namespace Keeno
             _totalWoodSpent = _totalWoodSpent = 0;
             _workerSlots = 10;
             _workSpeed = 0f; 
-            _workDuration = 60f;
+            _workDuration = 6f;
 
             _currLevel = 0;
             _impassable = false;
@@ -561,6 +631,13 @@ namespace Keeno
             _stageSrcRects.Add(new Rectangle(0, 0, _rect.Width, _rect.Height));
             _stageSrcRects.Add(new Rectangle(_stageSrcRects[0].X + _rect.Width, 0, _rect.Width, _rect.Height));
             _stageSrcRects.Add(new Rectangle(_stageSrcRects[1].X + _rect.Width, 0, _rect.Width, _rect.Height));
+
+            _riverSrcRect = new Rectangle(
+                  (Globals.RiverTileIndex % Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  (Globals.RiverTileIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height);
+
 
             // Apply Resource costs appropriately
             switch (type)
@@ -842,6 +919,7 @@ namespace Keeno
                 switch (_state)
                 {
                     case ObjectState.AwaitingResourceDelivery:
+                        ResourcesNeededUI(sb);
                         break;
                     case ObjectState.Neutral:
                         TextDescription(sb);
@@ -860,6 +938,30 @@ namespace Keeno
             }
 
         }
+        protected void ResourcesNeededUI(SpriteBatch sb)
+        {
+            string woodDelivered = _woodDelivered.ToString();
+            Vector2 woodDeliveredTextSize = _descriptionFont.MeasureString(woodDelivered);
+            Vector2 woodDeliveredTextPos = new Vector2(_rect.Right + 16, _rect.Top - 16);
+
+            string stoneDeliveredText = _stoneDelivered.ToString();
+            Vector2 stoneDeliveredTextSize = _descriptionFont.MeasureString(stoneDeliveredText);
+            Vector2 stoneDeliveredTextPos = new Vector2(_rect.Right + 16, woodDeliveredTextPos.Y + woodDeliveredTextSize.Y / 2 + 2);
+
+            if (_woodUpgradeCost > 0)
+            {
+                sb.DrawString(_descriptionFont, woodDelivered + "/" + _woodCost, woodDeliveredTextPos, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
+                Vector2 woodUIPos = new Vector2(woodDeliveredTextPos.X - 8, woodDeliveredTextPos.Y + 4);
+                sb.Draw(Assets.UIWoodIconTxr, woodUIPos, null, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, Globals.InGameUILD);
+            }
+            if (_stoneUpgradeCost > 0)
+            {
+                sb.DrawString(_descriptionFont, stoneDeliveredText + "/" + _stoneCost, stoneDeliveredTextPos, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
+                Vector2 stoneUIPos = new Vector2(stoneDeliveredTextPos.X - 8, stoneDeliveredTextPos.Y + 5);
+                sb.Draw(Assets.UIStoneIconTxr, stoneUIPos, null, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, Globals.InGameUILD);
+
+            }
+        }
         protected void UpgradeUI(SpriteBatch sb)
         {
             if (_canBeUpgraded)
@@ -869,7 +971,7 @@ namespace Keeno
                 Vector2 woodUpgradetextSize = _descriptionFont.MeasureString(woodUpgradeText);
                 Vector2 woodUpgradeTextPos = new Vector2(_rect.Right + 16, _rect.Top - 16);
 
-                string stoneUpgradeText = _stoneCost.ToString();
+                string stoneUpgradeText = _stoneUpgradeCost.ToString();
                 Vector2 stoneUpgradetextSize = _descriptionFont.MeasureString(stoneUpgradeText);
                 Vector2 stoneUpgradeTextPos = new Vector2(_rect.Right + 16, woodUpgradeTextPos.Y+ woodUpgradetextSize.Y/2+2);
                 
@@ -909,6 +1011,11 @@ namespace Keeno
         }
         public void SingleTxrDraw(SpriteBatch sb)
         {
+            // Draw the River texture
+            if (_buildingType == BuildingType.Bridge)
+                sb.Draw(_txr, _rect, _riverSrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.RiverLD);
+
+            // Draw the fixed bridge
             if (_buildingType == BuildingType.Bridge && _currLevel == 3)
             {
                 _buildingSrcRect= new Rectangle(
@@ -921,6 +1028,7 @@ namespace Keeno
             }
 
             sb.Draw(_txr, _rect, _buildingSrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
+
         }
         public override void Draw(SpriteBatch sb)
         {

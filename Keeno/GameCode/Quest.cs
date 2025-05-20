@@ -3,7 +3,9 @@ using System;
 
 namespace Keeno
 {
-    enum QuestState { Inactive, Active, Completed }
+    enum QuestState 
+    {
+        Inactive, Active, Completed }
 
     class Quest
     {
@@ -12,7 +14,6 @@ namespace Keeno
         public string Description;  
         public QuestState State;
 
-        // Here’s one pattern: a delegate that checks completion.
         public Func<bool> CheckCompletion;
         public Action OnActivate;
         public Action OnComplete;

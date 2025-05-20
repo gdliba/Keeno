@@ -308,10 +308,19 @@ namespace Keeno
             // Test Item spawn
             if (Globals.DownArrow_KeyPress)
             {
-                var newBlueprint = new ShopBuildingBlueprint(new Point(25, 20), BuildingType.Tent);
+                var newBlueprint = new ShopBuildingBlueprint(new Point(31, 20), BuildingType.Tent);
                 _worldObjects.Add(newBlueprint);
-                newBlueprint.BuildingSpawned += building => _worldObjects.Add(building);
+                newBlueprint.BuildingBlueprintPurchaced += bp =>
+                {
+                    // add the blueprint as a wolrd object
+                    _worldObjects.Add(bp);
 
+                    // Subscribe to the BuildingSpawned of the blueprint that was spawned
+                    bp.BuildingSpawned += spawnedBuilding =>
+                    {
+                        _worldObjects.Add(spawnedBuilding);
+                    };
+                };
             }
         }
 

@@ -51,6 +51,8 @@ namespace Keeno
         public static bool UpArrow_KeyPress=> KeyPress(Keys.Up);
         public static bool DownArrow_KeyPress => KeyPress(Keys.Down);
         public static bool Tab_KeyPress => KeyPress(Keys.Tab);
+        public static bool Escape_KeyPress => KeyPress(Keys.Escape);
+
 
 
         /// <summary>
@@ -232,10 +234,21 @@ namespace Keeno
         public static float KeenoLD = .041f;
         public static float SelectedTxrLD = .040f;
         public static float WolrdObjectLD = .039f;
+        public static float RiverLD = .038f;
         public static float MapLD = 0f;
 
-        // Buildings
+        
+
+        // Blueprint Prices
             // Tent
+        public static int TentBLGoldPrice = 1;
+            // House
+        public static int HouseBLGoldPrice = 2;
+            // ResourceStorage
+        public static int ResourceStorageBLGoldPrice = 3;
+
+        // Buildings
+        // Tent
         public static int TentWoodCost = 5;
         public static int TentStoneCost = 0;
         public static int TentUpgradeWoodCost = 5;
@@ -258,7 +271,7 @@ namespace Keeno
         // Bridge
         public static int BridgeWoodCost = 1;
         public static int BridgeStoneCost = 0;
-        public static int BridgeUpgradeWoodCost = 50;
+        public static int BridgeUpgradeWoodCost = 1;
         public static int BridgeUpgradeStoneCost = 0;
     }
     static class Assets
@@ -297,7 +310,9 @@ namespace Keeno
         public static Texture2D UIWoodIconTxr { get; private set; }
         public static Texture2D UIStoneIconTxr { get; private set; }
         public static Texture2D UIFoodIconTxr { get; private set; }
+        public static Texture2D UIGoldIconTxr { get; private set; }
         public static Texture2D UIHousingIconTxr { get; private set; }
+
         public static Texture2D UISwapIconTxr { get; private set; }
 
 
@@ -355,7 +370,7 @@ namespace Keeno
 
 
             // TileSets
-            TilesetTxr = content.Load<Texture2D>("SpriteSheets\\color_t");
+            TilesetTxr = content.Load<Texture2D>("SpriteSheets\\color_t1");
             MonochromaticTilesetTxr = content.Load<Texture2D>("SpriteSheets\\mono_t");
             InputsTilesetTxr = content.Load<Texture2D>("SpriteSheets\\inputs_t");
 
@@ -380,6 +395,7 @@ namespace Keeno
             UIWoodIconTxr = content.Load<Texture2D>("UI\\Icons\\WoodIcon");
             UIStoneIconTxr = content.Load<Texture2D>("UI\\Icons\\StoneIcon");
             UIFoodIconTxr = content.Load<Texture2D>("UI\\Icons\\FoodIcon");
+            UIGoldIconTxr = content.Load<Texture2D>("UI\\Icons\\GoldIcon");
             UIHousingIconTxr = content.Load<Texture2D>("UI\\Icons\\HousingIcon");
             UISwapIconTxr = content.Load<Texture2D>("WorldObjects\\UI Objects\\Swap");
 

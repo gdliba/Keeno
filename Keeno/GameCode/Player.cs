@@ -170,9 +170,19 @@ namespace Keeno
                         _itemCarrying = selectedItem as Item;
                         _state = PlayerState.BuildingMode;
                     }
-                    else if (Globals.Q_KeyPress && selectedItem is ShopBuildingBlueprint)
+                    // If the item is a ShopBlueprint
+                    else if (selectedItem is ShopBuildingBlueprint shopBlueprint)
                     {
-                        selectedItem.OnInteract();
+                        // Cycle the blueprints
+                        if (Globals.Q_KeyPress)
+                            shopBlueprint.OnQInteract();
+                        // Buy the bluprint
+                        else if (Globals.E_KeyPress)
+                        {
+                            _itemCarrying = shopBlueprint.OnInteract(_itemCarryPoint);
+                            if (_itemCarrying != null)
+                                _state = PlayerState.BuildingMode;
+                        }
                     }
                 }
 
