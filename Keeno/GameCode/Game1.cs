@@ -40,6 +40,8 @@ namespace Keeno
         // TESTS
         TimeManager timeManager;
         UIManager uiManager;
+
+        float brightness;
         //private StaticSwarmPoint testSwarmPoint;
         //private MobileSwarmPoint testMobileSwarmPoint;
         Map testMap;
@@ -109,6 +111,8 @@ namespace Keeno
             #region List Initialisations
             keenos = new List<Keeno>();
             #endregion
+
+            brightness = 1;
 
             base.Initialize();
         }
@@ -246,6 +250,32 @@ namespace Keeno
 
         private void PlayingUpdate(GameTime gt)
         {
+            // When the day ends
+            if (brightness <= .01)
+            {
+                // Each Keeno should Eat
+                foreach( var keeno in keenos)
+                {
+                    ResourceTracker.Spend(ResourceType.Food, 1);
+                }
+                // If you don't have enough food for every Keeno
+                if (ResourceTracker.GetAmount(ResourceType.Food) < 0)
+                {
+                    int starvingKeeno = ResourceTracker.GetAmount(ResourceType.Food);
+
+                    if (keenos.Count>0)
+                        for ( int i = 0; i < Math.Abs(starvingKeeno); i++)
+                        {
+                            ResourceTracker.Spend(ResourceType.Keeno, 1);
+                            keenos.RemoveAt(0);
+                        }
+                    // Reset Food to 0 as it doesn't make sense to have negative resources
+                    ResourceTracker.Add(ResourceType.Food, Math.Abs(starvingKeeno));
+                }
+                currentGameState = GameState.Pause;
+                brightness = 1;
+            }
+
             if (Globals.Escape_KeyPress)
             {
                 currentGameState = GameState.Pause;
@@ -354,7 +384,7 @@ namespace Keeno
             #region Night Time Overlay
             // Night Time Overlay
             float t = timeManager.TimeOfDay / timeManager.DayLengthSeconds;
-            float brightness = 0.5f + 0.5f * (float)Math.Cos(Math.PI * t);
+            brightness = 0.5f + 0.5f * (float)Math.Cos(Math.PI * t);
             if (t < 0.75f)
                 brightness = 1f;
             else
