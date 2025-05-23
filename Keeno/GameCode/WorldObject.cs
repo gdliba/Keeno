@@ -20,6 +20,7 @@ namespace Keeno
         Tent,
         House,
         ResourceStorage,
+        FarmLand,
         Bridge
     }
     enum BuildingLevel { One, Two, Three,}
@@ -368,6 +369,7 @@ namespace Keeno
         protected Texture2D _buildingTxr;
 
         protected Building _building;
+
         public BuildingBlueprint(Point position, BuildingType type)
             : base(position, null)
         {
@@ -388,6 +390,9 @@ namespace Keeno
                   (Globals.ResourceStorageTileIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
                   Globals.Tile_Width_Height,
                   Globals.Tile_Width_Height);
+                    break;
+                case BuildingType.FarmLand:
+                    _txr = Assets.FarmLandWhiteTxr;
                     break;
 
             }
@@ -513,6 +518,10 @@ namespace Keeno
                   (Globals.ResourceStorageTileIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
                   Globals.Tile_Width_Height,
                   Globals.Tile_Width_Height);
+                    break;
+                case BuildingType.FarmLand:
+                    _txr = Assets.FarmLandWhiteTxr;
+                    _price = Globals.ResourceStorageBLGoldPrice;
                     break;
 
             }
@@ -691,6 +700,22 @@ namespace Keeno
                   Globals.Tile_Width_Height,
                   Globals.Tile_Width_Height);
                     break;
+                case BuildingType.FarmLand:
+                    _name = "Farm";
+                    _currLevel = 1;
+                    _singleTxrDraw = true;
+                    _txr = Assets.TilesetTxr;
+
+                    _woodCost = Globals.ResourceStorageWoodCost;
+                    _stoneCost = Globals.ResourceStorageStoneCost;
+                    _woodUpgradeCost = Globals.ResourceStorageUpgradeWoodCost;
+                    _stoneUpgradeCost = Globals.ResourceStorageUpgradeStoneCost;
+                    _buildingSrcRect = new Rectangle(
+                  (Globals.FarmLandTileIndex % Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  (Globals.FarmLandTileIndex/ Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height);
+                    break;
 
             }
             LoadingBarsAndPrompts();
@@ -777,17 +802,25 @@ namespace Keeno
                         }
                         _destroyMe = _HGDestroy.Update(Globals.X_KeyDown, Globals.DestroyInteractSpeed);
                     }
+                    if (_buildingType == BuildingType.FarmLand)
+                    {
+                        _impassable = false;
+                        break;
+                    }
                     _impassable = true;
                     break;
                 case ObjectState.AwaitingResourceDelivery:
-                    _impassable = true;
+                    if (_buildingType != BuildingType.FarmLand)
+                        _impassable = true;
 
                     if (_woodDelivered == _woodCost
                             && _stoneDelivered == _stoneCost)
                         _state = ObjectState.UnderConstruction;
                     break;
                     case ObjectState.UnderConstruction:
-                    _impassable = true;
+                    if (_buildingType != BuildingType.FarmLand)
+                        _impassable = true;
+
                     if (_constructionComplete)
                     {
                         _totalWoodSpent += _woodDelivered;
@@ -1462,6 +1495,18 @@ namespace Keeno
 
             _txr = Assets.TilesetTxr;
             _impassable = false;
+
+            _farmLandSrc = new Rectangle(
+                  (Globals.FarmLandTileIndex % _tilesetColumns) * _tileWidth,
+                  (Globals.FarmLandTileIndex / _tilesetColumns) * _tileHeight,
+                  _tileWidth,
+                  _tileHeight);
+        }
+        public override void Draw(SpriteBatch sb)
+        {
+            //sb.Draw(_txr, _rect, _farmLandSrc, Color.White, _txrRotationRadians, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD - .001f);
+
+            base.Draw(sb);
         }
         public override void ChangeTextureToBroken()
         {

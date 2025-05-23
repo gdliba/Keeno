@@ -441,7 +441,7 @@ namespace Keeno
             if (_constructingInst == null)
                 return;
             _constructingInst.Volume = 1;
-            _constructingInst.Play();
+            _constructingInst.Play(); 
         }
         public void StopConstructingSound()
         {

@@ -370,6 +370,18 @@
 /processorParam:TextureFormat=Color
 /build:UI/UITest.png
 
+#begin WorldObjects/Buildings/FarmLand/FarmLand.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:WorldObjects/Buildings/FarmLand/FarmLand.png
+
 #begin WorldObjects/Buildings/Houses/houses_w.png
 /importer:TextureImporter
 /processor:TextureProcessor

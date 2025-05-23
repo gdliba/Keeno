@@ -292,6 +292,8 @@ namespace Keeno
 
         public static Texture2D HousesTxr { get; private set; }
         public static Texture2D HousesWhiteTxr { get; private set; }
+        public static Texture2D FarmLandWhiteTxr { get; private set; }
+
 
 
         public static Texture2D BlueprintTxr { get; private set; }
@@ -383,6 +385,8 @@ namespace Keeno
             TentsWhiteTxr = content.Load<Texture2D>("WorldObjects\\Buildings\\Houses\\tents_w");
             HousesTxr = content.Load<Texture2D>("WorldObjects\\Buildings\\Houses\\houses");
             HousesWhiteTxr = content.Load<Texture2D>("WorldObjects\\Buildings\\Houses\\houses_w");
+            FarmLandWhiteTxr = content.Load<Texture2D>("WorldObjects\\Buildings\\FarmLand\\FarmLand");
+
             BlueprintTxr = content.Load<Texture2D>("WorldObjects\\Items\\scroll");
 
 
