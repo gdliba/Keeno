@@ -1348,10 +1348,10 @@ namespace Keeno
                     else
                         keeno.DropOffAndIdle(_resourceType, _resourceAmount);
                 }
-                else if (keeno.State == KeenoState.DroppingOff)
+                else if (keeno.State == KeenoState.DroppingOff && !_brokenByPlayer)
                     keeno.DropOffAndIdle(_resourceType, _resourceAmount);
                 else if(_brokenByPlayer)
-                    keeno.DropOffAndIdle(_resourceType, 0);
+                    keeno.SwitchWalkingToIdleSpot();
                 // in case this workstation still exists and can be harvested once more
                 // reset the total amount of worker slots to the default
                 IncreaseWorkerSlots();

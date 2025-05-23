@@ -459,6 +459,8 @@ namespace Keeno
         }
         private void CarryResource()
         {
+            if(_resourceType == ResourceType.None)
+                return;
             WalkSlow();
             _isCarryingResource = true;
         }
@@ -707,6 +709,7 @@ namespace Keeno
                         _resourceTxr = Assets.UIFoodTxr;
                         break;
                 }
+
                 sb.Draw(_resourceTxr, _itemCarrySpot, null, Color.White, 0f,
                     Vector2.Zero, flip, Globals.ResourceBeingCarriedTxrLD);
             }
