@@ -119,6 +119,9 @@ namespace Keeno
                         case Globals.BrokenBridgeTileIndex:
                             AddBrokenBridge(x, y);
                             break;
+                            case Globals.ShopBuildingTileIndex:
+                            AddShopBuilding(x, y);
+                            break;
                         default:
                             AddWorldObject(x, y);
                             break;
@@ -243,9 +246,10 @@ namespace Keeno
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }
-        private void AddOccupiedTile(int x, int y)
+        private void ReplaceWithEmpty(int x, int y)
         {
-            _worldObjects.Add(new OccupiedTile(new Point(x, y), Globals.EmptyTileIndex));
+
+            _worldObjects.Add(new EmptyTile(new Point(x, y), Globals.EmptyTileIndex));
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }
@@ -258,8 +262,8 @@ namespace Keeno
                     emptyTile.TilePosition.X / Globals.Tile_Width_Height == x &&
                     emptyTile.TilePosition.Y / Globals.Tile_Width_Height == y)
                 {
+                    emptyTile.Die();
                     _worldObjects.RemoveAt(i);
-                    AddOccupiedTile(x, y);
                     break;
                 }
             }
@@ -273,6 +277,15 @@ namespace Keeno
         private void AddDoor(int x, int y)
         {
             _worldObjects.Add(new Door(new Point(x, y), Globals.MineEntranceTileIndex));
+
+            _mapData[y, x] = Globals.EmptyTileIndex;
+        }
+        private void AddShopBuilding(int x, int y)
+        {
+            var shop = new Shop(new Point(x, y), Globals.ShopBuildingTileIndex);
+            _worldObjects.Add(shop);
+
+            _worldObjects.Add(new ShopBuildingBlueprint(new Point(x, y-1), BuildingType.Tent));
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }
@@ -306,7 +319,7 @@ namespace Keeno
 
 
                     // Replace their tile with and Empty one so that the player can build on it
-                    AddEmptyTile(x, y);
+                    ReplaceWithEmpty(x, y);
                     _worldObjects.RemoveAt(i);
                 }
 

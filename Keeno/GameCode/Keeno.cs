@@ -288,7 +288,11 @@ namespace Keeno
                 Globals.RNG.Next(0, 256), Globals.RNG.Next(0, 256));
 
             _moveSpeed = _normalMoveSpeed = Globals.RNG.Next(20, 26) + (float)Globals.RNG.NextDouble();
+            //_moveSpeed = _normalMoveSpeed = Globals.RNG.Next(40, 56) + (float)Globals.RNG.NextDouble();
+
             _carryingMovementSpeed = 10f;
+            //_carryingMovementSpeed = _moveSpeed;
+
             _facingRight = Globals.RNG.Next(2) == 0;
 
             _workSpeed = 1f;

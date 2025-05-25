@@ -1811,6 +1811,15 @@ namespace Keeno
             base.Update(gt);
         }
     }
+    class Shop : SelectableWorldObject
+    {
+        public Shop(Point position, int globalTileIndex)
+            : base(position, globalTileIndex)
+        {
+            _state = ObjectState.Neutral;
+            _name = "Shop";
+        }
+    }
     #region Tile Property Related
     class Door : WorldObject
     {
@@ -1828,10 +1837,22 @@ namespace Keeno
     }
     class EmptyTile : SelectableWorldObject
     {
+        private bool _rngFoliage;
         public EmptyTile(Point tilePosition, int globalTileIndex) 
             : base(tilePosition, globalTileIndex)
         {
             _impassable = false;
+
+            _rngFoliage = Globals.RNG.Next(10) == 1;
+
+            if (_rngFoliage)
+            {
+                _srcRect = new Rectangle(
+                  (Globals.FoliageTileIndex % _tilesetColumns) * _tileWidth,
+                  (Globals.FoliageTileIndex / _tilesetColumns) * _tileHeight,
+                  _tileWidth,
+                  _tileHeight);
+            }
         }
         public override void OnInteract()
         {
@@ -1840,6 +1861,11 @@ namespace Keeno
         public void Die()
         {
             _state = ObjectState.Dead;
+            _srcRect = new Rectangle(
+                 (Globals.EmptyTileIndex% _tilesetColumns) * _tileWidth,
+                 (Globals.EmptyTileIndex/ _tilesetColumns) * _tileHeight,
+                 _tileWidth,
+                 _tileHeight);
         }
     }
     class OccupiedTile : EmptyTile

@@ -252,6 +252,10 @@ namespace Keeno
                 {
                     builderCabin.Selected();
                 }
+                else if (sortedWorldObjectList[0] is Shop shop)
+                {
+                    shop.Selected();
+                }
             }
         }
         private void ColisionDependantMovement()

@@ -110,6 +110,8 @@ namespace Keeno
         public const int BlueprintIndex = 767;
 
         public const int TreeTileIndex = 51;
+        public const int FoliageTileIndex = 7;
+
 
         public const int FarmTileIndex1 = 309;
         public const int FarmTileIndex2 = 310;
@@ -118,6 +120,7 @@ namespace Keeno
 
         public const int TownCentreTileIndex = 983;
         public const int BuilderCabinTileIndex = 985;
+        public const int ShopBuildingTileIndex = 984;
         public const int ResourceStorageTileIndex = 980;
 
 
@@ -236,6 +239,7 @@ namespace Keeno
         public static float WolrdObjectLD = .039f;
         public static float BuildingLD = .038f;
         public static float RiverLD = .037f;
+        public static float EmptyTileLD = .001f;
         public static float MapLD = 0f;
 
         // Starting Housing Value 
