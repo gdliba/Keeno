@@ -194,10 +194,10 @@ namespace Keeno
         public static float TreeWorkAmount = 12f;
 
         // Farm
-        public static int FarmHealth = 10;
+        public static int FarmHealth = 2;
         public static int FarmFoodAmount = 1;
         public static int FarmWorkerSlots = 1;
-        public static float FarmWorkAmount = 12f;
+        public static float FarmWorkAmount = 2f;
 
 
         // Rock / Stone
@@ -234,7 +234,8 @@ namespace Keeno
         public static float KeenoLD = .041f;
         public static float SelectedTxrLD = .040f;
         public static float WolrdObjectLD = .039f;
-        public static float RiverLD = .038f;
+        public static float BuildingLD = .038f;
+        public static float RiverLD = .037f;
         public static float MapLD = 0f;
 
         
@@ -246,6 +247,9 @@ namespace Keeno
         public static int HouseBLGoldPrice = 2;
             // ResourceStorage
         public static int ResourceStorageBLGoldPrice = 3;
+            // FarmLand
+        public static int FarmLandBLGoldPricet = 4;
+
 
         // Buildings
         // Tent
@@ -273,6 +277,12 @@ namespace Keeno
         public static int BridgeStoneCost = 0;
         public static int BridgeUpgradeWoodCost = 1;
         public static int BridgeUpgradeStoneCost = 0;
+
+        // FarmLand
+        public static int FarmLandWoodCost = 1;
+        public static int FarmLandStoneCost = 0;
+        public static int FarmLandUpgradeWoodCost = 1;
+        public static int FarmLandUpgradeStoneCost = 0;
     }
     static class Assets
     {

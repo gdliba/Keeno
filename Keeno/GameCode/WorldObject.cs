@@ -64,6 +64,7 @@ namespace Keeno
         protected int _tilesetColumns;
 
         protected int _health;
+        public int Health { get { return _health; } protected set { _health = value; } }
 
         protected bool _flipped;
         protected bool _isSelected;
@@ -392,7 +393,12 @@ namespace Keeno
                   Globals.Tile_Width_Height);
                     break;
                 case BuildingType.FarmLand:
-                    _txr = Assets.FarmLandWhiteTxr;
+                    _txr = Assets.MonochromaticTilesetTxr;
+                    _srcRect = new Rectangle(
+                  (Globals.FarmTileIndex1 % Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  (Globals.FarmTileIndex1/ Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height,
+                  Globals.Tile_Width_Height);
                     break;
 
             }
@@ -433,7 +439,7 @@ namespace Keeno
             if (_isSelected)
                 sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Color.DeepSkyBlue, 0, Vector2.Zero, SpriteEffects.None, Globals.ItemSelectedTxrLD);
 
-            if(_buildingType == BuildingType.ResourceStorage)
+            if(_buildingType == BuildingType.ResourceStorage || _buildingType == BuildingType.FarmLand)
             {
                 
                 var temp = new Rectangle(_rect.X + _rect.Width / 5, _rect.Y+ _rect.Height / 6, 2*_rect.Width / 3, 2*_rect.Height / 3);
@@ -520,8 +526,13 @@ namespace Keeno
                   Globals.Tile_Width_Height);
                     break;
                 case BuildingType.FarmLand:
-                    _txr = Assets.FarmLandWhiteTxr;
-                    _price = Globals.ResourceStorageBLGoldPrice;
+                    _txr = Assets.MonochromaticTilesetTxr;
+                    _srcRect = new Rectangle(
+                 (Globals.FarmTileIndex1 % Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                 (Globals.FarmTileIndex1 / Globals.TilemapColumns) * Globals.Tile_Width_Height,
+                 Globals.Tile_Width_Height,
+                 Globals.Tile_Width_Height);
+                    _price = Globals.FarmLandBLGoldPricet;
                     break;
 
             }
@@ -580,6 +591,9 @@ namespace Keeno
         protected float _workDuration;
         public Vector2 Position => base.Position;
 
+        public event Action<WorkStation> WorkStationSpawned;
+        protected Farm _farm;
+        public Farm Farm { get { return _farm; } }
 
         protected BuildingType _buildingType;
 
@@ -701,8 +715,8 @@ namespace Keeno
                   Globals.Tile_Width_Height);
                     break;
                 case BuildingType.FarmLand:
-                    _name = "Farm";
-                    _currLevel = 1;
+                    _name = "Farm Land";
+                    _currLevel = 2;
                     _singleTxrDraw = true;
                     _txr = Assets.TilesetTxr;
 
@@ -816,6 +830,10 @@ namespace Keeno
                     if (_woodDelivered == _woodCost
                             && _stoneDelivered == _stoneCost)
                         _state = ObjectState.UnderConstruction;
+
+                    // if farm is not null, destroy it
+                    _farm?.DestroyMe();
+                    _farm = null;
                     break;
                     case ObjectState.UnderConstruction:
                     if (_buildingType != BuildingType.FarmLand)
@@ -825,11 +843,26 @@ namespace Keeno
                     {
                         _totalWoodSpent += _woodDelivered;
                         _totalStoneSpent += _stoneDelivered;
-                        _currLevel++;
                         ResourceTracker.Add(ResourceType.Housing, _populationCountExtention);
                         ClearWorkerList();
                         _constructionComplete = false;
                         _state = ObjectState.Neutral;
+
+                        if(_buildingType == BuildingType.FarmLand)
+                        {
+                            if (_farm is null)
+                            {
+                                int x, y;
+                                x = _tilePosition.X / 16;
+                                y = _tilePosition.Y / 16;
+
+                                // FARMLAND SPECIFIFC INTERACTION
+                                _farm = new Farm(new Point(x,y), Globals.FarmTileIndex1);
+                                WorkStationSpawned?.Invoke(_farm);
+                            }
+                            break;
+                        }
+                        _currLevel++;
                     }
                     break;
                 default:
@@ -899,11 +932,15 @@ namespace Keeno
             }
             return ResourceType.None;
         }
-        public override void Selected()
+        public virtual void Selected(float playerWorkSpeed, bool condition)
         {
             if (_buildingType == BuildingType.Bridge && _currLevel == 3)
                 return;
-            base.Selected();
+            // if there's a farm on this tile, or the farm is depleated
+            if (_farm == null || _farm.State == ObjectState.Broken)
+                base.Selected();
+            else
+                _farm.Selected(playerWorkSpeed, condition);
         }
         #region Workers
         public virtual void ReduceWorkerSlots()
@@ -1031,7 +1068,7 @@ namespace Keeno
               (Globals.ConstructionSiteTileIndex / _tilesetColumns) * _tileHeight,
               _tileWidth,
               _tileHeight);
-            sb.Draw(_txr, _rect, _srcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
+            sb.Draw(_txr, _rect, _srcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.BuildingLD);
         }
         public void CurrLevelDraw(SpriteBatch sb)
         {
@@ -1039,7 +1076,7 @@ namespace Keeno
             // Draw based on level
             for (int i = 0; i < _currLevel; i++)
             {
-                sb.Draw(_txr, _rect, _stageSrcRects[i], Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
+                sb.Draw(_txr, _rect, _stageSrcRects[i], Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.BuildingLD);
             }
         }
         public void SingleTxrDraw(SpriteBatch sb)
@@ -1056,11 +1093,11 @@ namespace Keeno
                   (Globals.FixedBridgeTileIndex / Globals.TilemapColumns) * Globals.Tile_Width_Height,
                   Globals.Tile_Width_Height,
                   Globals.Tile_Width_Height);
-                sb.Draw(_txr, _rect, _buildingSrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
+                sb.Draw(_txr, _rect, _buildingSrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.BuildingLD);
                 return;
             }
 
-            sb.Draw(_txr, _rect, _buildingSrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
+            sb.Draw(_txr, _rect, _buildingSrcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.BuildingLD);
 
         }
         public override void Draw(SpriteBatch sb)
@@ -1409,9 +1446,19 @@ namespace Keeno
             // Set state to Dead
             base.DestroyMe();
         }
+        public virtual void SetHealthTo(int healthTotal)
+        {
+            _health = healthTotal;
+            _state = ObjectState.Harvestable;
+            ChangeTextureBackToDefault();
+        }
         public virtual void ChangeTextureToBroken()
         {
       
+        }
+        public virtual void ChangeTextureBackToDefault()
+        {
+
         }
         public override void Draw(SpriteBatch sb)
         {
@@ -1514,6 +1561,15 @@ namespace Keeno
             _srcRect = new Rectangle(
                   (Globals.HarvestedFarmTileIndex % _tilesetColumns) * _tileWidth,
                   (Globals.HarvestedFarmTileIndex / _tilesetColumns) * _tileHeight,
+                  _tileWidth,
+                  _tileHeight);
+        }
+        public override void ChangeTextureBackToDefault()
+        {
+
+            _srcRect = new Rectangle(
+                  (Globals.FarmTileIndex1 % _tilesetColumns) * _tileWidth,
+                  (Globals.FarmTileIndex1 / _tilesetColumns) * _tileHeight,
                   _tileWidth,
                   _tileHeight);
         }

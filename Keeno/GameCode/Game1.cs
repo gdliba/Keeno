@@ -13,6 +13,7 @@ namespace Keeno
     {
         Start,
         Playing,
+        EndOfDay,
         Pause,
         GameOver
     }
@@ -193,6 +194,9 @@ namespace Keeno
                 case GameState.Playing:
                     PlayingUpdate(gt);
                     break;
+                case GameState.EndOfDay:
+                    EndOfDayUpdate(gt);
+                    break;
                 case GameState.Pause:
                     PauseUpdate();
                     break;
@@ -221,6 +225,9 @@ namespace Keeno
                 case GameState.Playing:
                     PlayingDraw();
                     break;
+                case GameState.EndOfDay:
+                    EndOfDayDraw(gt);
+                    break;
                 case GameState.Pause:
                     PauseDraw();
                     break;
@@ -247,14 +254,22 @@ namespace Keeno
             uiManager.UpdateStart();
 
         }
+        private void EndOfDayUpdate(GameTime gt)
+        {
+            if(Globals.X_KeyPress)
+                currentGameState = GameState.Playing;
+
+        }
 
         private void PlayingUpdate(GameTime gt)
         {
             // When the day ends
-            if (brightness <= .01)
+            if (brightness <= .001)
             {
+                timeManager.RestartDay();
+
                 // Each Keeno should Eat
-                foreach( var keeno in keenos)
+                foreach ( var keeno in keenos)
                 {
                     ResourceTracker.Spend(ResourceType.Food, 1);
                 }
@@ -272,8 +287,7 @@ namespace Keeno
                     // Reset Food to 0 as it doesn't make sense to have negative resources
                     ResourceTracker.Add(ResourceType.Food, Math.Abs(starvingKeeno));
                 }
-                currentGameState = GameState.Pause;
-                brightness = 1;
+                currentGameState = GameState.EndOfDay;
             }
 
             if (Globals.Escape_KeyPress)
@@ -360,6 +374,12 @@ namespace Keeno
         #endregion
         #region STATE DRAWS
         private void StartDraw(GameTime gt)
+        {
+            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            uiManager.DrawStart(_spriteBatch);
+            _spriteBatch.End();
+        }
+        private void EndOfDayDraw(GameTime gt)
         {
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
             uiManager.DrawStart(_spriteBatch);

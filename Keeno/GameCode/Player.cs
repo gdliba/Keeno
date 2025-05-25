@@ -220,6 +220,22 @@ namespace Keeno
                 }
                 else if (sortedWorldObjectList[0] is Building building)
                 {
+                    if (building.Type == BuildingType.FarmLand)
+                    {
+                        building.Selected(_workSpeed, _followers.Count > 0);
+                        // if you have followers
+                        if (_followers.Count > 0 && building.Farm != null)
+                        {
+                            // Check if the WORKSTATION has available worker slots
+                            if (building.Farm.CanDropOffWorker(_followers[0])) // Give the follower to the WORKSTATION
+                            {
+                                var sfx = Assets.PlayerDroppingOffFollowerSFX.CreateInstance();
+                                sfx.Play();
+                                _followers.RemoveAt(0);
+                            }
+                        }
+                    }
+                    else
                     building.Selected();
                 }
                 else if (sortedWorldObjectList[0] is BuilderCabin builderCabin)

@@ -312,13 +312,21 @@ namespace Keeno
                 _worldObjects.Add(newBlueprint);
                 newBlueprint.BuildingBlueprintPurchaced += bp =>
                 {
-                    // add the blueprint as a wolrd object
+                    // add the Blueprint as a wolrd object
                     _worldObjects.Add(bp);
 
                     // Subscribe to the BuildingSpawned of the blueprint that was spawned
                     bp.BuildingSpawned += spawnedBuilding =>
                     {
+                        // add the Building as a wolrd object
                         _worldObjects.Add(spawnedBuilding);
+
+                        // Subscribe to the WorkStationSpawned of the building that was spawned
+                        spawnedBuilding.WorkStationSpawned += spawnedWorkStation =>
+                        {
+                            // add the WorkStation as a wolrd object
+                            _worldObjects.Add(spawnedWorkStation);
+                        };
                     };
                 };
             }
