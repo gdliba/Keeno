@@ -11,17 +11,21 @@ namespace Keeno.GameCode
         private Map _map;
         private TimeManager _timeManager;
         List<Keeno> _keenosInGame;
-        public ResetManager(Map map, TimeManager timeManager, List<Keeno> keenosInGame)
+        private Player _player;
+        public ResetManager(Map map, TimeManager timeManager, List<Keeno> keenosInGame, Player player)
         {
             _map = map;
             _timeManager = timeManager;
             _keenosInGame = keenosInGame;
+            _player = player;
         }
 
         public void ResetAll()
         {
             _map.Reset();
             _timeManager.RestartDay();
+            _player.Reset();
+
 
             for (int i = 0; i < _keenosInGame.Count; i++)
             {

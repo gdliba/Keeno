@@ -127,6 +127,7 @@ namespace Keeno
 
             //testMap = new Map("Content/MapData/testLevel_Map.csv");
             testMap = new Map("Content/MapData/testLevel4.csv");
+            testMap.TownCentreSpawnedKeeno += keeno => keenos.Add(keeno);
 
             testPlayer = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(400, 300, 16, 16),
                 Assets.DebugPixelTxr, testMap, keenos);
@@ -135,15 +136,7 @@ namespace Keeno
 
             //testBuildingObject = new (Content.Load<Texture2D>
             //    ("WorldObjects\\Buildings\\Houses\\tents_w"), 0, new Rectangle(300, 200, 16, 16), Content.Load<Texture2D>("WorldObjects\\Items\\scroll"));
-
-            // TODO: FIND OUT
-            // Does this update according to the number of TCS???
-            foreach (var townCentre in testMap.WorldObjects.OfType<TownCentre>())
-            {
-                townCentre.KeenoSpawned += keeno => keenos.Add(keeno);
-                Debug.WriteLine("Subscribed to KeenoSpawned on TownCentre");
-            }
-
+            
             timeManager = new TimeManager();
             uiManager = new UIManager();
             #region Button Presses
@@ -170,7 +163,7 @@ namespace Keeno
             #endregion
             uiManager.Load();
 
-            resetManager = new ResetManager(testMap, timeManager, keenos);
+            resetManager = new ResetManager(testMap, timeManager, keenos, testPlayer);
         }
 
         protected override void Update(GameTime gt)
@@ -267,7 +260,7 @@ namespace Keeno
         private void PlayingUpdate(GameTime gt)
         {
             // When the day ends
-            if (brightness <= .001)
+            if (brightness <= .1)
             {
                 // Each Keeno should Eat
                 foreach ( var keeno in keenos)

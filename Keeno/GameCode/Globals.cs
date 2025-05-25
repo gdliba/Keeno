@@ -238,10 +238,11 @@ namespace Keeno
         public static float RiverLD = .037f;
         public static float MapLD = 0f;
 
-        
+        // Starting Housing Value 
+        public static int StartingHousingValue = 5;
 
         // Blueprint Prices
-            // Tent
+        // Tent
         public static int TentBLGoldPrice = 1;
             // House
         public static int HouseBLGoldPrice = 2;
@@ -477,8 +478,8 @@ namespace Keeno
         // Store resource Type and Amount
         private static readonly Dictionary<ResourceType, int> _amounts;
 
-        // fired whenever any resource changes
-        public static event Action<ResourceType, int> ResourceChanged;
+        //// fired whenever any resource changes
+        //public static event Action<ResourceType, int> ResourceChanged;
 
 
         static ResourceTracker()
@@ -505,7 +506,7 @@ namespace Keeno
             //        "Must add a positive amount", nameof(amount));
 
             _amounts[type] += amount;
-            ResourceChanged?.Invoke(type, _amounts[type]);
+            //ResourceChanged?.Invoke(type, _amounts[type]);
 
             SoundEffectInstance sfx = null;
             switch (type)
@@ -542,7 +543,7 @@ namespace Keeno
             //        "Cost must be positive", nameof(cost));
 
             _amounts[type] -= cost;
-            ResourceChanged?.Invoke(type, _amounts[type]);
+            //ResourceChanged?.Invoke(type, _amounts[type]);
         }
         public static bool CanSpend(ResourceType type, int cost)
         {
@@ -567,7 +568,8 @@ namespace Keeno
             foreach (var key in _amounts.Keys.ToList())
             {
                 _amounts[key] = 0;
-                ResourceChanged?.Invoke(key, 0);
+                _amounts[ResourceType.Housing] = Globals.StartingHousingValue;
+                //ResourceChanged?.Invoke(key, 0);
             }
         }
     }

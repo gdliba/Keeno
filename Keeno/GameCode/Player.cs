@@ -18,6 +18,8 @@ namespace Keeno
     {
         //private Map _map;
 
+        private Point _defaultStartingPos;
+
         private PlayerState _state;
         private bool _swapToNormalState;
 
@@ -42,6 +44,7 @@ namespace Keeno
         public Player(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel, Map map, List<Keeno> keenos)
             : base(spriteSheet, fps, rect, pixel, map)
         {
+            _defaultStartingPos = new Point(rect.X+_rect.Width/2, rect.Y+ _rect.Height/ 2);
             _state = PlayerState.Normal;
             _moveSpeed = Globals.PlayerMovementSpeed;
             _drawBounds = false;
@@ -62,6 +65,13 @@ namespace Keeno
             //_itemCarryPoint = new Point(0, 0);
             _itemCarrying = null;
 
+        }
+        public void Reset()
+        {
+            _followers.Clear();
+            _state = PlayerState.Normal;
+            _position = _defaultStartingPos.ToVector2();
+            _itemCarrying = null;
         }
         public override void Update(GameTime gt)
         {

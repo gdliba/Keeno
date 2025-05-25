@@ -16,7 +16,8 @@ namespace Keeno
 
         private readonly string _csvPath;
 
-
+        public event Action<Keeno> TownCentreSpawnedKeeno;
+        private List<Keeno> _keenos;
 
         private List<WorldObject> _worldObjects;
 
@@ -55,6 +56,7 @@ namespace Keeno
             _tileWidth = _tileHeight = Globals.Tile_Width_Height;
             _tilesetColumns = Globals.TilemapColumns;
             _tileset = Assets.TilesetTxr;
+            _keenos = new List<Keeno>();
 
             _worldObjects = new List<WorldObject>();
 
@@ -74,6 +76,7 @@ namespace Keeno
         }
         private void PopulateWorldObjects()
         {
+            _keenos.Clear();
             _worldObjects.Clear();
 
             // after LoadMap has filled _mapData
@@ -206,10 +209,18 @@ namespace Keeno
         }
         private void AddTownCentre(int x, int y)
         {
-            _worldObjects.Add(new TownCentre(new Point(x, y), Globals.TownCentreTileIndex, this));
+            var townCentre = new TownCentre(new Point(x, y), Globals.TownCentreTileIndex, this);
+
+            _worldObjects.Add(townCentre);
 
             _mapData[y, x] = Globals.EmptyTileIndex;
-            
+
+            townCentre.KeenoSpawned += keeno =>
+            {
+                _keenos.Add(keeno);
+
+                TownCentreSpawnedKeeno?.Invoke(keeno);
+            };
         }
         private void AddBuilderCabin(int x, int y)
         {

@@ -6,7 +6,7 @@ namespace Keeno
         public float TimeOfDay { get {  return _timeOfDay; } }
         public float _timeOfDay = 0f;
         public float DayLengthSeconds { get { return _dayLengthSeconds; } }
-        public const float _dayLengthSeconds = 30f;
+        public const float _dayLengthSeconds = 6f;
 
         public TimeManager()
         {
