@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Keeno.GameCode;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -35,43 +36,34 @@ namespace Keeno
         // Game State
         private GameState currentGameState;
 
+
+        // Managers
+        TimeManager timeManager;
+        UIManager uiManager;
+        ResetManager resetManager;
+
+
+
+
         // Debug Pixel
         //private Texture2D debugPixel;
 
         // TESTS
-        TimeManager timeManager;
-        UIManager uiManager;
+
 
         float brightness;
-        //private StaticSwarmPoint testSwarmPoint;
-        //private MobileSwarmPoint testMobileSwarmPoint;
         Map testMap;
-        //Texture2D tilesetTxr;
-        //Texture2D monochromaticTilesetTxr;
-        //Texture2D inputsTilesetTxr;
         ResourceType debugResource;
-
-
-        //HourGlass testHourGlass;
 
         //Camera
         Camera camera;
 
-        // Keyboard
-        //KeyboardState kb_curr;
 
         // Player
         Player testPlayer;
 
         // Keeno
         List<Keeno> keenos;
-        //Texture2D keenoTexture;
-
-        // WorldObjects
-        //Texture2D choppedTree;
-
-        // Items
-        //List<Item> items;
 
 
         // Fonts
@@ -177,10 +169,18 @@ namespace Keeno
             };
             #endregion
             uiManager.Load();
+
+            resetManager = new ResetManager(testMap, timeManager, keenos);
         }
 
         protected override void Update(GameTime gt)
         {
+            for (int i = keenos.Count - 1; i >= 0; i--)
+            {
+                if (keenos[i].State == KeenoState.Dead)
+                    keenos.RemoveAt(i);
+            }
+
             Globals.Update(gt);
             //if (Keyboard.GetState().IsKeyDown(Keys.Escape))
             //    Exit();
@@ -256,8 +256,11 @@ namespace Keeno
         }
         private void EndOfDayUpdate(GameTime gt)
         {
-            if(Globals.X_KeyPress)
+            if (Globals.X_KeyPress)
+            {
+                resetManager.ResetAll();
                 currentGameState = GameState.Playing;
+            }
 
         }
 
@@ -266,8 +269,6 @@ namespace Keeno
             // When the day ends
             if (brightness <= .001)
             {
-                timeManager.RestartDay();
-
                 // Each Keeno should Eat
                 foreach ( var keeno in keenos)
                 {

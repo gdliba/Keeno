@@ -12,6 +12,12 @@ namespace Keeno
 
     class Map
     {
+        // Reset variables
+
+        private readonly string _csvPath;
+
+
+
         private List<WorldObject> _worldObjects;
 
         public List<WorldObject> WorldObjects {  get { return _worldObjects; } }
@@ -45,16 +51,30 @@ namespace Keeno
         /// <param name="tilesetColumns"></param>
         public Map(string csvPath)
         {
+            _csvPath = csvPath;
             _tileWidth = _tileHeight = Globals.Tile_Width_Height;
             _tilesetColumns = Globals.TilemapColumns;
             _tileset = Assets.TilesetTxr;
 
+            _worldObjects = new List<WorldObject>();
+
             // Loads the map data from the CSV
             LoadMap(csvPath);
 
-            _worldObjects = new List<WorldObject>();
+            PopulateWorldObjects();
+        }
+        public void Reset()
+        {
+            foreach (var worldObject in WorldObjects)
+                    worldObject.DestroyMeAndMyWorkers();
 
+            LoadMap(_csvPath);
 
+            PopulateWorldObjects();
+        }
+        private void PopulateWorldObjects()
+        {
+            _worldObjects.Clear();
 
             // after LoadMap has filled _mapData
             for (int y = 0; y < _mapHeight; y++)
@@ -64,19 +84,19 @@ namespace Keeno
                     switch (_mapData[y, x])
                     {
                         case Globals.TreeTileIndex:
-                            AddTree(x,y);
+                            AddTree(x, y);
                             break;
                         case Globals.TownCentreTileIndex:
-                            AddTownCentre(x,y);
+                            AddTownCentre(x, y);
                             break;
                         case Globals.FarmTileIndex1:
-                            AddFarm(x,y);
+                            AddFarm(x, y);
                             break;
                         case Globals.FarmTileIndex2:
-                                AddFarm(x,y);
+                            AddFarm(x, y);
                             break;
                         case Globals.EmptyTileIndex:
-                            AddEmptyTile(x,y);
+                            AddEmptyTile(x, y);
                             break;
                         case Globals.RockTileIndex:
                             AddRock(x, y);
@@ -90,14 +110,14 @@ namespace Keeno
                         case Globals.MineEntranceTileIndex:
                             AddDoor(x, y);
                             break;
-                            case Globals.BuilderCabinTileIndex:
+                        case Globals.BuilderCabinTileIndex:
                             AddBuilderCabin(x, y);
                             break;
                         case Globals.BrokenBridgeTileIndex:
                             AddBrokenBridge(x, y);
                             break;
                         default:
-                            AddWorldObject(x,y);
+                            AddWorldObject(x, y);
                             break;
                     }
                 }

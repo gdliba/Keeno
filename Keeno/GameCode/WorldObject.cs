@@ -239,6 +239,11 @@ namespace Keeno
             
             _state = ObjectState.Dead;
         }
+        public virtual void DestroyMeAndMyWorkers()
+        {
+
+            _state = ObjectState.Dead;
+        }
         public virtual void SelectedDraw(SpriteBatch sb)
         {
             //Rectangle temp = new Rectangle(_rect.X + _rect.Width / 16, _rect.Y + _rect.Height / 16, 7 * _rect.Width / 8, 7 * _rect.Height / 8);
@@ -892,6 +897,14 @@ namespace Keeno
             base.Update(gt);
 
         }
+        public override void DestroyMeAndMyWorkers()
+        {
+            for (int i = 0; i < _workers.Count; i++)
+            {
+                _workers.RemoveAt(i);
+            }
+            base.DestroyMeAndMyWorkers();
+        }
         private void ResetDeliveredResources()
         {
             _woodDelivered = 0;
@@ -1325,6 +1338,15 @@ namespace Keeno
             // Set selected to false;
             // Reset all HG
             base.Update(gt);
+        }
+        public override void DestroyMeAndMyWorkers()
+        {
+            for (int i = 0; i < _workers.Count; i++)
+            {
+                _workers[i].Die();
+            }
+
+            base.DestroyMeAndMyWorkers();
         }
         #region Resources/Workers
         public virtual void WorkerHarvestedResource(ResourceType type, int amount)

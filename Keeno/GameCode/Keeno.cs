@@ -422,6 +422,10 @@ namespace Keeno
             base.Update(gt);
 
         }
+        public void Die()
+        {
+            _state = KeenoState.Dead;
+        }
         public void PlayWorkSound()
         {
             if (_workInst == null)
