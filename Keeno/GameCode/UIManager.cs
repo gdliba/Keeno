@@ -107,7 +107,7 @@ namespace Keeno
         }
         public void DrawPlaying(SpriteBatch sb, List<Keeno> keenos)
         {
-            sb.Draw(Assets.UITest, new Rectangle(0, 0, Globals.ScreenWidth, Globals.ScreenHeight), Color.White);
+            sb.Draw(Assets.ResourceHUD, new Rectangle(0, 0, Globals.ScreenWidth, Globals.ScreenHeight), Color.White);
 
             var offsetY = 40;
 

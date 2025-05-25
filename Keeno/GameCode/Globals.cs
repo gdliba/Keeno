@@ -335,7 +335,7 @@ namespace Keeno
         public static Texture2D UIPanelBorderTxr { get; private set; }
 
         // Hud
-        public static Texture2D UITest { get; private set; }
+        public static Texture2D ResourceHUD { get; private set; }
         #endregion
         // Fonts
         public static SpriteFont MonogramFont { get; private set; }
@@ -420,7 +420,7 @@ namespace Keeno
             UIHighlightTxr = content.Load<Texture2D>("UI\\Interface\\UIHighlight");
 
             // Hud
-            UITest = content.Load<Texture2D>("UI\\ResourceUI");
+            ResourceHUD = content.Load<Texture2D>("UI\\ResourceUI");
 
             #endregion
             // Font
