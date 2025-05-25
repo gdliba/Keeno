@@ -64,6 +64,9 @@ namespace Keeno
 
         // Keeno
         List<Keeno> keenos;
+        List<Keeno> startScreenkeenos;
+
+        
 
 
         // Fonts
@@ -103,6 +106,7 @@ namespace Keeno
 
             #region List Initialisations
             keenos = new List<Keeno>();
+            startScreenkeenos = new List<Keeno>();
             #endregion
 
             brightness = 1;
@@ -160,6 +164,7 @@ namespace Keeno
             uiManager.OnMainMenuPressed = () =>
             {
                 currentGameState = GameState.Start;
+                startScreenkeenos.Clear();
             };
             uiManager.OnExitPressed = () =>
             {
@@ -247,6 +252,26 @@ namespace Keeno
         private void StartUpdate(GameTime gt)
         {
             uiManager.UpdateStart();
+
+            foreach (var keeno in startScreenkeenos)
+            {
+                keeno.Update(gt);
+            }
+
+            for (int i = 0; i < 500; i++)
+            {
+                if(startScreenkeenos.Count>500)
+                    break;
+                int x = Globals.RNG.Next(0, Globals.ScreenWidth);
+                int y = Globals.RNG.Next(0, Globals.ScreenHeight);
+
+                var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(x, y, 16, 16), Assets.DebugPixelTxr, null, true);
+                startScreenkeenos.Add(newKeeno);
+                break;
+            }
+            
+
+
 
         }
         private void EndOfDayUpdate(GameTime gt)
@@ -373,6 +398,10 @@ namespace Keeno
         {
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
             uiManager.DrawStart(_spriteBatch);
+            foreach (var keeno in startScreenkeenos)
+            {
+                keeno.Draw(_spriteBatch);
+            }
             _spriteBatch.End();
         }
         private void EndOfDayDraw(GameTime gt)

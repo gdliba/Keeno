@@ -251,18 +251,18 @@ namespace Keeno
             {
                 case ObjectState.Harvestable:
                     if (_isSelected)
-                        sb.Draw(_selectedTileTileset,_rect , _selectedTileSrcRect, _tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+                        sb.Draw(_selectedTileTileset,_rect , _selectedTileSrcRect, Color.White, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
                     break;
                 case ObjectState.Neutral:
                     if (_isSelected)
                     {
                         TextDescription(sb);
-                        sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, _tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+                        sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Color.White, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
                     }
                     break;
                 case ObjectState.Broken:
                     if (_isSelected && _canBeSelectedWhenBroken)
-                        sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, _tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+                        sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Color.White, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
                     break;
             }
         }
@@ -507,6 +507,11 @@ namespace Keeno
         }
         public virtual void OnQInteract()
         {
+            var sound = Assets.BlueprintShuffleSFX;
+            var soundInst = sound.CreateInstance();
+            soundInst.Volume = .8f;
+            soundInst.Play();
+
             _buildingType = (BuildingType) ((int) (_buildingType + 1) % (int) BuildingType.Bridge);
 
 
@@ -545,8 +550,15 @@ namespace Keeno
         }
         public Item OnInteract(Point itemCarryPoint)
         {
-            if(ResourceTracker.CanSpend(ResourceType.Gold, _price))
+            
+
+            if (ResourceTracker.CanSpend(ResourceType.Gold, _price))
             {
+                var sound = Assets.BuySFX;
+                var soundInst = sound.CreateInstance();
+                soundInst.Volume = .8f;
+                soundInst.Play();
+
                 ResourceTracker.Spend(ResourceType.Gold, _price);
                 var bp = new BuildingBlueprint(Point.Zero, _buildingType);
                 BuildingBlueprintPurchaced?.Invoke(bp);
@@ -846,6 +858,11 @@ namespace Keeno
 
                     if (_constructionComplete)
                     {
+                        var sound = Assets.BuildingUpgradedSFX;
+                        var soundInst = sound.CreateInstance();
+                        soundInst.Volume = .4f;
+                        soundInst.Play();
+
                         _totalWoodSpent += _woodDelivered;
                         _totalStoneSpent += _stoneDelivered;
                         ResourceTracker.Add(ResourceType.Housing, _populationCountExtention);
@@ -878,6 +895,12 @@ namespace Keeno
 
             if (_destroyMe)
             {
+
+                var sound = Assets.BuildingRemovedSFX;
+                var soundInst = sound.CreateInstance();
+                soundInst.Volume = .8f;
+                soundInst.Play();
+
                 ResourceTracker.Spend(ResourceType.Housing, _currLevel * _populationCountExtention);
                 ResourceTracker.Add(ResourceType.Wood, _totalWoodSpent);
                 ResourceTracker.Add(ResourceType.Stone, _totalStoneSpent);
@@ -1754,7 +1777,7 @@ namespace Keeno
 
             Rectangle temp = new Rectangle(_rect.X-_rect.Width/2, _rect.Y , 16, 16);
 
-            var newKeeno = new Keeno(Assets.KeenoTxr, 5, temp, Assets.DebugPixelTxr, _map);
+            var newKeeno = new Keeno(Assets.KeenoTxr, 5, temp, Assets.DebugPixelTxr, _map, false);
             _keenosISpawned.Add(newKeeno);
             //Debug.WriteLine("Spawning Keeno: firing event");
             KeenoSpawned?.Invoke(newKeeno);
@@ -1844,15 +1867,30 @@ namespace Keeno
         {
             _impassable = false;
 
-            _rngFoliage = Globals.RNG.Next(10) == 1;
+            _rngFoliage = Globals.RNG.Next(3) == 0;
 
             if (_rngFoliage)
             {
-                _srcRect = new Rectangle(
-                  (Globals.FoliageTileIndex % _tilesetColumns) * _tileWidth,
-                  (Globals.FoliageTileIndex / _tilesetColumns) * _tileHeight,
-                  _tileWidth,
-                  _tileHeight);
+                _tint = _tint * .4f;
+                int temp = Globals.RNG.Next(3);
+                if (temp == 0)
+                    _srcRect = new Rectangle(
+                      (Globals.FoliageTileIndex % _tilesetColumns) * _tileWidth,
+                      (Globals.FoliageTileIndex / _tilesetColumns) * _tileHeight,
+                      _tileWidth,
+                      _tileHeight);
+                else if (temp == 1)
+                    _srcRect = new Rectangle(
+                      (Globals.FoliageTileIndex2 % _tilesetColumns) * _tileWidth,
+                      (Globals.FoliageTileIndex2 / _tilesetColumns) * _tileHeight,
+                      _tileWidth,
+                      _tileHeight);
+                else if (temp == 2)
+                    _srcRect = new Rectangle(
+                      (Globals.FoliageTileIndex3 % _tilesetColumns) * _tileWidth,
+                      (Globals.FoliageTileIndex3 / _tilesetColumns) * _tileHeight,
+                      _tileWidth,
+                      _tileHeight);
             }
         }
         public override void OnInteract()

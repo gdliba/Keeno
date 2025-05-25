@@ -124,6 +124,18 @@
 /processorParam:Quality=Best
 /build:Sounds/Keeno/ConstructingLoopSFX.wav
 
+#begin Sounds/Keeno/FoodDropOffSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Keeno/FoodDropOffSFX.wav
+
+#begin Sounds/Keeno/PickupBlueprintSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Keeno/PickupBlueprintSFX.wav
+
 #begin Sounds/Keeno/PlayerAddingFollowerSFX.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -135,6 +147,12 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Sounds/Keeno/PlayerDroppingOffFollowerSFX.wav
+
+#begin Sounds/Keeno/ResourceDeliveredSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Keeno/ResourceDeliveredSFX.wav
 
 #begin Sounds/Keeno/StoneCuttingLoopSFX.wav
 /importer:WavImporter
@@ -178,11 +196,29 @@
 /processorParam:Quality=Best
 /build:Sounds/UI/Buttons/PauseSFX.wav
 
+#begin Sounds/UI/BuySFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/UI/BuySFX.wav
+
 #begin Sounds/WorldObjects/BuildingPlacedSFX.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Sounds/WorldObjects/BuildingPlacedSFX.wav
+
+#begin Sounds/WorldObjects/BuildingRemovedSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/WorldObjects/BuildingRemovedSFX.wav
+
+#begin Sounds/WorldObjects/BuildingUpgradedSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/WorldObjects/BuildingUpgradedSFX.wav
 
 #begin Sounds/WorldObjects/KeenoSpawnSFX.wav
 /importer:WavImporter

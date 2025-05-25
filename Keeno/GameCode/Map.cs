@@ -285,7 +285,28 @@ namespace Keeno
             var shop = new Shop(new Point(x, y), Globals.ShopBuildingTileIndex);
             _worldObjects.Add(shop);
 
-            _worldObjects.Add(new ShopBuildingBlueprint(new Point(x, y-1), BuildingType.Tent));
+            var newBlueprint = new ShopBuildingBlueprint(new Point(x, y - 1), BuildingType.Tent);
+            _worldObjects.Add(newBlueprint);
+
+            newBlueprint.BuildingBlueprintPurchaced += bp =>
+            {
+                // add the Blueprint as a wolrd object
+                _worldObjects.Add(bp);
+
+                // Subscribe to the BuildingSpawned of the blueprint that was spawned
+                bp.BuildingSpawned += spawnedBuilding =>
+                {
+                    // add the Building as a wolrd object
+                    _worldObjects.Add(spawnedBuilding);
+
+                    // Subscribe to the WorkStationSpawned of the building that was spawned
+                    spawnedBuilding.WorkStationSpawned += spawnedWorkStation =>
+                    {
+                        // add the WorkStation as a wolrd object
+                        _worldObjects.Add(spawnedWorkStation);
+                    };
+                };
+            };
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }

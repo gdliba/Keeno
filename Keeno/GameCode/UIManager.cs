@@ -32,7 +32,7 @@ namespace Keeno
         {
 
             // Start Button
-            Rectangle startButtonRect = new Rectangle(_screenWidth / 2 - _buttonWidth, _screenHeight / 2 - _buttonHeight, _buttonWidth, _buttonHeight);
+            Rectangle startButtonRect = new Rectangle(_screenWidth / 2 - _buttonWidth/2, _screenHeight / 2 - _buttonHeight, _buttonWidth, _buttonHeight);
             var startButton = new Button(startButtonRect, Globals.StartScreenButtons[0]);
             startButton.OnClick += () => OnStartPressed?.Invoke();
             buttons.Add(Globals.StartScreenButtons[0], startButton);
@@ -45,7 +45,7 @@ namespace Keeno
 
             #region Buttons
             // Continue Button
-            Rectangle continueButtonRect = new Rectangle(_screenWidth/2- _buttonWidth, _screenHeight/2- _buttonHeight, _buttonWidth, _buttonHeight);
+            Rectangle continueButtonRect = new Rectangle(_screenWidth/2- _buttonWidth/2, _screenHeight/2- _buttonHeight, _buttonWidth, _buttonHeight);
             var continueButton = new Button(continueButtonRect, Globals.PauseScreenButtons[0]);
             continueButton.OnClick += () => OnContinuePressed?.Invoke();
             buttons.Add(Globals.PauseScreenButtons[0], continueButton);

@@ -109,8 +109,13 @@ namespace Keeno
         public const int ItemSelectedIndex = 625;
         public const int BlueprintIndex = 767;
 
+        // Folliage
         public const int TreeTileIndex = 51;
         public const int FoliageTileIndex = 7;
+        public const int FoliageTileIndex2 = 5;
+        public const int FoliageTileIndex3 = 6;
+
+
 
 
         public const int FarmTileIndex1 = 309;
@@ -354,6 +359,15 @@ namespace Keeno
         // Buildings
         public static SoundEffect BuildingPlacedSFX { get; private set; }
         public static SoundEffect KeenoSpawnSFX { get; private set; }
+        public static SoundEffect BuildingUpgradedSFX { get; private set; }
+        public static SoundEffect BuildingRemovedSFX { get; private set; }
+
+        
+            
+
+        // UI
+        public static SoundEffect BlueprintShuffleSFX { get; private set; }
+        public static SoundEffect BuySFX { get; private set; }
 
 
         // Player
@@ -361,17 +375,20 @@ namespace Keeno
         public static SoundEffect PlayerDroppingOffFollowerSFX { get; private set; }
 
 
+
         // Keeno
         public static SoundEffect WoodCuttingLoopSFX { get; private set; }
         public static SoundEffect WoodDropOffSFX { get; private set; }
+        public static SoundEffect FoodDropOffSFX { get; private set; }
 
         public static SoundEffect StoneCuttingLoopSFX { get; private set; }
         public static SoundEffect StoneDropOffSFX { get; private set; }
 
         public static SoundEffect ConstructingLoopSFX { get; private set; }
+        public static SoundEffect ResourceDeliveredSFX { get; private set; }
 
 
-
+        
 
         #endregion
 
@@ -440,19 +457,29 @@ namespace Keeno
             //Buildings
             BuildingPlacedSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\BuildingPlacedSFX");
             KeenoSpawnSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\KeenoSpawnSFX");
+            BuildingUpgradedSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\BuildingUpgradedSFX");
+            BuildingRemovedSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\BuildingRemovedSFX");
+
 
             // Player
             PlayerAddingFollowerSFX = content.Load<SoundEffect>("Sounds\\Keeno\\PlayerAddingFollowerSFX");
             PlayerDroppingOffFollowerSFX = content.Load<SoundEffect>("Sounds\\Keeno\\PlayerDroppingOffFollowerSFX");
+
+            // UI
+            BlueprintShuffleSFX = content.Load<SoundEffect>("Sounds\\Keeno\\PickupBlueprintSFX");
+            BuySFX = content.Load<SoundEffect>("Sounds\\UI\\BuySFX");
+
+
 
 
 
             // Keeno
             WoodCuttingLoopSFX = content.Load<SoundEffect>("Sounds\\Keeno\\WoodCuttingLoopSFX");
             WoodDropOffSFX = content.Load<SoundEffect>("Sounds\\Keeno\\WoodDropOffSFX");
-
+            FoodDropOffSFX = content.Load<SoundEffect>("Sounds\\Keeno\\FoodDropOffSFX");
             StoneCuttingLoopSFX = content.Load<SoundEffect>("Sounds\\Keeno\\StoneCuttingLoopSFX");
             StoneDropOffSFX = content.Load<SoundEffect>("Sounds\\Keeno\\StoneDropOffSFX");
+            ResourceDeliveredSFX = content.Load<SoundEffect>("Sounds\\Keeno\\ResourceDeliveredSFX");
 
 
             ConstructingLoopSFX = content.Load<SoundEffect>("Sounds\\Keeno\\ConstructingLoopSFX");
@@ -523,7 +550,8 @@ namespace Keeno
                     sfx = Assets.StoneDropOffSFX.CreateInstance();
                     break;
                 case ResourceType.Food:
-                    sfx = Assets.WoodDropOffSFX.CreateInstance();
+                    sfx = Assets.FoodDropOffSFX.CreateInstance();
+                    sfx.Volume = .6f;
                     break;
                 case ResourceType.Wood:
                     sfx = Assets.WoodDropOffSFX.CreateInstance();

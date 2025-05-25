@@ -76,8 +76,11 @@ namespace Keeno
             _tint = Color.White;
             _defaultTint = _tint;
 
-            _map = map;
-            _worldObjects = _map.WorldObjects;
+            if (map != null)
+            {
+                _map = map;
+                _worldObjects = _map.WorldObjects;
+            }
 
             // Offset where you sit in relation to the player's location
             // when following the player
@@ -231,6 +234,7 @@ namespace Keeno
     }
     public enum KeenoState
     {
+        StartScreen,
         Idle,
         ReadyToBuild,
         Following,
@@ -274,12 +278,15 @@ namespace Keeno
 
         private Rectangle _itemCarrySpot { get { return new Rectangle(_rect.X, _rect.Y-_rect.Height/4, _rect.Width, _rect.Height); } }
 
-        public Keeno(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel, Map map)
+        public Keeno(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel, Map map, bool isInStartScreen)
             : base (spriteSheet, fps, rect, pixel, map)
         {
-            _state = KeenoState.Idle;
-            _moveTimer = 3;
-            _idleTimer = 3;
+            if (isInStartScreen)
+                _state = KeenoState.StartScreen;
+            else
+                _state = KeenoState.Idle;
+            _moveTimer = .5f+(float)Globals.RNG.Next(4);
+            _idleTimer = .5f+(float)Globals.RNG.Next(4);
             _moveTimerReset = _moveTimer;
             _drawBounds = false;
             _isCarryingResource = false;
@@ -314,6 +321,9 @@ namespace Keeno
         {
             switch (_state)
             {
+                case KeenoState.StartScreen:
+                    MoveInDirection(IdleAndMove());
+                    break;
                 case KeenoState.Idle:
                     DontCarryResource();
                     break;
@@ -326,6 +336,11 @@ namespace Keeno
                         // if you have arrived there
                         if (_position == _closestBuildingAwaitingResources.ToVector2())
                         {
+                            var sound = Assets.ResourceDeliveredSFX;
+                            var soundInst = sound.CreateInstance();
+                            soundInst.Volume = .8f;
+                            soundInst.Play();
+
                             _buildingImDeliveringTo.TakeThisResource(_resourceType);
                             _state = KeenoState.WalkingToBuilderCabin;
                             _isCarryingResource = false;
@@ -511,7 +526,6 @@ namespace Keeno
             }
             return false;
         }
-
         public void ScanForBuildingsAwaitingResources()
         {
             _buildingsAwaitingResources.Clear();
@@ -583,9 +597,9 @@ namespace Keeno
             destination.Y += _playerLocationOffsetY;
             MoveTo(destination);
         }
-        public Vector2 IdleAndMove(GameTime gt)
+        public Vector2 IdleAndMove()
         {
-            float deltaTime = (float)gt.ElapsedGameTime.TotalSeconds;
+            float deltaTime = Globals.DeltaTime;
 
             if (_moveTimer > 0)
             {
@@ -699,7 +713,11 @@ namespace Keeno
                 _txr = Assets.KeenoCarryingTxr;
             else
                 _txr = Assets.KeenoTxr;
-            sb.Draw(_txr, new Vector2(_rect.X,_rect.Y), _srcRect, _tint, 0f, Vector2.Zero, .9f, flip, Globals.KeenoLD);
+            if(_state != KeenoState.StartScreen)
+                sb.Draw(_txr, new Vector2(_rect.X,_rect.Y), _srcRect, _tint, 0f, Vector2.Zero, .9f, flip, Globals.KeenoLD);
+            else
+                sb.Draw(_txr, new Vector2(_rect.X, _rect.Y), _srcRect, _tint, 0f, Vector2.Zero, 2f, flip, Globals.KeenoLD);
+
 
 
 
