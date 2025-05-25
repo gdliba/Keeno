@@ -139,6 +139,10 @@ namespace Keeno
             
             timeManager = new TimeManager();
             uiManager = new UIManager();
+            uiManager.Load();
+
+            resetManager = new ResetManager(testMap, timeManager, keenos, testPlayer);
+
             #region Button Presses
             uiManager.OnStartPressed = () =>
             {
@@ -150,7 +154,8 @@ namespace Keeno
             };
             uiManager.OnRestartPressed = () =>
             {
-                //Restart Logic
+                resetManager.ResetAll();
+                currentGameState = GameState.Playing;
             };
             uiManager.OnMainMenuPressed = () =>
             {
@@ -161,9 +166,6 @@ namespace Keeno
                 Exit();
             };
             #endregion
-            uiManager.Load();
-
-            resetManager = new ResetManager(testMap, timeManager, keenos, testPlayer);
         }
 
         protected override void Update(GameTime gt)
