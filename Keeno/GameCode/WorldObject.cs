@@ -1818,6 +1818,7 @@ namespace Keeno
         {
             _state = ObjectState.Neutral;
             _name = "Shop";
+
         }
     }
     #region Tile Property Related
