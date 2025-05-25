@@ -420,7 +420,7 @@ namespace Keeno
             UIHighlightTxr = content.Load<Texture2D>("UI\\Interface\\UIHighlight");
 
             // Hud
-            UITest = content.Load<Texture2D>("UI\\UITest");
+            UITest = content.Load<Texture2D>("UI\\ResourceUI");
 
             #endregion
             // Font

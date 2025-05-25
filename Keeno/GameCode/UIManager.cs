@@ -105,6 +105,48 @@ namespace Keeno
                 buttons[button].Draw(sb);
             }
         }
+        public void DrawPlaying(SpriteBatch sb, List<Keeno> keenos)
+        {
+            sb.Draw(Assets.UITest, new Rectangle(0, 0, Globals.ScreenWidth, Globals.ScreenHeight), Color.White);
+
+            var offsetY = 40;
+
+
+            // Housing
+            Vector2 pos1 = new Vector2(66, Globals.ScreenHeight - 220);
+            sb.DrawString(Assets.MonogramFont,
+                keenos.Count + "/" + ResourceTracker.GetAmount(ResourceType.Housing),
+                pos1,
+                 Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);
+
+            // Food
+            Vector2 pos2 = new Vector2(pos1.X, pos1.Y+ offsetY);
+            sb.DrawString(Assets.MonogramFont,
+                ResourceTracker.GetAmount(ResourceType.Food).ToString(),
+                pos2,
+                 Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);
+
+            // Wood
+            Vector2 pos3 = new Vector2(pos2.X, pos2.Y + offsetY);
+            sb.DrawString(Assets.MonogramFont,
+                ResourceTracker.GetAmount(ResourceType.Wood).ToString(),
+                pos3,
+                 Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);
+
+            // Stone
+            Vector2 pos4 = new Vector2(pos3.X, pos3.Y + offsetY);
+            sb.DrawString(Assets.MonogramFont,
+                ResourceTracker.GetAmount(ResourceType.Stone).ToString(),
+                pos4,
+                 Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);
+
+            // Gold
+            Vector2 pos5 = new Vector2(pos4.X, pos4.Y + offsetY);
+            sb.DrawString(Assets.MonogramFont,
+                ResourceTracker.GetAmount(ResourceType.Gold).ToString(),
+                pos5,
+                 Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);
+        }
         public void DrawPause(SpriteBatch sb)
         {
             _pausePanel.Draw(sb);
