@@ -41,6 +41,7 @@ namespace Keeno
         TimeManager timeManager;
         UIManager uiManager;
         ResetManager resetManager;
+        MusicPlayer musicPlayer;
 
 
 
@@ -99,7 +100,7 @@ namespace Keeno
             //_graphics.ApplyChanges();
 
 
-            currentGameState = GameState.Playing;
+            currentGameState = GameState.Start;
             camera.Position = Vector2.Zero;
             camera.Zoom = 2;
 
@@ -151,20 +152,25 @@ namespace Keeno
             timeManager = new TimeManager();
             uiManager = new UIManager();
             uiManager.Load();
+            musicPlayer = new MusicPlayer();
 
             resetManager = new ResetManager(testMap, timeManager, keenos, testPlayer);
 
             #region Button Presses
             uiManager.OnStartPressed = () =>
             {
+                musicPlayer.PauseMusic();
                 currentGameState = GameState.Playing;
+                musicPlayer.PlayFirstRain();
             };
             uiManager.OnContinuePressed = () =>
             {
                 currentGameState = GameState.Playing;
+                musicPlayer.ResumeMusic();
             };
             uiManager.OnRestartPressed = () =>
             {
+                musicPlayer.PlayFirstRain();
                 resetManager.ResetAll();
                 currentGameState = GameState.Playing;
             };
@@ -259,6 +265,7 @@ namespace Keeno
         private void StartUpdate(GameTime gt)
         {
             uiManager.UpdateStart();
+            musicPlayer.PlayMainTheme();
 
             foreach (var keeno in startScreenkeenos)
             {
@@ -320,6 +327,7 @@ namespace Keeno
 
             if (Globals.Escape_KeyPress)
             {
+                musicPlayer.PauseMusic();
                 currentGameState = GameState.Pause;
                 Assets.PauseSFX.Play();
             }
@@ -404,11 +412,11 @@ namespace Keeno
         private void StartDraw(GameTime gt)
         {
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-            uiManager.DrawStart(_spriteBatch);
             foreach (var keeno in startScreenkeenos)
             {
                 keeno.Draw(_spriteBatch);
             }
+            uiManager.DrawStart(_spriteBatch);
             _spriteBatch.End();
         }
         private void EndOfDayDraw(GameTime gt)

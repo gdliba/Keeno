@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -384,19 +385,29 @@ namespace Keeno
 
 
 
-        // Keeno
-        public static SoundEffect WoodCuttingLoopSFX { get; private set; }
+        // Keeno work
+        public static SoundEffect WoodCuttingSFX { get; private set; }
+        public static SoundEffect StoneCuttingSFX { get; private set; }
+        public static SoundEffect ConstructingSFX { get; private set; }
+
+        // Resources
         public static SoundEffect WoodDropOffSFX { get; private set; }
         public static SoundEffect FoodDropOffSFX { get; private set; }
-
-        public static SoundEffect StoneCuttingLoopSFX { get; private set; }
         public static SoundEffect StoneDropOffSFX { get; private set; }
-
-        public static SoundEffect ConstructingLoopSFX { get; private set; }
         public static SoundEffect ResourceDeliveredSFX { get; private set; }
 
 
-        
+        // Music
+        public static Song MainThemeSFX { get; private set; }
+        public static Song FirstRainSFX { get; private set; }
+
+        // Ambience
+        public static SoundEffect ForestDay { get; private set; }
+        public static SoundEffect ForestNight { get; private set; }
+
+
+
+
 
         #endregion
 
@@ -482,15 +493,21 @@ namespace Keeno
 
 
             // Keeno
-            WoodCuttingLoopSFX = content.Load<SoundEffect>("Sounds\\Keeno\\WoodCuttingLoopSFX");
+            WoodCuttingSFX = content.Load<SoundEffect>("Sounds\\Keeno\\WoodCuttingLoopSFX");
             WoodDropOffSFX = content.Load<SoundEffect>("Sounds\\Keeno\\WoodDropOffSFX");
             FoodDropOffSFX = content.Load<SoundEffect>("Sounds\\Keeno\\FoodDropOffSFX");
-            StoneCuttingLoopSFX = content.Load<SoundEffect>("Sounds\\Keeno\\StoneCuttingLoopSFX");
+            StoneCuttingSFX = content.Load<SoundEffect>("Sounds\\Keeno\\StoneCuttingLoopSFX");
             StoneDropOffSFX = content.Load<SoundEffect>("Sounds\\Keeno\\StoneDropOffSFX");
             ResourceDeliveredSFX = content.Load<SoundEffect>("Sounds\\Keeno\\ResourceDeliveredSFX");
+            ConstructingSFX = content.Load<SoundEffect>("Sounds\\Keeno\\ConstructingLoopSFX");
 
+            // Music
+            MainThemeSFX = content.Load<Song>("Sounds\\Music\\MainTheme");
+            FirstRainSFX = content.Load<Song>("Sounds\\Music\\FirstRain");
 
-            ConstructingLoopSFX = content.Load<SoundEffect>("Sounds\\Keeno\\ConstructingLoopSFX");
+            // Ambience
+            ForestDay = content.Load<SoundEffect>("Sounds\\AmbientSounds\\ForestDay");
+            ForestNight = content.Load<SoundEffect>("Sounds\\AmbientSounds\\ForestNight");
 
 
 

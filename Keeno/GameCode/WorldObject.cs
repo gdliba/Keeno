@@ -1633,7 +1633,7 @@ namespace Keeno
             _choppedTreeTxr = Assets.ChoppedTreeTxr;
             _impassable = true;
 
-            _workSFX = Assets.WoodCuttingLoopSFX;
+            _workSFX = Assets.WoodCuttingSFX;
 
             if (isBroken)
                 Health = 0;
@@ -1700,7 +1700,7 @@ namespace Keeno
             _health = Globals.RockHealth;
             _workerSlots = Globals.RockWorkerSlots;
             _workDuration = Globals.RockWorkAmount;
-            _workSFX = Assets.StoneCuttingLoopSFX;
+            _workSFX = Assets.StoneCuttingSFX;
 
             _impassable = true;
 
@@ -1733,7 +1733,7 @@ namespace Keeno
             _health = Globals.GoldHealth;
             _workerSlots = Globals.GoldWorkerSlots;
             _workDuration = Globals.GoldWorkAmount;
-            _workSFX = Assets.StoneCuttingLoopSFX;
+            _workSFX = Assets.StoneCuttingSFX;
 
             _impassable = true;
             _canBeSelectedWhenBroken = false;

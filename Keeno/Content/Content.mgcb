@@ -118,6 +118,18 @@
 /processorParam:TextureFormat=Color
 /build:Pixel.png
 
+#begin Sounds/AmbientSounds/ForestDay.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/AmbientSounds/ForestDay.wav
+
+#begin Sounds/AmbientSounds/ForestNight.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/AmbientSounds/ForestNight.wav
+
 #begin Sounds/Keeno/ConstructingLoopSFX.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -177,6 +189,18 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Sounds/Keeno/WoodDropOffSFX.wav
+
+#begin Sounds/Music/FirstRain.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Sounds/Music/FirstRain.mp3
+
+#begin Sounds/Music/MainTheme.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Sounds/Music/MainTheme.mp3
 
 #begin Sounds/UI/Buttons/ButtonHoverSFX.wav
 /importer:WavImporter

@@ -315,7 +315,7 @@ namespace Keeno
             _buildingsAwaitingResources = new List<WorldObject>();
             _closestBuildingAwaitingResources = Point.Zero;
 
-            _constructingInst = Assets.ConstructingLoopSFX.CreateInstance();
+            _constructingInst = Assets.ConstructingSFX.CreateInstance();
             _constructingInst.Volume = .2f;
         }
         public override void Update(GameTime gt)
@@ -739,7 +739,7 @@ namespace Keeno
             if(_state != KeenoState.StartScreen)
                 sb.Draw(_txr, new Vector2(_rect.X,_rect.Y), _srcRect, _tint, 0f, Vector2.Zero, .9f, flip, Globals.KeenoLD);
             else
-                sb.Draw(_txr, new Vector2(_rect.X, _rect.Y), _srcRect, _tint, 0f, Vector2.Zero, 2f, flip, Globals.KeenoLD);
+                sb.Draw(_txr, new Vector2(_rect.X, _rect.Y), _srcRect, _tint, 0f, Vector2.Zero, 2f, flip, Globals.MapLD);
 
 
 
