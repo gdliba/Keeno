@@ -12,7 +12,7 @@ namespace Keeno
     {
         private Dictionary<string, Button> buttons;
         private Panel _startPanel, _pausePanel;
-        public Action OnStartPressed, OnContinuePressed, OnRestartPressed, OnMainMenuPressed, OnExitPressed;
+        public Action OnStartPressed, OnContinuePressed, OnRestartPressed, OnMainMenuPressed, OnExitPressed, OnNextDayPressed;
 
         private static int _screenWidth;
         private static int _screenHeight;
@@ -31,6 +31,7 @@ namespace Keeno
         public void Load()
         {
 
+            #region Buttons
             // Start Button
             Rectangle startButtonRect = new Rectangle(_screenWidth / 2 - _buttonWidth/2, _screenHeight / 2 - _buttonHeight, _buttonWidth, _buttonHeight);
             var startButton = new Button(startButtonRect, Globals.StartScreenButtons[0]);
@@ -43,7 +44,6 @@ namespace Keeno
             exitButton.OnClick += () => OnExitPressed?.Invoke();
             buttons.Add(Globals.StartScreenButtons[1], exitButton);
 
-            #region Buttons
             // Continue Button
             Rectangle continueButtonRect = new Rectangle(_screenWidth/2- _buttonWidth/2, _screenHeight/2- _buttonHeight, _buttonWidth, _buttonHeight);
             var continueButton = new Button(continueButtonRect, Globals.PauseScreenButtons[0]);
@@ -67,6 +67,13 @@ namespace Keeno
             var quitButton = new Button(quitButtonRect, Globals.PauseScreenButtons[3]);
             quitButton.OnClick += () => OnExitPressed?.Invoke();
             buttons.Add(Globals.PauseScreenButtons[3], quitButton);
+
+
+            // Next Day Button
+            Rectangle nextDayButtonRect = new Rectangle(_screenWidth / 2 - _buttonWidth / 2, _screenHeight / 2 - _buttonHeight, _buttonWidth, _buttonHeight);
+            var nextDay = new Button(nextDayButtonRect, Globals.EndOfDayScreenButtons[0]);
+            nextDay.OnClick += () => OnNextDayPressed?.Invoke();
+            buttons.Add(Globals.EndOfDayScreenButtons[0], nextDay);
             #endregion
 
             //Panel
@@ -83,7 +90,7 @@ namespace Keeno
             _startPanel = new Panel(startPanelPosition, Color.Black * .9f);
 
         }
-        public void UpdateStart()
+        public void StartUpdate()
         {
             foreach (var button in Globals.StartScreenButtons)
             {
@@ -97,9 +104,15 @@ namespace Keeno
                 buttons[button].Update();
             }
         }
-        public void DrawStart(SpriteBatch sb)
+        public void EndOfDayUpdate()
         {
-            //_startPanel.Draw(sb);
+            foreach (var button in Globals.EndOfDayScreenButtons)
+            {
+                buttons[button].Update();
+            }
+        }
+        public void StartDraw(SpriteBatch sb)
+        {
             foreach (var button in Globals.StartScreenButtons)
             {
                 buttons[button].Draw(sb);
@@ -151,6 +164,13 @@ namespace Keeno
         {
             _pausePanel.Draw(sb);
             foreach (var button in Globals.PauseScreenButtons)
+            {
+                buttons[button].Draw(sb);
+            }
+        }
+        public void EndOfDaytDraw(SpriteBatch sb)
+        {
+            foreach (var button in Globals.EndOfDayScreenButtons)
             {
                 buttons[button].Draw(sb);
             }

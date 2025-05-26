@@ -192,6 +192,11 @@ namespace Keeno
             "Main Menu",
             "Quit"
         };
+        public static readonly List<string> EndOfDayScreenButtons = new List<string>()
+        {
+            "Next Day",
+            "Exit"
+        };
         #endregion
 
         // Player
@@ -211,14 +216,14 @@ namespace Keeno
         public static float TreeWorkAmount = 12f;
 
         // Farm
-        public static int FarmHealth = 2;
+        public static int FarmHealth = 5;
         public static int FarmFoodAmount = 1;
         public static int FarmWorkerSlots = 1;
-        public static float FarmWorkAmount = 2f;
+        public static float FarmWorkAmount = 8f;
 
 
         // Rock / Stone
-        public static int RockHealth = 20;
+        public static int RockHealth = 5;
         public static int RockStoneAmount = 1;
         public static int RockWorkerSlots = 1;
         //public static float RockWorkAmount = 42f;
@@ -229,7 +234,7 @@ namespace Keeno
         public static int GoldHealth = 1;
         public static int GoldGoldAmount = 1;
         public static int GoldWorkerSlots = 1;
-        public static float GoldWorkAmount = 2f;
+        public static float GoldWorkAmount = 8f;
 
         // BreakableWall
         public static int BreakableWallHealth = 1;
@@ -393,12 +398,16 @@ namespace Keeno
         public static SoundEffect WoodCuttingSFX { get; private set; }
         public static SoundEffect StoneCuttingSFX { get; private set; }
         public static SoundEffect ConstructingSFX { get; private set; }
+        public static SoundEffect WorkingOnFarmSFX { get; private set; }
+
 
         // Resources
         public static SoundEffect WoodDropOffSFX { get; private set; }
         public static SoundEffect FoodDropOffSFX { get; private set; }
         public static SoundEffect StoneDropOffSFX { get; private set; }
         public static SoundEffect ResourceDeliveredSFX { get; private set; }
+        public static SoundEffect GoldCoinCollectSFX { get; private set; }
+            
 
 
         // Music
@@ -497,16 +506,21 @@ namespace Keeno
 
 
             // Keeno
-            WoodCuttingSFX = content.Load<SoundEffect>("Sounds\\Keeno\\WoodCuttingLoopSFX");
             WoodDropOffSFX = content.Load<SoundEffect>("Sounds\\Keeno\\WoodDropOffSFX");
             FoodDropOffSFX = content.Load<SoundEffect>("Sounds\\Keeno\\FoodDropOffSFX");
-            StoneCuttingSFX = content.Load<SoundEffect>("Sounds\\Keeno\\StoneCuttingLoopSFX");
             StoneDropOffSFX = content.Load<SoundEffect>("Sounds\\Keeno\\StoneDropOffSFX");
             ResourceDeliveredSFX = content.Load<SoundEffect>("Sounds\\Keeno\\ResourceDeliveredSFX");
+            GoldCoinCollectSFX = content.Load<SoundEffect>("Sounds\\Keeno\\GoldCoinCollectSFX");
+            WorkingOnFarmSFX = content.Load<SoundEffect>("Sounds\\Keeno\\WorkingOnFarm");
+
+            
+
+
+            StoneCuttingSFX = content.Load<SoundEffect>("Sounds\\Keeno\\StoneCuttingLoopSFX");
+            WoodCuttingSFX = content.Load<SoundEffect>("Sounds\\Keeno\\WoodCuttingLoopSFX");
             ConstructingSFX = content.Load<SoundEffect>("Sounds\\Keeno\\ConstructingLoopSFX");
             Footstep1Sfx = content.Load<SoundEffect>("Sounds\\Keeno\\Footstep1");
             Footstep2Sfx = content.Load<SoundEffect>("Sounds\\Keeno\\Footstep2");
-
 
 
             // Music
@@ -580,7 +594,7 @@ namespace Keeno
                 case ResourceType.Keeno:
                     return;
                 case ResourceType.Gold:
-                    sfx = Assets.StoneDropOffSFX.CreateInstance();
+                    sfx = Assets.GoldCoinCollectSFX.CreateInstance();
                     break;
                 case ResourceType.Food:
                     sfx = Assets.FoodDropOffSFX.CreateInstance();

@@ -363,6 +363,20 @@ namespace Keeno
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }
+        public void ClearAllWorkers()
+        {
+            foreach (var worldObject in _worldObjects)
+            {
+                if (worldObject is WorkStation workStation)
+                {
+                    workStation.ClearWorkerList();
+                }
+                else if (worldObject is Building building)
+                {
+                    building.ClearWorkerList();
+                }
+            }
+        }
         private void AddGoldCoin(int x, int y)
         {
             _worldObjects.Add(new GoldCoin(new Point(x, y)));

@@ -65,7 +65,7 @@ namespace Keeno
 
         // Keeno
         List<Keeno> keenos;
-        List<Keeno> startScreenkeenos;
+        List<Keeno> startScreenkeenos, endOfDayScreenKeenos;
 
         
 
@@ -108,6 +108,8 @@ namespace Keeno
             #region List Initialisations
             keenos = new List<Keeno>();
             startScreenkeenos = new List<Keeno>();
+            endOfDayScreenKeenos = new List<Keeno>();
+
             #endregion
 
             brightness = 1;
@@ -178,10 +180,18 @@ namespace Keeno
             {
                 currentGameState = GameState.Start;
                 startScreenkeenos.Clear();
+                endOfDayScreenKeenos.Clear();
+
             };
             uiManager.OnExitPressed = () =>
             {
                 Exit();
+            };
+            uiManager.OnNextDayPressed = () =>
+            {
+                //resetManager.NextDay();
+                currentGameState = GameState.Playing;
+                endOfDayScreenKeenos.Clear();
             };
             #endregion
         }
@@ -264,7 +274,7 @@ namespace Keeno
         #region STATE UPDATES
         private void StartUpdate(GameTime gt)
         {
-            uiManager.UpdateStart();
+            uiManager.StartUpdate();
             musicPlayer.PlayMainTheme();
 
             foreach (var keeno in startScreenkeenos)
@@ -290,23 +300,45 @@ namespace Keeno
         }
         private void EndOfDayUpdate(GameTime gt)
         {
+            uiManager.EndOfDayUpdate();
             if (Globals.X_KeyPress)
             {
                 resetManager.ResetAll();
                 currentGameState = GameState.Playing;
             }
 
+            foreach (var keeno in endOfDayScreenKeenos)
+            {
+                keeno.Update(gt);
+            }
+
+            for (int i = 0; i <= keenos.Count; i++)
+            {
+                if (endOfDayScreenKeenos.Count == keenos.Count)
+                    break;
+                int x = Globals.RNG.Next(Globals.ScreenWidth/4, 3*Globals.ScreenWidth/4);
+                int y = Globals.RNG.Next(Globals.ScreenHeight / 4, 3 * Globals.ScreenHeight / 4);
+
+                var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(x, y, 16, 16), Assets.DebugPixelTxr, null, true);
+                endOfDayScreenKeenos.Add(newKeeno);
+                break;
+            }
         }
 
         private void PlayingUpdate(GameTime gt)
         {
             // When the day ends
-            if (brightness <= .1)
+            if (brightness <= .1 || Globals.X_KeyPress)
             {
+                endOfDayScreenKeenos.Clear();
+                resetManager.NextDay();
+
                 // Each Keeno should Eat
                 foreach ( var keeno in keenos)
                 {
                     ResourceTracker.Spend(ResourceType.Food, 1);
+                    keeno.StopConstructingSound();
+                    keeno.StopWorkSound();
                 }
                 // If you don't have enough food for every Keeno
                 if (ResourceTracker.GetAmount(ResourceType.Food) < 0)
@@ -425,13 +457,17 @@ namespace Keeno
             {
                 keeno.Draw(_spriteBatch);
             }
-            uiManager.DrawStart(_spriteBatch);
+            uiManager.StartDraw(_spriteBatch);
             _spriteBatch.End();
         }
         private void EndOfDayDraw(GameTime gt)
         {
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-            uiManager.DrawStart(_spriteBatch);
+            foreach (var keeno in endOfDayScreenKeenos)
+            {
+                keeno.Draw(_spriteBatch);
+            }
+            uiManager.EndOfDaytDraw(_spriteBatch);
             _spriteBatch.End();
         }
 

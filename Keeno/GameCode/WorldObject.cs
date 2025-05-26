@@ -668,7 +668,7 @@ namespace Keeno
         protected int _populationCountExtention;
         protected int _woodCost, _stoneCost, _woodUpgradeCost, _stoneUpgradeCost;
         protected int _woodDelivered, _stoneDelivered;
-        protected int _woodToBeDelivered, _stoneToBeDelivered;
+        protected int _woodPromissed, _stonePromissed;
         protected int _totalWoodSpent, _totalStoneSpent;
         protected int _goldPrice;
 
@@ -684,8 +684,8 @@ namespace Keeno
             _woodCost = -1;
             _stoneCost = -1;
             _populationCountExtention = 0;
-            _woodDelivered = _woodToBeDelivered = 0;
-            _stoneDelivered = _stoneToBeDelivered = 0;
+            _woodDelivered = _woodPromissed = 0;
+            _stoneDelivered = _stonePromissed = 0;
             _woodUpgradeCost = _stoneUpgradeCost = -1;
             _totalWoodSpent = _totalWoodSpent = 0;
             _workerSlots = 10;
@@ -959,8 +959,8 @@ namespace Keeno
                 var temp = Position.ToPoint();
                 temp.X -= 8;
                 temp.Y -= 8;
-                if (keeno.State == KeenoState.Working
-                    || keeno.State == KeenoState.Building)
+                if (/*keeno.State == KeenoState.Working
+                    || */keeno.State == KeenoState.Building)
                     keeno.MoveTo(temp);
             }
             base.Update(gt);
@@ -985,11 +985,23 @@ namespace Keeno
             {
                 case ResourceType.Wood:
                     _woodDelivered++;
-                    _woodToBeDelivered--;
+                    _woodPromissed--;
                         break;
                 case ResourceType.Stone:
                     _stoneDelivered++;
-                    _stoneToBeDelivered--;
+                    _stonePromissed--;
+                    break;
+            }
+        }
+        public void DontTakeThisResource(ResourceType type)
+        {
+            switch (type)
+            {
+                case ResourceType.Wood:
+                    _woodPromissed--;
+                    break;
+                case ResourceType.Stone:
+                    _stonePromissed--;
                     break;
             }
         }
@@ -998,17 +1010,17 @@ namespace Keeno
             lock (this)
             {
                 // Check if the building requires Wood
-                var temp = _woodCost - (_woodDelivered + _woodToBeDelivered);
+                var temp = _woodCost - (_woodDelivered + _woodPromissed);
                 if (temp > 0 && ResourceTracker.CanSpend(ResourceType.Wood, 1))
                 {
-                    _woodToBeDelivered++;
+                    _woodPromissed++;
                     return ResourceType.Wood;
                 }
                 // If no wood is required, Check the stone
-                temp = _stoneCost - (_stoneDelivered + _stoneToBeDelivered);
+                temp = _stoneCost - (_stoneDelivered + _stonePromissed);
                 if (temp > 0 && ResourceTracker.CanSpend(ResourceType.Stone, 1))
                 {
-                    _stoneToBeDelivered++;
+                    _stonePromissed++;
                     return ResourceType.Stone;
                 }
             }
@@ -1039,8 +1051,8 @@ namespace Keeno
             _workers.Add(worker);
             if(_state == ObjectState.UnderConstruction)
                 worker.SwitchToBuilding();
-            else
-                worker.SwitchToWorking();
+            //else
+                //worker.SwitchToWorking();
             ReduceWorkerSlots();
         }
         public void ClearWorkerList()
@@ -1650,6 +1662,7 @@ namespace Keeno
         public Farm(Point tilePosition, int globalTileIndex) 
             : base(tilePosition, globalTileIndex)
         {
+            _workSFX = Assets.WorkingOnFarmSFX;
             _resourceType = ResourceType.Food;
             _resourceAmount = Globals.FarmFoodAmount;
             _health = Globals.FarmHealth;

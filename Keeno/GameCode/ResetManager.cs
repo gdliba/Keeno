@@ -34,6 +34,16 @@ namespace Keeno.GameCode
             ResourceTracker.Reset();
 
         }
+        public void NextDay()
+        {
+            _map.ClearAllWorkers();
+            _player.Reset();
+            _timeManager.RestartDay();
+            for (int i = 0; i < _keenosInGame.Count; i++)
+            {
+                _keenosInGame[i].NewDay();
+            }
+        }
     }
 
 }

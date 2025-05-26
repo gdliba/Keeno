@@ -246,6 +246,7 @@ namespace Keeno
         WalkingToBuilderCabin,
         Building,
         BelRing,
+        NewDay,
         Dying,
         Dead
     }
@@ -317,6 +318,7 @@ namespace Keeno
 
             _constructingInst = Assets.ConstructingSFX.CreateInstance();
             _constructingInst.Volume = .2f;
+            _resourceAmmount = 1;
         }
         public override void Update(GameTime gt)
         {
@@ -333,7 +335,6 @@ namespace Keeno
                     CarryResource();
                     // go to the construction site
                     MoveTo(_closestBuildingAwaitingResources);
-                    {
                         // if you have arrived there
                         if (_position == _closestBuildingAwaitingResources.ToVector2())
                         {
@@ -346,7 +347,6 @@ namespace Keeno
                             _state = KeenoState.WalkingToBuilderCabin;
                             _isCarryingResource = false;
                         }
-                    }
                         break;
 
                 case KeenoState.ReadyToBuild:
@@ -399,6 +399,7 @@ namespace Keeno
                 case KeenoState.DroppingOffAndIdle:
                     StopWorkSound();
                     CarryResource();
+                    FindClosestDropOffPoint();
                     MoveTo(_closestDropOffPoint);
                     if (_position == _closestDropOffPoint.ToVector2())
                     {
@@ -440,23 +441,53 @@ namespace Keeno
                     DoBellRing();
                     break;
 
+                case KeenoState.NewDay:
+                    DoNewDay();
+                    break;
+
                 case KeenoState.Dead:
                     break;
             }
             base.Update(gt);
 
         }
-        public void PlayerRangBell()
+        public void NewDay()
         {
-            if(_state != KeenoState.Following)
-                _state = KeenoState.BelRing;
+            if (_state == KeenoState.DeliveringMaterials)
+            {
+                _buildingImDeliveringTo.DontTakeThisResource(_resourceType);
+            }
+            _state = KeenoState.NewDay;
         }
-        public void DoBellRing()
+        public void DoNewDay()
         {
+            FindClosestDropOffPoint();
+            _position = _closestDropOffPoint.ToVector2();
 
             if (_isCarryingResource)
             {
                 _state = KeenoState.DroppingOffAndIdle;
+
+            }
+            else
+            {
+                _state = KeenoState.WalkingToIdleSpot;
+            }
+        }
+        public void PlayerRangBell()
+        {
+            if (_state == KeenoState.DeliveringMaterials)
+            {
+                _buildingImDeliveringTo.DontTakeThisResource(_resourceType);
+            }
+            if (_state != KeenoState.Following)
+                _state = KeenoState.BelRing;
+        }
+        public void DoBellRing()
+        {
+            if (_isCarryingResource)
+            {
+                DropOffAndIdle(_resourceType, _resourceAmmount);
             }
             else
             {
