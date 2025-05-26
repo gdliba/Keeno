@@ -75,6 +75,7 @@ namespace Keeno
         protected bool _destroyMe;
         protected bool _impassable;
         protected bool _isDropOffPointActive;
+        protected bool _specialInteraction;
         public bool Impassable { get { return _impassable;} protected set { _impassable = value; } }
 
         protected Color _tint;
@@ -98,6 +99,7 @@ namespace Keeno
             _flipped = false;
             _canBeSelectedWhenBroken = true;
             _isDropOffPointActive = false;
+            _specialInteraction = false;
 
 
             _testPixel = Assets.DebugPixelTxr; 
@@ -792,7 +794,7 @@ namespace Keeno
             {
                 case ObjectState.Neutral:
 
-                    ClearWorkerList();
+                    //ClearWorkerList();
                     if(_buildingType == BuildingType.ResourceStorage)
                         _isDropOffPointActive = true;
                     if (_canBeUpgraded)
@@ -1004,6 +1006,15 @@ namespace Keeno
                 worker.SwitchToWalkingToBuilderCabin();
                 IncreaseWorkerSlots();
             }
+            _canDropOff = false;
+            //_canUse = false;
+            _cannotUse = false;
+            _HGDestroy.Reset();
+            _HGDropOff.Reset();
+            _HGInteract.Reset();
+            _HGCantInteract.Reset();
+            _HGWorkProgress.Reset();
+
             _workers.Clear();
         }
         public virtual bool CanDropOffWorker(Keeno worker)
@@ -1334,6 +1345,12 @@ namespace Keeno
                     case ObjectState.Neutral:
                     if (_isSelected)
                     {
+                        if (_specialInteraction)
+                        {
+                            DoSpecialInteraction();
+                            _canUse = _HGInteract.Update(Globals.E_KeyDown, Globals.NeutralInteractSpeed);
+
+                        }
 
                         // worker DropOff
                         if (_workerSlots > 0 && _selectedCondition && _state != ObjectState.Broken)
@@ -1362,6 +1379,7 @@ namespace Keeno
             // Reset all HG
             base.Update(gt);
         }
+        public virtual void DoSpecialInteraction(){}
         public override void DestroyMeAndMyWorkers()
         {
             for (int i = 0; i < _workers.Count; i++)
@@ -1471,6 +1489,15 @@ namespace Keeno
                 // reset the total amount of worker slots to the default
                 IncreaseWorkerSlots();
             }
+            _canDropOff = false;
+            _canUse = false;
+            _cannotUse = false;
+            _HGDestroy.Reset();
+            _HGDropOff.Reset();
+            _HGInteract.Reset();
+            _HGCantInteract.Reset();
+            _HGWorkProgress.Reset();
+
             _workers.Clear();
         }
         public virtual bool CanDropOffWorker(Keeno worker)
@@ -1553,7 +1580,7 @@ namespace Keeno
     {
         private Texture2D _choppedTreeTxr;
 
-        public Tree(Point tilePosition, int globalTileIndex)
+        public Tree(Point tilePosition, int globalTileIndex, bool isBroken)
             : base(tilePosition, globalTileIndex)
         {
             _resourceType = ResourceType.Wood;
@@ -1566,6 +1593,9 @@ namespace Keeno
             _impassable = true;
 
             _workSFX = Assets.WoodCuttingLoopSFX;
+
+            if (isBroken)
+                Health = 0;
         }
         public override void ChangeTextureToBroken()
         {
@@ -1621,7 +1651,7 @@ namespace Keeno
     }
     class RockFormation : WorkStation
     {
-        public RockFormation(Point tilePosition, int globalTileIndex)
+        public RockFormation(Point tilePosition, int globalTileIndex, bool isBroken)
             : base(tilePosition, globalTileIndex)
         {
             _resourceType = ResourceType.Stone;
@@ -1637,6 +1667,9 @@ namespace Keeno
             _txr = Assets.RockTxr;
             _defaultTxr = _txr;
             _whiteTxr = Assets.WhiteRockTxr;
+
+            if (isBroken)
+                _health = 0;
         }
         public override void ChangeTextureToBroken()
         {
@@ -1834,6 +1867,25 @@ namespace Keeno
             base.Update(gt);
         }
     }
+    class Bell : WorkStation
+    {
+        public event Action BellRung;
+        public Bell(Point position, int globalTileIndex)
+            : base(position, globalTileIndex)
+        {
+            _state = ObjectState.Neutral;
+            _workerSlots = 0;
+            _name = "Bell";
+        }
+        public override void Update(GameTime gt)
+        {
+            base.Update(gt);
+        }
+        public override void OnInteract()
+        {
+            BellRung.Invoke();
+        }
+    }
     class Shop : SelectableWorldObject
     {
         public Shop(Point position, int globalTileIndex)
@@ -1867,8 +1919,11 @@ namespace Keeno
         {
             _impassable = false;
 
-            _rngFoliage = Globals.RNG.Next(3) == 0;
 
+            if (_tilePosition.Y > 11* _tileHeight)
+            {
+                _rngFoliage = Globals.RNG.Next(3) == 0;
+            }
             if (_rngFoliage)
             {
                 _tint = _tint * .4f;
@@ -1889,6 +1944,14 @@ namespace Keeno
                     _srcRect = new Rectangle(
                       (Globals.FoliageTileIndex3 % _tilesetColumns) * _tileWidth,
                       (Globals.FoliageTileIndex3 / _tilesetColumns) * _tileHeight,
+                      _tileWidth,
+                      _tileHeight);
+            }
+            else
+            { 
+                _srcRect = new Rectangle(
+                      (Globals.EmptyTileIndex % _tilesetColumns) * _tileWidth,
+                      (Globals.EmptyTileIndex / _tilesetColumns) * _tileHeight,
                       _tileWidth,
                       _tileHeight);
             }

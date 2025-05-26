@@ -101,7 +101,7 @@ namespace Keeno
 
             currentGameState = GameState.Playing;
             camera.Position = Vector2.Zero;
-            camera.Zoom = 5;
+            camera.Zoom = 2;
 
 
             #region List Initialisations
@@ -130,7 +130,14 @@ namespace Keeno
             //monogramFont = Content.Load<SpriteFont>("Fonts\\monogram");
 
             //testMap = new Map("Content/MapData/testLevel_Map.csv");
-            testMap = new Map("Content/MapData/testLevel4.csv");
+            testMap = new Map("Content/MapData/MainMap1.csv");
+            testMap.BellRung += () =>
+            {
+                foreach (var keeno in keenos)
+                {
+                    keeno.PlayerRangBell();
+                }
+            };
             testMap.TownCentreSpawnedKeeno += keeno => keenos.Add(keeno);
 
             testPlayer = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(400, 300, 16, 16),

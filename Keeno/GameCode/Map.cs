@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
@@ -17,6 +18,7 @@ namespace Keeno
         private readonly string _csvPath;
 
         public event Action<Keeno> TownCentreSpawnedKeeno;
+        public event Action BellRung;
         private List<Keeno> _keenos;
 
         private List<WorldObject> _worldObjects;
@@ -89,6 +91,9 @@ namespace Keeno
                         case Globals.TreeTileIndex:
                             AddTree(x, y);
                             break;
+                        case Globals.TreeChoppedTileIndex:
+                            AddChoppedTree(x, y);
+                            break;
                         case Globals.TownCentreTileIndex:
                             AddTownCentre(x, y);
                             break;
@@ -104,6 +109,9 @@ namespace Keeno
                         case Globals.RockTileIndex:
                             AddRock(x, y);
                             break;
+                        case Globals.HarvestedRockTileIndex:
+                            AddBrokenRock(x, y);
+                            break;
                         case Globals.GoldTileIndex:
                             AddGold(x, y);
                             break;
@@ -111,6 +119,7 @@ namespace Keeno
                             AddBreakableWall(x, y);
                             break;
                         case Globals.MineEntranceTileIndex:
+                        case Globals.FarmEntranceTileIndex:
                             AddDoor(x, y);
                             break;
                         case Globals.BuilderCabinTileIndex:
@@ -121,6 +130,9 @@ namespace Keeno
                             break;
                             case Globals.ShopBuildingTileIndex:
                             AddShopBuilding(x, y);
+                            break;
+                        case Globals.BellTileIndex:
+                            AddBell(x, y);
                             break;
                         default:
                             AddWorldObject(x, y);
@@ -188,7 +200,13 @@ namespace Keeno
         }
         private void AddTree(int x, int y)
         {
-            _worldObjects.Add(new Tree(new Point(x, y), Globals.TreeTileIndex));
+            _worldObjects.Add(new Tree(new Point(x, y), Globals.TreeTileIndex, false));
+
+            _mapData[y, x] = Globals.EmptyTileIndex;
+        }
+        private void AddChoppedTree(int x, int y)
+        {
+            _worldObjects.Add(new Tree(new Point(x, y), Globals.TreeTileIndex, true));
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }
@@ -200,7 +218,13 @@ namespace Keeno
         }
         private void AddRock(int x, int y)
         {
-            _worldObjects.Add(new RockFormation(new Point(x, y), Globals.RockTileIndex));
+            _worldObjects.Add(new RockFormation(new Point(x, y), Globals.RockTileIndex, false));
+
+            _mapData[y, x] = Globals.EmptyTileIndex;
+        }
+        private void AddBrokenRock(int x, int y)
+        {
+            _worldObjects.Add(new RockFormation(new Point(x, y), Globals.RockTileIndex, true));
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }
@@ -309,6 +333,33 @@ namespace Keeno
             };
 
             _mapData[y, x] = Globals.EmptyTileIndex;
+        }
+
+        private void AddBell(int x, int y)
+        {
+            var newBell = new Bell(new Point(x, y), Globals.BellTileIndex);
+
+            newBell.BellRung += () =>
+            {
+
+                foreach (var worldObject in _worldObjects)
+                {
+                    if(worldObject is WorkStation workStation)
+                    {
+                        workStation.ClearWorkerList();
+                    }
+                    else if (worldObject is Building building)
+                    {
+                        building.ClearWorkerList();
+                    }
+                this.BellRung?.Invoke();
+                }
+            };
+
+            _worldObjects.Add(newBell);
+
+            _mapData[y, x] = Globals.EmptyTileIndex;
+
         }
 
         public void Update(GameTime gt)

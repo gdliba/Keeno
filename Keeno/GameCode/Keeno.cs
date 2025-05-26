@@ -245,6 +245,7 @@ namespace Keeno
         WalkingToIdleSpot,
         WalkingToBuilderCabin,
         Building,
+        BelRing,
         Dying,
         Dead
     }
@@ -435,11 +436,33 @@ namespace Keeno
                         _state = KeenoState.ReadyToBuild;
                     break;
 
+                case KeenoState.BelRing:
+                    DoBellRing();
+                    break;
+
                 case KeenoState.Dead:
                     break;
             }
             base.Update(gt);
 
+        }
+        public void PlayerRangBell()
+        {
+            if(_state != KeenoState.Following)
+                _state = KeenoState.BelRing;
+        }
+        public void DoBellRing()
+        {
+
+            if (_isCarryingResource)
+            {
+                _state = KeenoState.DroppingOffAndIdle;
+            }
+            else
+            {
+                _state = KeenoState.WalkingToIdleSpot;
+            }
+            
         }
         public void Die()
         {

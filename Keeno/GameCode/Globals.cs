@@ -111,6 +111,8 @@ namespace Keeno
 
         // Folliage
         public const int TreeTileIndex = 51;
+        public const int TreeChoppedTileIndex = 105;
+
         public const int FoliageTileIndex = 7;
         public const int FoliageTileIndex2 = 5;
         public const int FoliageTileIndex3 = 6;
@@ -138,14 +140,20 @@ namespace Keeno
         public const int BreakableWallTileIndex = 885;
 
         public const int MineEntranceTileIndex = 300;
+        public const int FarmEntranceTileIndex = 151;
+
 
         public const int BrokenBridgeTileIndex = 262;
         public const int FixedBridgeTileIndex = 261;
         public const int RiverTileIndex = 204;
 
+
         public const int ConstructionSiteTileIndex = 647;
 
-        
+        public const int BellTileIndex = 513;
+
+
+
 
 
         // HourGlass
@@ -404,7 +412,7 @@ namespace Keeno
 
 
             // TileSets
-            TilesetTxr = content.Load<Texture2D>("SpriteSheets\\color_t1");
+            TilesetTxr = content.Load<Texture2D>("SpriteSheets\\color_t2");
             MonochromaticTilesetTxr = content.Load<Texture2D>("SpriteSheets\\mono_t");
             InputsTilesetTxr = content.Load<Texture2D>("SpriteSheets\\inputs_t");
 
