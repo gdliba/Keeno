@@ -135,7 +135,7 @@ namespace Keeno
         public const int HarvestedRockTileIndex = 68;
 
         public const int GoldTileIndex = 522;
-        public const int HarvestedGoldTileIndex = 218;
+        public const int GoldCoinTileIndex = 218;
 
         public const int BreakableWallTileIndex = 885;
 
@@ -266,7 +266,7 @@ namespace Keeno
             // ResourceStorage
         public static int ResourceStorageBLGoldPrice = 3;
             // FarmLand
-        public static int FarmLandBLGoldPricet = 4;
+        public static int FarmLandBLGoldPrice = 4;
 
 
         // Buildings

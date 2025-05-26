@@ -51,6 +51,8 @@ namespace Keeno
         protected Rectangle _rect;
         protected Rectangle? _srcRect;
         protected Rectangle? _selectedTileSrcRect;
+        protected Rectangle _coreRect;
+        public Rectangle CoreRect { get { return _coreRect; } protected set { _coreRect = value; } }
 
         protected Point _tilePosition;
         public Point TilePosition { get { return _tilePosition; } protected set { _tilePosition = value; } }
@@ -350,6 +352,40 @@ namespace Keeno
         }
 
     }
+    class GoldCoin : Item
+    {
+        public GoldCoin(Point position)
+            : base(position, null, Globals.ItemSelectedIndex)
+        {
+            _txr = Assets.TilesetTxr;
+
+            _srcRect = new Rectangle(
+                            (Globals.GoldCoinTileIndex % _tilesetColumns) * _tileWidth,
+                            (Globals.GoldCoinTileIndex / _tilesetColumns) * _tileHeight,
+                            _tileWidth,
+                            _tileHeight);
+
+            _coreRect = new Rectangle(_rect.X + _rect.Width / 4, _rect.Y + _rect.Height / 4, _rect.Width / 2, _rect.Height / 2);
+
+        }
+        public void GatherGoldCoin()
+        {
+            ResourceTracker.Add(ResourceType.Gold, 1);
+            _state = ObjectState.Dead;
+        }
+        public override void Draw(SpriteBatch sb)
+        {
+            if (_isSelected)
+                sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, _tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+            //sb.Draw(_testPixel, Bounds, Color.Red * .75f);
+            //sb.Draw(_txr, _rect, Color.White);
+            sb.Draw(_txr, _rect, _srcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, .1f);
+
+            //sb.Draw(Assets.DebugPixelTxr, CoreRect, Color.Red);
+
+
+        }
+    }
     class Blueprint : Item
     {
         protected Texture2D _blueprintTxr;
@@ -544,7 +580,7 @@ namespace Keeno
                  (Globals.FarmTileIndex1 / Globals.TilemapColumns) * Globals.Tile_Width_Height,
                  Globals.Tile_Width_Height,
                  Globals.Tile_Width_Height);
-                    _price = Globals.FarmLandBLGoldPricet;
+                    _price = Globals.FarmLandBLGoldPrice;
                     break;
 
             }
@@ -634,6 +670,8 @@ namespace Keeno
         protected int _woodDelivered, _stoneDelivered;
         protected int _woodToBeDelivered, _stoneToBeDelivered;
         protected int _totalWoodSpent, _totalStoneSpent;
+        protected int _goldPrice;
+
 
         protected float _flashingFontTimer, _flashingFontTimerReset;
 
@@ -686,6 +724,7 @@ namespace Keeno
             {
                 case BuildingType.Tent:
                     _name = "Tent";
+                    _goldPrice = Globals.TentBLGoldPrice;
                     _woodCost = Globals.TentWoodCost;
                     _stoneCost = Globals.TentStoneCost;
                     _populationCountExtention = Globals.TentPopulationAddition;
@@ -694,6 +733,7 @@ namespace Keeno
                     break;
                 case BuildingType.House:
                     _name = "House";
+                    _goldPrice = Globals.HouseBLGoldPrice;
                     _woodCost = Globals.HouseWoodCost;
                     _stoneCost = Globals.HouseStoneCost;
                     _woodUpgradeCost = Globals.HouseUpgradeWoodCost;
@@ -702,6 +742,7 @@ namespace Keeno
                     break;
                 case BuildingType.ResourceStorage:
                     _name = "Storage";
+                    _goldPrice = Globals.ResourceStorageBLGoldPrice;
                     _currLevel = 2;
                     _singleTxrDraw = true;
                     _txr = Assets.MonochromaticTilesetTxr;
@@ -735,6 +776,7 @@ namespace Keeno
                     break;
                 case BuildingType.FarmLand:
                     _name = "Farm Land";
+                    _goldPrice = Globals.FarmLandBLGoldPrice;
                     _currLevel = 2;
                     _singleTxrDraw = true;
                     _txr = Assets.TilesetTxr;
@@ -833,7 +875,8 @@ namespace Keeno
                         {
                             _flashingFontTimer = _flashingFontTimerReset;
                         }
-                        _destroyMe = _HGDestroy.Update(Globals.X_KeyDown, Globals.DestroyInteractSpeed);
+                        if (_buildingType != BuildingType.Bridge)
+                            _destroyMe = _HGDestroy.Update(Globals.X_KeyDown, Globals.DestroyInteractSpeed);
                     }
                     if (_buildingType == BuildingType.FarmLand)
                     {
@@ -897,7 +940,6 @@ namespace Keeno
 
             if (_destroyMe)
             {
-
                 var sound = Assets.BuildingRemovedSFX;
                 var soundInst = sound.CreateInstance();
                 soundInst.Volume = .8f;
@@ -906,6 +948,8 @@ namespace Keeno
                 ResourceTracker.Spend(ResourceType.Housing, _currLevel * _populationCountExtention);
                 ResourceTracker.Add(ResourceType.Wood, _totalWoodSpent);
                 ResourceTracker.Add(ResourceType.Stone, _totalStoneSpent);
+                ResourceTracker.Add(ResourceType.Gold, _goldPrice);
+
                 DestroyMe();
             }
 
@@ -1009,7 +1053,6 @@ namespace Keeno
             _canDropOff = false;
             //_canUse = false;
             _cannotUse = false;
-            _HGDestroy.Reset();
             _HGDropOff.Reset();
             _HGInteract.Reset();
             _HGCantInteract.Reset();
@@ -1208,8 +1251,7 @@ namespace Keeno
 
 
 
-        protected Rectangle _coreRect;
-        public Rectangle CoreRect { get { return _coreRect; } protected set { _coreRect = value; } }
+        
 
         #endregion
         public WorkStation(Point tilePosition, int globalTileIndex)
@@ -1492,7 +1534,6 @@ namespace Keeno
             _canDropOff = false;
             _canUse = false;
             _cannotUse = false;
-            _HGDestroy.Reset();
             _HGDropOff.Reset();
             _HGInteract.Reset();
             _HGCantInteract.Reset();
@@ -1707,8 +1748,8 @@ namespace Keeno
             _impassable = false;
             _txr = _tilesetTxr;
             _srcRect = new Rectangle(
-                  (Globals.HarvestedGoldTileIndex % _tilesetColumns) * _tileWidth,
-                  (Globals.HarvestedGoldTileIndex / _tilesetColumns) * _tileHeight,
+                  (Globals.GoldCoinTileIndex % _tilesetColumns) * _tileWidth,
+                  (Globals.GoldCoinTileIndex / _tilesetColumns) * _tileHeight,
                   _tileWidth,
                   _tileHeight);
         }

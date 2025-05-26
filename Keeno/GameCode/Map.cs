@@ -134,6 +134,9 @@ namespace Keeno
                         case Globals.BellTileIndex:
                             AddBell(x, y);
                             break;
+                        case Globals.GoldCoinTileIndex:
+                            AddGoldCoin(x, y);
+                            break;
                         default:
                             AddWorldObject(x, y);
                             break;
@@ -359,7 +362,12 @@ namespace Keeno
             _worldObjects.Add(newBell);
 
             _mapData[y, x] = Globals.EmptyTileIndex;
+        }
+        private void AddGoldCoin(int x, int y)
+        {
+            _worldObjects.Add(new GoldCoin(new Point(x, y)));
 
+            _mapData[y, x] = Globals.EmptyTileIndex;
         }
 
         public void Update(GameTime gt)

@@ -173,6 +173,12 @@ namespace Keeno
                 // if it IS AN ITEM
                 if (sortedWorldObjectList[0] is Item selectedItem)
                 {
+                    if (selectedItem is GoldCoin goldCoin)
+                    {
+                        if(_rect.Intersects(goldCoin.CoreRect))
+                            goldCoin.GatherGoldCoin();
+                        return;
+                    }
                     // Call the Selected method of the closest World Object
                     selectedItem.Selected(_state != PlayerState.BuildingMode);
                     if (Globals.E_KeyPress && selectedItem is not ShopBuildingBlueprint)
