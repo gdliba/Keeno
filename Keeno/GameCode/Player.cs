@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework.Input;
 using System.Linq;
 using System.Diagnostics;
+using System;
+using Microsoft.Xna.Framework.Audio;
 
 namespace Keeno
 {
@@ -17,6 +19,8 @@ namespace Keeno
     class Player : AnimatedKeeno2D
     {
         //private Map _map;
+
+        private float _footstepTimer;
 
         private Point _defaultStartingPos;
 
@@ -65,6 +69,8 @@ namespace Keeno
             //_itemCarryPoint = new Point(0, 0);
             _itemCarrying = null;
 
+            _footstepTimer = 0;
+
         }
         public void Reset()
         {
@@ -75,6 +81,17 @@ namespace Keeno
         }
         public override void Update(GameTime gt)
         {
+
+            // Play the footstep sounds at a speed that makes sense
+            if (_isWalking && _footstepTimer <= 0)
+            {
+                PlayFootstep();
+                _footstepTimer = (23 / _moveSpeed); // Reset timer based on speed
+            }
+            _footstepTimer -= Globals.DeltaTime;
+
+
+
             _objectsNearPlayer.Clear();
             _emptyTilesNearPlayer.Clear();
 
@@ -304,7 +321,23 @@ namespace Keeno
                 }
             }
         }
+        public void PlayFootstep()
+        {
+            bool temp = Globals.RNG.Next(2) == 0;
 
+            SoundEffectInstance instance = Assets.Footstep1Sfx.CreateInstance();
+
+            if (temp)
+                instance = Assets.Footstep2Sfx.CreateInstance();
+
+            // Randomize pitch
+            instance.Pitch = (float)(Globals.RNG.NextDouble() * .5);
+
+            // Randomize volume
+            instance.Volume = (float)(0.3 + Globals.RNG.NextDouble() * 0.4);
+
+            instance.Play();
+        }
         public void SetDirection()
         {
             _direction = Vector2.Zero;

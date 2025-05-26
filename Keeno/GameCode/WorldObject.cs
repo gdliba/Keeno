@@ -1926,6 +1926,12 @@ namespace Keeno
         {
             BellRung.Invoke();
         }
+        public override void Draw(SpriteBatch sb)
+        {
+            if (_isSelected)
+                _buttonPrompt_E.Draw(sb);
+            base.Draw(sb);
+        }
     }
     class Shop : SelectableWorldObject
     {

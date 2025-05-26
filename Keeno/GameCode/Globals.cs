@@ -382,6 +382,10 @@ namespace Keeno
         // Player
         public static SoundEffect PlayerAddingFollowerSFX { get; private set; }
         public static SoundEffect PlayerDroppingOffFollowerSFX { get; private set; }
+        public static SoundEffect Footstep1Sfx { get; private set; }
+        public static SoundEffect Footstep2Sfx { get; private set; }
+
+
 
 
 
@@ -500,6 +504,10 @@ namespace Keeno
             StoneDropOffSFX = content.Load<SoundEffect>("Sounds\\Keeno\\StoneDropOffSFX");
             ResourceDeliveredSFX = content.Load<SoundEffect>("Sounds\\Keeno\\ResourceDeliveredSFX");
             ConstructingSFX = content.Load<SoundEffect>("Sounds\\Keeno\\ConstructingLoopSFX");
+            Footstep1Sfx = content.Load<SoundEffect>("Sounds\\Keeno\\Footstep1");
+            Footstep2Sfx = content.Load<SoundEffect>("Sounds\\Keeno\\Footstep2");
+
+
 
             // Music
             MainThemeSFX = content.Load<Song>("Sounds\\Music\\MainTheme");
