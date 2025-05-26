@@ -325,13 +325,6 @@ namespace Keeno
                 currentGameState = GameState.EndOfDay;
             }
 
-            if (Globals.Escape_KeyPress)
-            {
-                musicPlayer.PauseMusic();
-                currentGameState = GameState.Pause;
-                Assets.PauseSFX.Play();
-            }
-
             timeManager.UpdateTime((float)gt.ElapsedGameTime.TotalSeconds);
             testMap.Update(gt);
 
@@ -391,12 +384,28 @@ namespace Keeno
                 ResourceTracker.Add(debugResource, 10);
             //if (Globals.DownArrow_KeyPress)
             //    ResourceTracker.Add(debugResource, -10);
+
+
+            if (Globals.Escape_KeyPress)
+            {
+                musicPlayer.PauseMusic();
+                currentGameState = GameState.Pause;
+                Assets.PauseSFX.Play();
+
+                foreach (var keeno in keenos)
+                {
+                    keeno.StopConstructingSound();
+                    keeno.StopWorkSound();
+
+                }
+            }
         }
         private void PauseUpdate()
         {
             uiManager.UpdatePause();
             if (Globals.Escape_KeyPress)
             {
+                musicPlayer.ResumeMusic();
                 currentGameState = GameState.Playing;
                 Assets.ButtonPressSFX.Play();
             }

@@ -472,28 +472,24 @@ namespace Keeno
         {
             if (_workInst == null)
                 return;
-            _workInst.Volume = 1;
             _workInst.Play();
         }
         public void StopWorkSound()
         {
             if (_workInst == null)
                 return;
-            _workInst.Volume = 0;
             _workInst.Stop();
         }
         public void PlayConstructingSound()
         {
             if (_constructingInst == null)
                 return;
-            _constructingInst.Volume = 1;
             _constructingInst.Play(); 
         }
         public void StopConstructingSound()
         {
             if (_constructingInst == null)
                 return;
-            _constructingInst.Volume = 0;
             _constructingInst.Stop();
         }
         public void TakeWorkSoundEffect(SoundEffect workSound)
