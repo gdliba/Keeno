@@ -407,7 +407,8 @@ namespace Keeno
         public static SoundEffect StoneDropOffSFX { get; private set; }
         public static SoundEffect ResourceDeliveredSFX { get; private set; }
         public static SoundEffect GoldCoinCollectSFX { get; private set; }
-            
+        public static SoundEffect RockBrokenSFX { get; private set; }
+
 
 
         // Music
@@ -486,12 +487,6 @@ namespace Keeno
             ButtonHoverSFX = content.Load<SoundEffect>("Sounds\\UI\\Buttons\\ButtonHoverSFX");
             ButtonPressSFX = content.Load<SoundEffect>("Sounds\\UI\\Buttons\\ButtonPressSFX");
 
-            //Buildings
-            BuildingPlacedSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\BuildingPlacedSFX");
-            KeenoSpawnSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\KeenoSpawnSFX");
-            BuildingUpgradedSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\BuildingUpgradedSFX");
-            BuildingRemovedSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\BuildingRemovedSFX");
-
 
             // Player
             PlayerAddingFollowerSFX = content.Load<SoundEffect>("Sounds\\Keeno\\PlayerAddingFollowerSFX");
@@ -502,7 +497,14 @@ namespace Keeno
             BuySFX = content.Load<SoundEffect>("Sounds\\UI\\BuySFX");
 
 
+            // World Objects
+            RockBrokenSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\RockBrokenSFX");
 
+            //Buildings
+            BuildingPlacedSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\BuildingPlacedSFX");
+            KeenoSpawnSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\KeenoSpawnSFX");
+            BuildingUpgradedSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\BuildingUpgradedSFX");
+            BuildingRemovedSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\BuildingRemovedSFX");
 
 
             // Keeno
@@ -521,7 +523,6 @@ namespace Keeno
             ConstructingSFX = content.Load<SoundEffect>("Sounds\\Keeno\\ConstructingLoopSFX");
             Footstep1Sfx = content.Load<SoundEffect>("Sounds\\Keeno\\Footstep1");
             Footstep2Sfx = content.Load<SoundEffect>("Sounds\\Keeno\\Footstep2");
-
 
             // Music
             MainThemeSFX = content.Load<Song>("Sounds\\Music\\MainTheme");

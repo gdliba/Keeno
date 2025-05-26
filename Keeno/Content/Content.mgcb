@@ -274,6 +274,12 @@
 /processorParam:Quality=Best
 /build:Sounds/WorldObjects/KeenoSpawnSFX.wav
 
+#begin Sounds/WorldObjects/RockBrokenSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/WorldObjects/RockBrokenSFX.wav
+
 #begin SpriteSheets/color_t.png
 /importer:TextureImporter
 /processor:TextureProcessor

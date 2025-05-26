@@ -1237,6 +1237,8 @@ namespace Keeno
         protected List<Keeno> _workers;
 
         protected SoundEffect _workSFX;
+        protected SoundEffect? _workstationDepletedSFX;
+
 
         protected Texture2D _tilesetTxr;
         protected Texture2D _whiteTxr;
@@ -1260,16 +1262,19 @@ namespace Keeno
         protected bool _selectedCondition;      // in most cases checking if player has followers
         protected bool _flashesWhenHarvested;
         protected bool _brokenByPlayer;         // checking if the player broke the resource
+        protected bool _hasPlayedDepletedSFX;
 
 
 
-        
+
+
 
         #endregion
         public WorkStation(Point tilePosition, int globalTileIndex)
             : base
             (tilePosition, globalTileIndex)
         {
+
             _workers = new List<Keeno>();
             // Default values
             _resourceType = ResourceType.None;
@@ -1291,6 +1296,7 @@ namespace Keeno
             _hasToBeCollected = false;
             _diesWhenBroken = false;
             _brokenByPlayer = false;
+            _hasPlayedDepletedSFX = false;
 
             _coreRect = new Rectangle(_rect.X+_rect.Width/4,_rect.Y+_rect.Height/4, _rect.Width/2, _rect.Height/2);
 
@@ -1426,6 +1432,12 @@ namespace Keeno
             // Health Check
             if (_health == 0)
             {
+                if(_workstationDepletedSFX != null)
+                {
+                    var temp = _workstationDepletedSFX.CreateInstance();
+                    temp.Play();
+                }
+                _hasPlayedDepletedSFX = true;
                 _health--;
                 _state = ObjectState.Broken;
             }
@@ -1708,6 +1720,7 @@ namespace Keeno
         public RockFormation(Point tilePosition, int globalTileIndex, bool isBroken)
             : base(tilePosition, globalTileIndex)
         {
+            _workstationDepletedSFX = Assets.RockBrokenSFX;
             _resourceType = ResourceType.Stone;
             _resourceAmount = Globals.RockStoneAmount;
             _health = Globals.RockHealth;
@@ -1723,7 +1736,7 @@ namespace Keeno
             _whiteTxr = Assets.WhiteRockTxr;
 
             if (isBroken)
-                _health = 0;
+                _state = ObjectState.Broken;
         }
         public override void ChangeTextureToBroken()
         {
@@ -1741,6 +1754,7 @@ namespace Keeno
         public GoldFromation(Point tilePosition, int globalTileIndex)
             : base(tilePosition, globalTileIndex)
         {
+            _workstationDepletedSFX = Assets.RockBrokenSFX;
             _resourceType = ResourceType.Gold;
             _resourceAmount = Globals.GoldGoldAmount;
             _health = Globals.GoldHealth;
@@ -1777,6 +1791,7 @@ namespace Keeno
         public BreakableWall(Point tilePosition, int globalTileIndex)
             : base(tilePosition, globalTileIndex)
         {
+            _workstationDepletedSFX = Assets.RockBrokenSFX;
             _workDuration = Globals.BreakableWallWorkAmount;
             _workerSlots = Globals.BreakableWallWorkerSlots;
             _resourceType = ResourceType.None;
