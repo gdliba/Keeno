@@ -258,7 +258,7 @@ namespace Keeno
                 keeno.Update(gt);
             }
 
-            for (int i = 0; i < 500; i++)
+            for (int i = 0; i < 5000; i++)
             {
                 if(startScreenkeenos.Count>500)
                     break;
