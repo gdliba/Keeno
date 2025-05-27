@@ -17,7 +17,7 @@ namespace Keeno
 
         public static readonly Random RNG = new Random();
 
-        public static bool HidePromtsAndNames = true;
+        public static bool HidePromtsAndNames = false;
 
         public static GraphicsDeviceManager Graphics;
         public static int ScreenWidth { get => Graphics.PreferredBackBufferWidth; }
@@ -79,6 +79,7 @@ namespace Keeno
         {
             Graphics.PreferredBackBufferWidth = width;
             Graphics.PreferredBackBufferHeight = height;
+            Graphics.IsFullScreen = true;
             Graphics.ApplyChanges();
         }
         public static void Update(GameTime gt)
@@ -210,23 +211,22 @@ namespace Keeno
         //public static float KeenoMovementSpeed = 20;
 
         // Tree
-        public static int TreeHealth = 10;
+        public static int TreeHealth = 5;
         public static int TreeWoodAmount = 1;
         public static int TreeWorkerSlots = 1;
         public static float TreeWorkAmount = 12f;
 
         // Farm
-        public static int FarmHealth = 5;
+        public static int FarmHealth = 10;
         public static int FarmFoodAmount = 1;
         public static int FarmWorkerSlots = 1;
-        public static float FarmWorkAmount = 8f;
+        public static float FarmWorkAmount = 4f;
 
 
         // Rock / Stone
         public static int RockHealth = 5;
         public static int RockStoneAmount = 1;
         public static int RockWorkerSlots = 1;
-        //public static float RockWorkAmount = 42f;
         public static float RockWorkAmount = 22f;
 
 
@@ -238,7 +238,7 @@ namespace Keeno
 
         // BreakableWall
         public static int BreakableWallHealth = 1;
-        public static int BreakableWallWorkerSlots = 10;
+        public static int BreakableWallWorkerSlots = 100;
         public static float BreakableWallWorkAmount = 6f;
 
         // Layer Depths
@@ -264,49 +264,43 @@ namespace Keeno
         // Starting Housing Value 
         public static int StartingHousingValue = 5;
 
-        // Blueprint Prices
-        // Tent
-        public static int TentBLGoldPrice = 1;
-            // House
-        public static int HouseBLGoldPrice = 2;
-            // ResourceStorage
-        public static int ResourceStorageBLGoldPrice = 3;
-            // FarmLand
-        public static int FarmLandBLGoldPrice = 4;
-
-
+        
         // Buildings
         // Tent
-        public static int TentWoodCost = 5;
+        public static int TentWoodCost = 10;
         public static int TentStoneCost = 0;
         public static int TentUpgradeWoodCost = 5;
         public static int TentUpgradeStoneCost = 0;
         public static int TentPopulationAddition = 3;
+        public static int TentBLGoldPrice = 1;
 
             // House
         public static int HouseWoodCost = 10;
-        public static int HouseStoneCost = 10;
-        public static int HouseUpgradeWoodCost = 10;
-        public static int HouseUpgradeStoneCost = 10;
+        public static int HouseStoneCost = 5;
+        public static int HouseUpgradeWoodCost = 5;
+        public static int HouseUpgradeStoneCost = 5;
         public static int HousePopulationAddition = 5;
+        public static int HouseBLGoldPrice = 2;
 
             // ResourceStorage
         public static int ResourceStorageWoodCost = 1;
         public static int ResourceStorageStoneCost = 0;
         public static int ResourceStorageUpgradeWoodCost = 1;
         public static int ResourceStorageUpgradeStoneCost = 0;
+        public static int ResourceStorageBLGoldPrice = 2;
         
         // Bridge
-        public static int BridgeWoodCost = 1;
+        public static int BridgeWoodCost = 20;
         public static int BridgeStoneCost = 0;
         public static int BridgeUpgradeWoodCost = 1;
         public static int BridgeUpgradeStoneCost = 0;
 
         // FarmLand
-        public static int FarmLandWoodCost = 1;
-        public static int FarmLandStoneCost = 0;
-        public static int FarmLandUpgradeWoodCost = 1;
-        public static int FarmLandUpgradeStoneCost = 0;
+        public static int FarmLandWoodCost = 10;
+        public static int FarmLandStoneCost = 2;
+        public static int FarmLandUpgradeWoodCost = 2;
+        public static int FarmLandUpgradeStoneCost = 1;
+        public static int FarmLandBLGoldPrice = 2;
     }
     static class Assets
     {
@@ -552,7 +546,7 @@ namespace Keeno
 
     static class ResourceTracker
     {
-        public const int KeenoCost = 5;
+        public const int KeenoCost = 10;
 
         // Store resource Type and Amount
         private static readonly Dictionary<ResourceType, int> _amounts;

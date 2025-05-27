@@ -81,14 +81,15 @@ namespace Keeno
         public bool Impassable { get { return _impassable;} protected set { _impassable = value; } }
 
         protected Color _tint;
-        protected Color _fontColour;
+        protected Color _uiColour, _fontColour;
 
         public Rectangle Bounds { get{ return _rect; } protected set { _rect = value; } }
         public Vector2 Position { get { return new Vector2(_rect.X + _tileWidth / 2, _rect.Y + _tileHeight / 2); } }
         #endregion
         public WorldObject(Point tilePosition, int globalTileIndex)
         {
-            _fontColour = Color.White;
+            _uiColour = Color.White;
+            _fontColour = new Color(207,198,184);
             _name = "name";
             _descriptionFont = Assets.MonogramDescriptionFont;
             _state = ObjectState.Harvestable;
@@ -142,7 +143,9 @@ namespace Keeno
             if (Globals.HidePromtsAndNames)
                 return;
             Vector2 textSize = _descriptionFont.MeasureString(_name);
-            sb.DrawString(_descriptionFont, _name, new Vector2(_rect.Center.X-textSize.X/2, _rect.Bottom-textSize.Y/4), Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
+            sb.DrawString(_descriptionFont, _name, new Vector2(_rect.Center.X-textSize.X/2, _rect.Bottom-textSize.Y/4), _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
+            sb.DrawString(_descriptionFont, _name, new Vector2(_rect.Center.X - textSize.X / 2, _rect.Bottom - textSize.Y / 4) + new Vector2(.5f), Color.Black, 0f, Vector2.Zero, 1, SpriteEffects.None, .098f);
+
         }
         protected virtual void LoadingBarsAndPrompts()
         {
@@ -376,10 +379,10 @@ namespace Keeno
         public override void Draw(SpriteBatch sb)
         {
             if (_isSelected)
-                sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, _tint, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
+                sb.Draw(_selectedTileTileset, _rect, _selectedTileSrcRect, Color.Gold, 0, Vector2.Zero, SpriteEffects.None, Globals.SelectedTxrLD);
             //sb.Draw(_testPixel, Bounds, Color.Red * .75f);
             //sb.Draw(_txr, _rect, Color.White);
-            sb.Draw(_txr, _rect, _srcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, .1f);
+            sb.Draw(_txr, _rect, _srcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Globals.WolrdObjectLD);
 
             //sb.Draw(Assets.DebugPixelTxr, CoreRect, Color.Red);
 
@@ -535,11 +538,11 @@ namespace Keeno
             if (_flashingFontTimer > 0)
             {
                 _flashingFontTimer -= Globals.DeltaTime;
-                _fontColour = Color.Red;
+                _uiColour = Color.Red;
             }
             else
             {
-                _fontColour = Color.White;
+                _uiColour = Color.White;
             }
             base.Update(gt);
         }
@@ -613,9 +616,9 @@ namespace Keeno
             Vector2 priceTextPos = new Vector2(_rect.Right + 16, _rect.Top - 16);
 
             
-            sb.DrawString(_descriptionFont, priceText, priceTextPos, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
+            sb.DrawString(_descriptionFont, priceText, priceTextPos, _uiColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
             Vector2 goldUIPos = new Vector2(priceTextPos.X - 8, priceTextPos.Y + 4);
-            sb.Draw(Assets.UIGoldIconTxr, goldUIPos, null, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, Globals.InGameUILD);
+            sb.Draw(Assets.UIGoldIconTxr, goldUIPos, null, _uiColour, 0f, Vector2.Zero, 1, SpriteEffects.None, Globals.InGameUILD);
         }
         public override void Draw(SpriteBatch sb)
         {
@@ -807,11 +810,11 @@ namespace Keeno
             if (_flashingFontTimer > 0)
             {
                 _flashingFontTimer -= Globals.DeltaTime;
-                _fontColour = Color.Red;
+                _uiColour = Color.Red;
             }
             else
             {
-                _fontColour = Color.White;
+                _uiColour = Color.White;
             }
 
             _workSpeed = 0f;
@@ -1097,7 +1100,8 @@ namespace Keeno
                         TextDescription(sb);
                         _HGInteract.Draw(sb);
                         _HGDestroy.Draw(sb);
-                        _buttonPrompt_X.Draw(sb);
+                        if(_buildingType != BuildingType.Bridge)
+                            _buttonPrompt_X.Draw(sb);
                         // if the structure isn't upgradable
                         if (_woodUpgradeCost == -1 || _stoneUpgradeCost == -1)
                             break;
@@ -1122,15 +1126,15 @@ namespace Keeno
 
             if (_woodUpgradeCost > 0)
             {
-                sb.DrawString(_descriptionFont, woodDelivered + "/" + _woodCost, woodDeliveredTextPos, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
+                sb.DrawString(_descriptionFont, woodDelivered + "/" + _woodCost, woodDeliveredTextPos, _uiColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
                 Vector2 woodUIPos = new Vector2(woodDeliveredTextPos.X - 8, woodDeliveredTextPos.Y + 4);
-                sb.Draw(Assets.UIWoodIconTxr, woodUIPos, null, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, Globals.InGameUILD);
+                sb.Draw(Assets.UIWoodIconTxr, woodUIPos, null, _uiColour, 0f, Vector2.Zero, 1, SpriteEffects.None, Globals.InGameUILD);
             }
             if (_stoneUpgradeCost > 0)
             {
-                sb.DrawString(_descriptionFont, stoneDeliveredText + "/" + _stoneCost, stoneDeliveredTextPos, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
+                sb.DrawString(_descriptionFont, stoneDeliveredText + "/" + _stoneCost, stoneDeliveredTextPos, _uiColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
                 Vector2 stoneUIPos = new Vector2(stoneDeliveredTextPos.X - 8, stoneDeliveredTextPos.Y + 5);
-                sb.Draw(Assets.UIStoneIconTxr, stoneUIPos, null, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, Globals.InGameUILD);
+                sb.Draw(Assets.UIStoneIconTxr, stoneUIPos, null, _uiColour, 0f, Vector2.Zero, 1, SpriteEffects.None, Globals.InGameUILD);
 
             }
         }
@@ -1149,15 +1153,15 @@ namespace Keeno
                 
                 if(_woodUpgradeCost > 0)
                 {
-                    sb.DrawString(_descriptionFont, woodUpgradeText, woodUpgradeTextPos, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
+                    sb.DrawString(_descriptionFont, woodUpgradeText, woodUpgradeTextPos, _uiColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
                     Vector2 woodUIPos = new Vector2(woodUpgradeTextPos.X - 8, woodUpgradeTextPos.Y + 4);
-                    sb.Draw(Assets.UIWoodIconTxr, woodUIPos, null, _fontColour, 0f, Vector2.Zero, 1,SpriteEffects.None,Globals.InGameUILD);
+                    sb.Draw(Assets.UIWoodIconTxr, woodUIPos, null, _uiColour, 0f, Vector2.Zero, 1,SpriteEffects.None,Globals.InGameUILD);
                 }
                 if(_stoneUpgradeCost > 0)
                 {
-                    sb.DrawString(_descriptionFont, stoneUpgradeText, stoneUpgradeTextPos, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
+                    sb.DrawString(_descriptionFont, stoneUpgradeText, stoneUpgradeTextPos, _uiColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
                     Vector2 stoneUIPos = new Vector2(stoneUpgradeTextPos.X - 8, stoneUpgradeTextPos.Y + 5);
-                    sb.Draw(Assets.UIStoneIconTxr, stoneUIPos, null, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, Globals.InGameUILD);
+                    sb.Draw(Assets.UIStoneIconTxr, stoneUIPos, null, _uiColour, 0f, Vector2.Zero, 1, SpriteEffects.None, Globals.InGameUILD);
 
                 }
             }
@@ -1836,11 +1840,11 @@ namespace Keeno
             if (_flashingFontTimer > 0)
             {
                 _flashingFontTimer -= Globals.DeltaTime;
-                _fontColour = Color.Red;
+                _uiColour = Color.Red;
             }
             else
             {
-                _fontColour = Color.White;
+                _uiColour = Color.White;
             }
             
             if (_isSelected)
@@ -1861,7 +1865,7 @@ namespace Keeno
                     ResourceTracker.Spend(ResourceType.Food,
                     ResourceTracker.KeenoCost);
                     SpawnKeeno();
-                    _fontColour = Color.White;
+                    _uiColour = Color.White;
                 }
                 _HGInteract.Reset();
             }
@@ -1904,17 +1908,17 @@ namespace Keeno
             Vector2 KeenoFoodCostTextSize = _descriptionFont.MeasureString(keenoFoodCostText);
             Vector2 keenoFoodCostTextPos = new Vector2(_rect.Right + KeenoFoodCostTextSize.X + 10, _rect.Top - 16);
             
-            sb.DrawString(_descriptionFont, keenoFoodCostText, keenoFoodCostTextPos, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
+            sb.DrawString(_descriptionFont, keenoFoodCostText, keenoFoodCostTextPos, _uiColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
             Vector2 foodUIPos = new Vector2(keenoFoodCostTextPos.X - 8, keenoFoodCostTextPos.Y + 4);
-            sb.Draw(Assets.UIFoodIconTxr, foodUIPos, _fontColour);
+            sb.Draw(Assets.UIFoodIconTxr, foodUIPos, _uiColour);
 
             string keenoHousingCostText = "1";
             Vector2 keenoHousingCostTextSize = _descriptionFont.MeasureString(keenoHousingCostText);
             Vector2 keenoHousingCostTextPos = new Vector2(_rect.Right + keenoHousingCostTextSize.X + 10, _rect.Top - 16+ KeenoFoodCostTextSize.Y);
 
-            sb.DrawString(_descriptionFont, keenoHousingCostText, keenoHousingCostTextPos, _fontColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
+            sb.DrawString(_descriptionFont, keenoHousingCostText, keenoHousingCostTextPos, _uiColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
             Vector2 housingUIPos = new Vector2(keenoHousingCostTextPos.X - 8, keenoHousingCostTextPos.Y + 5);
-            sb.Draw(Assets.UIHousingIconTxr, housingUIPos, _fontColour);
+            sb.Draw(Assets.UIHousingIconTxr, housingUIPos, _uiColour);
 
         }
     }

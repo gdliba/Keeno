@@ -194,7 +194,7 @@ namespace Keeno
                     {
                         if(_rect.Intersects(goldCoin.CoreRect))
                             goldCoin.GatherGoldCoin();
-                        return;
+                        //return;
                     }
                     // Call the Selected method of the closest World Object
                     selectedItem.Selected(_state != PlayerState.BuildingMode);

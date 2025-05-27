@@ -428,13 +428,13 @@ namespace Keeno
             }
 
             // Test Item spawn
-            if (Globals.UpArrow_KeyPress)
-            {
-                var newBlueprint = new BuildingBlueprint(new Point(25, 18), BuildingType.House);
-                _worldObjects.Add(newBlueprint);
-                newBlueprint.BuildingSpawned += building => _worldObjects.Add(building);
+            //if (Globals.UpArrow_KeyPress)
+            //{
+            //    var newBlueprint = new BuildingBlueprint(new Point(25, 18), BuildingType.House);
+            //    _worldObjects.Add(newBlueprint);
+            //    newBlueprint.BuildingSpawned += building => _worldObjects.Add(building);
 
-            }
+            //}
             //// Test Item spawn
             //if (Globals.DownArrow_KeyPress)
             //{

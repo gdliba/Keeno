@@ -94,7 +94,7 @@ namespace Keeno
             //_graphics.PreferredBackBufferWidth = 1920;
             //GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             //_graphics.PreferredBackBufferHeight = 1080;
-                //GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            //GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             // Set screen to Fullscreen
             //_graphics.IsFullScreen = false;
             //_graphics.ApplyChanges();
@@ -282,9 +282,9 @@ namespace Keeno
                 keeno.Update(gt);
             }
 
-            for (int i = 0; i < 5000; i++)
+            for (int i = 0; i <= 500;)
             {
-                if(startScreenkeenos.Count>500)
+                if(startScreenkeenos.Count>=500)
                     break;
                 int x = Globals.RNG.Next(0, Globals.ScreenWidth);
                 int y = Globals.RNG.Next(0, Globals.ScreenHeight);
@@ -312,7 +312,7 @@ namespace Keeno
                 keeno.Update(gt);
             }
 
-            for (int i = 0; i <= keenos.Count; i++)
+            for (int i = 0; i <= keenos.Count;)
             {
                 if (endOfDayScreenKeenos.Count == keenos.Count)
                     break;
@@ -328,7 +328,7 @@ namespace Keeno
         private void PlayingUpdate(GameTime gt)
         {
             // When the day ends
-            if (brightness <= .1 || Globals.X_KeyPress)
+            if (brightness <= .1)
             {
                 endOfDayScreenKeenos.Clear();
                 resetManager.NextDay();
@@ -387,33 +387,33 @@ namespace Keeno
             //if (Globals.Q_KeyPress)
             //    ResourceTracker.Add(ResourceType.Wood, 10);
 
-            switch (debugResource)
-            {
-                case ResourceType.None:
-                    if (Globals.Tab_KeyPress)
-                        debugResource = ResourceType.Food;
-                    break;
-                case ResourceType.Food:
-                    if (Globals.Tab_KeyPress)
-                        debugResource = ResourceType.Wood;
-                    break;
-                case ResourceType.Wood:
-                    if (Globals.Tab_KeyPress)
-                        debugResource = ResourceType.Gold;
-                    break;
-                case ResourceType.Gold:
-                    if (Globals.Tab_KeyPress)
-                        debugResource = ResourceType.Stone;
-                    break;
-                case ResourceType.Stone:
-                    if (Globals.Tab_KeyPress)
-                        debugResource = ResourceType.Food;
-                    break;
-            }
+            //switch (debugResource)
+            //{
+            //    case ResourceType.None:
+            //        if (Globals.Tab_KeyPress)
+            //            debugResource = ResourceType.Food;
+            //        break;
+            //    case ResourceType.Food:
+            //        if (Globals.Tab_KeyPress)
+            //            debugResource = ResourceType.Wood;
+            //        break;
+            //    case ResourceType.Wood:
+            //        if (Globals.Tab_KeyPress)
+            //            debugResource = ResourceType.Gold;
+            //        break;
+            //    case ResourceType.Gold:
+            //        if (Globals.Tab_KeyPress)
+            //            debugResource = ResourceType.Stone;
+            //        break;
+            //    case ResourceType.Stone:
+            //        if (Globals.Tab_KeyPress)
+            //            debugResource = ResourceType.Food;
+            //        break;
+            //}
             //if (Globals.X_KeyPress)
             //    ResourceTracker.Reset();
-            if (Globals.UpArrow_KeyPress)
-                ResourceTracker.Add(debugResource, 10);
+            //if (Globals.UpArrow_KeyPress)
+            //    ResourceTracker.Add(debugResource, 10);
             //if (Globals.DownArrow_KeyPress)
             //    ResourceTracker.Add(debugResource, -10);
 
@@ -519,17 +519,11 @@ namespace Keeno
             uiManager.DrawPlaying(_spriteBatch, keenos);
 
 #if DEBUG
-            _spriteBatch.DrawString(Assets.MonogramFont,
-                _renderTarget.Width + "x " + _renderTarget.Height
-                //+ "\nKeenos: " + keenos.Count + " / " + ResourceTracker.GetAmount(ResourceType.Housing)
-                //+ "\nWood: " + ResourceTracker.GetAmount(ResourceType.Wood)
-                //+ "\nFood: " + ResourceTracker.GetAmount(ResourceType.Food)
-                //+ "\nGold: " + ResourceTracker.GetAmount(ResourceType.Gold)
-                //+ "\nStone: " + ResourceTracker.GetAmount(ResourceType.Stone)
-                //+ "\nSelected Resource:" + debugResource
-                + "\nTime Of Day: " + timeManager._timeOfDay,
+            //_spriteBatch.DrawString(Assets.MonogramFont,
+            //    _renderTarget.Width + "x " + _renderTarget.Height
+            //    + "\nTime Of Day: " + timeManager._timeOfDay,
 
-                new Vector2(10, 10), Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);
+            //    new Vector2(10, 10), Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);
 #endif
             _spriteBatch.End();
         }
