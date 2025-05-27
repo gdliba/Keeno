@@ -387,35 +387,35 @@ namespace Keeno
             //if (Globals.Q_KeyPress)
             //    ResourceTracker.Add(ResourceType.Wood, 10);
 
-            //switch (debugResource)
-            //{
-            //    case ResourceType.None:
-            //        if (Globals.Tab_KeyPress)
-            //            debugResource = ResourceType.Food;
-            //        break;
-            //    case ResourceType.Food:
-            //        if (Globals.Tab_KeyPress)
-            //            debugResource = ResourceType.Wood;
-            //        break;
-            //    case ResourceType.Wood:
-            //        if (Globals.Tab_KeyPress)
-            //            debugResource = ResourceType.Gold;
-            //        break;
-            //    case ResourceType.Gold:
-            //        if (Globals.Tab_KeyPress)
-            //            debugResource = ResourceType.Stone;
-            //        break;
-            //    case ResourceType.Stone:
-            //        if (Globals.Tab_KeyPress)
-            //            debugResource = ResourceType.Food;
-            //        break;
-            //}
+            switch (debugResource)
+            {
+                case ResourceType.None:
+                    if (Globals.Tab_KeyPress)
+                        debugResource = ResourceType.Food;
+                    break;
+                case ResourceType.Food:
+                    if (Globals.Tab_KeyPress)
+                        debugResource = ResourceType.Wood;
+                    break;
+                case ResourceType.Wood:
+                    if (Globals.Tab_KeyPress)
+                        debugResource = ResourceType.Gold;
+                    break;
+                case ResourceType.Gold:
+                    if (Globals.Tab_KeyPress)
+                        debugResource = ResourceType.Stone;
+                    break;
+                case ResourceType.Stone:
+                    if (Globals.Tab_KeyPress)
+                        debugResource = ResourceType.Food;
+                    break;
+            }
             //if (Globals.X_KeyPress)
             //    ResourceTracker.Reset();
-            //if (Globals.UpArrow_KeyPress)
-            //    ResourceTracker.Add(debugResource, 10);
-            //if (Globals.DownArrow_KeyPress)
-            //    ResourceTracker.Add(debugResource, -10);
+            if (Globals.UpArrow_KeyPress)
+                ResourceTracker.Add(debugResource, 10);
+            if (Globals.DownArrow_KeyPress)
+                ResourceTracker.Add(debugResource, -10);
 
 
             if (Globals.Escape_KeyPress)

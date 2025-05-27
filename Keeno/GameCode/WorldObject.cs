@@ -1956,6 +1956,7 @@ namespace Keeno
         }
         public override void OnInteract()
         {
+            Assets.BellSoundSFX.Play();
             BellRung.Invoke();
         }
         public override void Draw(SpriteBatch sb)

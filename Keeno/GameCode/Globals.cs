@@ -79,7 +79,7 @@ namespace Keeno
         {
             Graphics.PreferredBackBufferWidth = width;
             Graphics.PreferredBackBufferHeight = height;
-            Graphics.IsFullScreen = true;
+            //Graphics.IsFullScreen = true;
             Graphics.ApplyChanges();
         }
         public static void Update(GameTime gt)
@@ -369,9 +369,12 @@ namespace Keeno
         public static SoundEffect KeenoSpawnSFX { get; private set; }
         public static SoundEffect BuildingUpgradedSFX { get; private set; }
         public static SoundEffect BuildingRemovedSFX { get; private set; }
+        public static SoundEffect BellSoundSFX { get; private set; }
 
         
-            
+
+
+
 
         // UI
         public static SoundEffect BlueprintShuffleSFX { get; private set; }
@@ -499,6 +502,8 @@ namespace Keeno
             KeenoSpawnSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\KeenoSpawnSFX");
             BuildingUpgradedSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\BuildingUpgradedSFX");
             BuildingRemovedSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\BuildingRemovedSFX");
+            BellSoundSFX = content.Load<SoundEffect>("Sounds\\WorldObjects\\BellSoundSFX");
+
 
 
             // Keeno
