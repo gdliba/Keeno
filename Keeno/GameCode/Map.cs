@@ -397,16 +397,16 @@ namespace Keeno
                 _worldObjects[i].Update(gt);
 
                 // Remove Dead WorldObjects
-                if (_worldObjects[i].State == ObjectState.Dead && _worldObjects[i] is Item)
-                {
-                    int y = _worldObjects[i].TilePosition.Y / Globals.Tile_Width_Height;
-                    int x = _worldObjects[i].TilePosition.X / Globals.Tile_Width_Height;
+                //if (_worldObjects[i].State == ObjectState.Dead && _worldObjects[i] is Item)
+                //{
+                //    int y = _worldObjects[i].TilePosition.Y / Globals.Tile_Width_Height;
+                //    int x = _worldObjects[i].TilePosition.X / Globals.Tile_Width_Height;
 
 
-                    // Replace their tile with and Empty one so that the player can build on it
-                    _worldObjects.RemoveAt(i);
-                }
-                else if (_worldObjects[i].State == ObjectState.Dead && _worldObjects[i] is not Item)
+                //    // Replace their tile with and Empty one so that the player can build on it
+                //    _worldObjects.RemoveAt(i);
+                //}
+                if (_worldObjects[i].State == ObjectState.Dead)
                 {
                     int y = _worldObjects[i].TilePosition.Y / Globals.Tile_Width_Height;
                     int x = _worldObjects[i].TilePosition.X / Globals.Tile_Width_Height;
