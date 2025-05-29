@@ -198,7 +198,7 @@ namespace Keeno
                     }
                     // Call the Selected method of the closest World Object
                     selectedItem.Selected(_state != PlayerState.BuildingMode);
-                    if (Globals.E_KeyPress && selectedItem is not ShopBuildingBlueprint)
+                    if (Globals.E_KeyPress && selectedItem is not ShopBuildingBlueprint && selectedItem is not GoldCoin)
                     {
                         _itemCarrying = selectedItem as Item;
                         _state = PlayerState.BuildingMode;
