@@ -215,7 +215,7 @@ namespace Keeno
         }
         private void AddFarm(int x, int y)
         {
-            _worldObjects.Add(new Farm(new Point(x,y), Globals.FarmTileIndex1));
+            _worldObjects.Add(new Farm(new Point(x,y), Globals.FarmTileIndex1, false));
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }

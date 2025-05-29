@@ -214,13 +214,16 @@ namespace Keeno
         public static int TreeHealth = 5;
         public static int TreeWoodAmount = 1;
         public static int TreeWorkerSlots = 1;
-        public static float TreeWorkAmount = 12f;
+        public static float TreeWorkAmount = 14f;
 
         // Farm
         public static int FarmHealth = 10;
+        public static int PlayerMadeFarmHealth = 20;
         public static int FarmFoodAmount = 1;
         public static int FarmWorkerSlots = 1;
-        public static float FarmWorkAmount = 4f;
+        public static float FarmWorkAmount = 8f;
+        public static float PlayerMadeFarmWorkAmount = 16f;
+
 
 
         // Rock / Stone

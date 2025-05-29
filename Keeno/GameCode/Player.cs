@@ -64,7 +64,7 @@ namespace Keeno
             _keenos = keenos;
             _keenosNearPlayer = new List<Keeno>();
             _followers = new List<Keeno>();
-            _workSpeed = 5f;
+            _workSpeed = 10f;
 
             //_itemCarryPoint = new Point(0, 0);
             _itemCarrying = null;
@@ -140,6 +140,17 @@ namespace Keeno
                 _state = PlayerState.Normal;
             }
 
+            // Allow the player to gather gold coins if in Build Mode
+            foreach (Item item in _worldObjects.OfType<GoldCoin>())
+            {
+                if (_rect.Intersects(item.CoreRect) && item is GoldCoin goldCoin)
+                {
+                    if (_rect.Intersects(goldCoin.CoreRect))
+                        goldCoin.GatherGoldCoin();
+                    break;
+                }
+            }
+
             #region Select Closes Empty Tile
             // Clear the List of worldObjects that the are in range with the player
 
@@ -170,16 +181,28 @@ namespace Keeno
 
         private void Player_Object_Interaction()
         {
-            #region Sort By Distance
+            // Gather Gold Coin if walking over it
+            foreach (Item item in _worldObjects.OfType<GoldCoin>())
+            {
+                if (_rect.Intersects(item.CoreRect) && item is GoldCoin goldCoin)
+                {
+                    if (_rect.Intersects(goldCoin.CoreRect))
+                        goldCoin.GatherGoldCoin();
+                    break;
+                }
+            }
+
+
+            #region Sort WorldObjects By Distance
             // Clear the List of worldObjects that the are in range with the player
-            for (var i = 0; i < _map.WorldObjects.Count; i++)
+            for (var i = 0; i < _worldObjects.Count; i++)
             {
                 // only consider tiles that aren't empty
-                if (InteractionRange.Contains(_map.WorldObjects[i].Position)
-                    && _map.WorldObjects[i] is not EmptyTile
-                    && _map.WorldObjects[i] is SelectableWorldObject
-                    && _map.WorldObjects[i].State != ObjectState.Dead)
-                    _objectsNearPlayer.Add(_map.WorldObjects[i]);
+                if (InteractionRange.Contains(_worldObjects[i].Position)
+                    && _worldObjects[i] is not EmptyTile
+                    && _worldObjects[i] is SelectableWorldObject
+                    && _worldObjects[i].State != ObjectState.Dead)
+                    _objectsNearPlayer.Add(_worldObjects[i]);
             }
             // Sort the list
             Vector2 positionBasedOnDirection = new Vector2(Position.X + 5f * _direction.X, Position.Y + 5f * _direction.Y);
@@ -188,14 +211,8 @@ namespace Keeno
             if (sortedWorldObjectList.Count > 0)
             {
                 // if it IS AN ITEM
-                if (sortedWorldObjectList[0] is Item selectedItem)
+                if (sortedWorldObjectList[0] is Item selectedItem && selectedItem is not GoldCoin)
                 {
-                    if (selectedItem is GoldCoin goldCoin)
-                    {
-                        if(_rect.Intersects(goldCoin.CoreRect))
-                            goldCoin.GatherGoldCoin();
-                        return;
-                    }
                     // Call the Selected method of the closest World Object
                     selectedItem.Selected(_state != PlayerState.BuildingMode);
                     if (Globals.E_KeyPress && selectedItem is not ShopBuildingBlueprint)
@@ -246,11 +263,7 @@ namespace Keeno
                         }
                     }
                 }
-                // At this time only TownCentre
-                else if (sortedWorldObjectList[0] is TownCentre townCentre)
-                {
-                    townCentre.Selected();
-                }
+                // if selected World object IS a BUILDING
                 else if (sortedWorldObjectList[0] is Building building)
                 {
                     if (building.Type == BuildingType.FarmLand)
@@ -270,6 +283,11 @@ namespace Keeno
                     }
                     else
                     building.Selected();
+                }
+                // if selected World object IS a TOWNCENTRE
+                else if (sortedWorldObjectList[0] is TownCentre townCentre)
+                {
+                    townCentre.Selected();
                 }
                 else if (sortedWorldObjectList[0] is BuilderCabin builderCabin)
                 {

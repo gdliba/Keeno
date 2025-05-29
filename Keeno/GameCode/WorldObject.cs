@@ -927,7 +927,7 @@ namespace Keeno
                                 y = _tilePosition.Y / 16;
 
                                 // FARMLAND SPECIFIFC INTERACTION
-                                _farm = new Farm(new Point(x,y), Globals.FarmTileIndex1);
+                                _farm = new Farm(new Point(x,y), Globals.FarmTileIndex1, true);
                                 WorkStationSpawned?.Invoke(_farm);
                             }
                             break;
@@ -1675,7 +1675,7 @@ namespace Keeno
     class Farm : WorkStation
     {
         private Rectangle _farmLandSrc;
-        public Farm(Point tilePosition, int globalTileIndex) 
+        public Farm(Point tilePosition, int globalTileIndex, bool isPlayerMade) 
             : base(tilePosition, globalTileIndex)
         {
             _workSFX = Assets.WorkingOnFarmSFX;
@@ -1684,6 +1684,14 @@ namespace Keeno
             _health = Globals.FarmHealth;
             _workerSlots = Globals.FarmWorkerSlots;
             _workDuration = Globals.FarmWorkAmount;
+            if (isPlayerMade)
+            {
+                _workDuration = Globals.PlayerMadeFarmWorkAmount;
+                _health = Globals.PlayerMadeFarmHealth;
+
+            }
+
+
 
             _txr = Assets.TilesetTxr;
             _impassable = false;
