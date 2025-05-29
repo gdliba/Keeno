@@ -1809,6 +1809,8 @@ namespace Keeno
             _resourceType = ResourceType.None;
             _resourceAmount = 0;
             _health = Globals.BreakableWallHealth;
+            _workSFX = Assets.StoneCuttingSFX;
+
 
             _impassable = true;
             _diesWhenBroken = true;

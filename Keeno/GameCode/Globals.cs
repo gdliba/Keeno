@@ -286,7 +286,7 @@ namespace Keeno
         public static int HouseBLGoldPrice = 2;
 
             // ResourceStorage
-        public static int ResourceStorageWoodCost = 25;
+        public static int ResourceStorageWoodCost = 15;
         public static int ResourceStorageStoneCost = 10;
         public static int ResourceStorageUpgradeWoodCost = 1;
         public static int ResourceStorageUpgradeStoneCost = 0;
