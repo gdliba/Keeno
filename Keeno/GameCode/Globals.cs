@@ -227,7 +227,7 @@ namespace Keeno
         public static int RockHealth = 5;
         public static int RockStoneAmount = 1;
         public static int RockWorkerSlots = 1;
-        public static float RockWorkAmount = 22f;
+        public static float RockWorkAmount = 24f;
 
 
         // Gold
@@ -239,7 +239,7 @@ namespace Keeno
         // BreakableWall
         public static int BreakableWallHealth = 1;
         public static int BreakableWallWorkerSlots = 100;
-        public static float BreakableWallWorkAmount = 6f;
+        public static float BreakableWallWorkAmount = 300f;
 
         // Layer Depths
         public static float UIHighlightLD = .052f;
@@ -271,7 +271,7 @@ namespace Keeno
         public static int TentStoneCost = 0;
         public static int TentUpgradeWoodCost = 5;
         public static int TentUpgradeStoneCost = 0;
-        public static int TentPopulationAddition = 3;
+        public static int TentPopulationAddition = 1;
         public static int TentBLGoldPrice = 1;
 
             // House
@@ -279,20 +279,20 @@ namespace Keeno
         public static int HouseStoneCost = 5;
         public static int HouseUpgradeWoodCost = 5;
         public static int HouseUpgradeStoneCost = 5;
-        public static int HousePopulationAddition = 5;
+        public static int HousePopulationAddition = 2;
         public static int HouseBLGoldPrice = 2;
 
             // ResourceStorage
-        public static int ResourceStorageWoodCost = 1;
-        public static int ResourceStorageStoneCost = 0;
+        public static int ResourceStorageWoodCost = 25;
+        public static int ResourceStorageStoneCost = 10;
         public static int ResourceStorageUpgradeWoodCost = 1;
         public static int ResourceStorageUpgradeStoneCost = 0;
-        public static int ResourceStorageBLGoldPrice = 2;
+        public static int ResourceStorageBLGoldPrice = 3;
         
         // Bridge
-        public static int BridgeWoodCost = 20;
+        public static int BridgeWoodCost = 50;
         public static int BridgeStoneCost = 0;
-        public static int BridgeUpgradeWoodCost = 1;
+        public static int BridgeUpgradeWoodCost = 50;
         public static int BridgeUpgradeStoneCost = 0;
 
         // FarmLand

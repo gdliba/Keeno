@@ -784,10 +784,10 @@ namespace Keeno
                     _singleTxrDraw = true;
                     _txr = Assets.TilesetTxr;
 
-                    _woodCost = Globals.ResourceStorageWoodCost;
-                    _stoneCost = Globals.ResourceStorageStoneCost;
-                    _woodUpgradeCost = Globals.ResourceStorageUpgradeWoodCost;
-                    _stoneUpgradeCost = Globals.ResourceStorageUpgradeStoneCost;
+                    _woodCost = Globals.FarmLandWoodCost;
+                    _stoneCost = Globals.FarmLandStoneCost;
+                    _woodUpgradeCost = Globals.FarmLandUpgradeWoodCost;
+                    _stoneUpgradeCost = Globals.FarmLandUpgradeStoneCost;
                     _buildingSrcRect = new Rectangle(
                   (Globals.FarmLandTileIndex % Globals.TilemapColumns) * Globals.Tile_Width_Height,
                   (Globals.FarmLandTileIndex/ Globals.TilemapColumns) * Globals.Tile_Width_Height,
@@ -1124,13 +1124,13 @@ namespace Keeno
             Vector2 stoneDeliveredTextSize = _descriptionFont.MeasureString(stoneDeliveredText);
             Vector2 stoneDeliveredTextPos = new Vector2(_rect.Right + 16, woodDeliveredTextPos.Y + woodDeliveredTextSize.Y / 2 + 2);
 
-            if (_woodUpgradeCost > 0)
+            if (_woodCost > 0)
             {
                 sb.DrawString(_descriptionFont, woodDelivered + "/" + _woodCost, woodDeliveredTextPos, _uiColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
                 Vector2 woodUIPos = new Vector2(woodDeliveredTextPos.X - 8, woodDeliveredTextPos.Y + 4);
                 sb.Draw(Assets.UIWoodIconTxr, woodUIPos, null, _uiColour, 0f, Vector2.Zero, 1, SpriteEffects.None, Globals.InGameUILD);
             }
-            if (_stoneUpgradeCost > 0)
+            if (_stoneCost > 0)
             {
                 sb.DrawString(_descriptionFont, stoneDeliveredText + "/" + _stoneCost, stoneDeliveredTextPos, _uiColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
                 Vector2 stoneUIPos = new Vector2(stoneDeliveredTextPos.X - 8, stoneDeliveredTextPos.Y + 5);
