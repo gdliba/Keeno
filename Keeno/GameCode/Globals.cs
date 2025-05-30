@@ -198,6 +198,8 @@ namespace Keeno
             "Next Day",
             "Exit"
         };
+
+
         #endregion
 
         // Player
@@ -474,7 +476,7 @@ namespace Keeno
             UIHighlightTxr = content.Load<Texture2D>("UI\\Interface\\UIHighlight");
 
             // Hud
-            ResourceHUD = content.Load<Texture2D>("UI\\ResourceUI");
+            ResourceHUD = content.Load<Texture2D>("UI\\ResourceUI1");
 
             #endregion
             // Font

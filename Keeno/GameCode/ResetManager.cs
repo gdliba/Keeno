@@ -10,14 +10,16 @@ namespace Keeno.GameCode
     {
         private Map _map;
         private TimeManager _timeManager;
-        List<Keeno> _keenosInGame;
+        private List<Keeno> _keenosInGame;
         private Player _player;
-        public ResetManager(Map map, TimeManager timeManager, List<Keeno> keenosInGame, Player player)
+        private TextManager _textManager;
+        public ResetManager(Map map, TimeManager timeManager, List<Keeno> keenosInGame, Player player, TextManager textManager )
         {
             _map = map;
             _timeManager = timeManager;
             _keenosInGame = keenosInGame;
             _player = player;
+            _textManager = textManager;
         }
 
         public void ResetAll()
@@ -25,14 +27,13 @@ namespace Keeno.GameCode
             _map.Reset();
             _timeManager.RestartDay();
             _player.Reset();
-
+            _textManager.CompleteReset();
 
             for (int i = 0; i < _keenosInGame.Count; i++)
             {
                 _keenosInGame[i].Die();
             }
             ResourceTracker.Reset();
-
         }
         public void NextDay()
         {

@@ -42,7 +42,7 @@ namespace Keeno
         UIManager uiManager;
         ResetManager resetManager;
         MusicPlayer musicPlayer;
-
+        TextManager textManager;
 
 
 
@@ -50,6 +50,7 @@ namespace Keeno
         //private Texture2D debugPixel;
 
         // TESTS
+        TypewriterText testText, firstKeenoTutorial;
 
 
         float brightness;
@@ -125,6 +126,10 @@ namespace Keeno
 
             Assets.Load(this.Content);
 
+            textManager = new TextManager();
+
+
+
             // Fonts
 #if DEBUG
             debugFont = Content.Load<SpriteFont>("Fonts\\debugFont");
@@ -134,6 +139,18 @@ namespace Keeno
 
             //testMap = new Map("Content/MapData/testLevel_Map.csv");
             testMap = new Map("Content/MapData/MainMap1.csv");
+
+            var player = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(400, 300, 16, 16),
+                Assets.DebugPixelTxr, testMap, keenos);
+            testPlayer = player;
+            player.FirstInteraction += () =>
+            {
+                textManager.SetActive("Resource Interact");
+            };
+            player.FirstFollower += () =>
+            {
+                textManager.SetActive("First Follower");
+            };
             testMap.BellRung += () =>
             {
                 foreach (var keeno in keenos)
@@ -141,10 +158,15 @@ namespace Keeno
                     keeno.PlayerRangBell();
                 }
             };
-            testMap.TownCentreSpawnedKeeno += keeno => keenos.Add(keeno);
+            testMap.TownCentreSpawnedKeeno += keeno =>
+            {
+                keenos.Add(keeno);
+                if (keenos.Count == 1)
+                    textManager.SetActive("First Keeno");
+                if (keenos.Count == 2)
+                    textManager.SetActive("Housing");
+            };
 
-            testPlayer = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(400, 300, 16, 16),
-                Assets.DebugPixelTxr, testMap, keenos);
 
             //testHourGlass = new HourGlass(tilesetTxr, new Rectangle(50, 50, 16, 16));
 
@@ -156,7 +178,7 @@ namespace Keeno
             uiManager.Load();
             musicPlayer = new MusicPlayer();
 
-            resetManager = new ResetManager(testMap, timeManager, keenos, testPlayer);
+            resetManager = new ResetManager(testMap, timeManager, keenos, testPlayer, textManager);
 
             #region Button Presses
             uiManager.OnStartPressed = () =>
@@ -164,6 +186,7 @@ namespace Keeno
                 musicPlayer.PauseMusic();
                 currentGameState = GameState.Playing;
                 musicPlayer.PlayFirstRain();
+                textManager.CompleteReset();
             };
             uiManager.OnContinuePressed = () =>
             {
@@ -194,6 +217,7 @@ namespace Keeno
                 endOfDayScreenKeenos.Clear();
             };
             #endregion
+
         }
 
         protected override void Update(GameTime gt)
@@ -277,6 +301,11 @@ namespace Keeno
             uiManager.StartUpdate();
             musicPlayer.PlayMainTheme();
 
+            if (Globals.X_KeyPress)
+            {
+                testText.SetActive();
+            }
+
             foreach (var keeno in startScreenkeenos)
             {
                 keeno.Update(gt);
@@ -327,6 +356,8 @@ namespace Keeno
 
         private void PlayingUpdate(GameTime gt)
         {
+            textManager.Update();
+
             // When the day ends
             if (brightness <= .1)
             {
@@ -473,6 +504,8 @@ namespace Keeno
 
         private void PlayingDraw()
         {
+
+
             _spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, camera.getCam());
 
             // TEST MAP
@@ -517,6 +550,7 @@ namespace Keeno
             //_spriteBatch.Draw(Assets.UITest, new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
             //uiManager.Draw(_spriteBatch);
             uiManager.DrawPlaying(_spriteBatch, keenos);
+            textManager.Draw(_spriteBatch);
 
 #if DEBUG
             //_spriteBatch.DrawString(Assets.MonogramFont,
@@ -526,6 +560,7 @@ namespace Keeno
             //    new Vector2(10, 10), Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);
 #endif
             _spriteBatch.End();
+
         }
         private void PauseDraw()
         {

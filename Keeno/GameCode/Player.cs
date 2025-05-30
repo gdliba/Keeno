@@ -34,6 +34,10 @@ namespace Keeno
         private readonly List<Keeno> _keenos;
         private readonly List<Keeno> _keenosNearPlayer;
         private readonly List<Keeno> _followers;
+        public List<Keeno> Followers {  get  { return _followers; } }
+
+        public event Action FirstInteraction, FirstFollower;
+        private bool _firstInteraction, _firstFollower;
 
         private readonly List<WorldObject> _objectsNearPlayer;
         private readonly List<EmptyTile> _emptyTilesNearPlayer;
@@ -48,6 +52,8 @@ namespace Keeno
         public Player(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel, Map map, List<Keeno> keenos)
             : base(spriteSheet, fps, rect, pixel, map)
         {
+            _firstFollower = true;
+            _firstInteraction = true;
             _defaultStartingPos = new Point(rect.X+_rect.Width/2, rect.Y+ _rect.Height/ 2);
             _state = PlayerState.Normal;
             _moveSpeed = Globals.PlayerMovementSpeed;
@@ -74,6 +80,8 @@ namespace Keeno
         }
         public void Reset()
         {
+            _firstFollower = true;
+            _firstInteraction = true;
             _followers.Clear();
             _state = PlayerState.Normal;
             _position = _defaultStartingPos.ToVector2();
@@ -81,6 +89,11 @@ namespace Keeno
         }
         public override void Update(GameTime gt)
         {
+            if (_firstFollower && _followers.Count==1)
+            {
+                FirstFollower?.Invoke();
+                _firstFollower = false;
+            }
 
             // Play the footstep sounds at a speed that makes sense
             if (_isWalking && _footstepTimer <= 0)
@@ -239,6 +252,14 @@ namespace Keeno
                 // if selected World object IS a WORKSTATION
                 else if (sortedWorldObjectList[0] is WorkStation selectedWorkStation)
                 {
+                    // let game1 know to show this is the first interaction with a WORKSTATION
+                    if (_firstInteraction)
+                    {
+                        FirstInteraction?.Invoke();
+                        _firstInteraction = false;
+                    }
+
+
                     // if it's Gold
                     if(selectedWorkStation is GoldFromation goldFormation)
                     {

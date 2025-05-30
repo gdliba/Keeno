@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 namespace Keeno
 {
     class Panel : StaticGraphic
@@ -195,6 +197,162 @@ namespace Keeno
 
             sb.Draw(_txr, firstHighlighRect, null, Color.White, 0f, Vector2.Zero,SpriteEffects.None, Globals.UIHighlightLD);
             sb.Draw(_txr, SecondHighlighRect, null, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, Globals.UIHighlightLD);
+        }
+    }
+    class TypewriterText
+    {
+        private bool _isActive;
+        public bool IsActive { get { return _isActive; } }
+
+        public string RawText { get; private set; }
+        private Vector2 _position;
+        private float _charDelay;
+
+        private List<(string text, Color color)> _segments = new();
+        private float _timer;
+        private int _charIndex;
+        private string _visibleText;
+
+        public TypewriterText(Vector2 position, string text)
+        {
+            _timer = 0f;
+            _charIndex = 0;
+            _isActive = false;
+            _position = position;
+            _charDelay = .06f;
+            _visibleText = "";
+            RawText = text;
+            ParseTextWithColors(text);
+        }
+
+        public void SetActive()
+        {
+            _timer = 0f;
+            _charIndex = 0;
+            _visibleText = "";
+            _isActive = true;
+        }
+
+        public void Reset()
+        {
+            _timer = 0f;
+            _charIndex = 0;
+            _visibleText = "";
+            _isActive = false;
+        }
+
+        public void Update( )
+        {
+            if (!_isActive) return;
+
+            _timer += Globals.DeltaTime;
+            while (_charIndex < GetTotalCharCount() && _timer >= _charDelay)
+            {
+                _timer -= _charDelay;
+                _charIndex++;
+                _visibleText = GetVisibleText(_charIndex);
+            }
+        }
+
+        public void Draw(SpriteBatch spriteBatch)
+        {
+
+            if (!_isActive || string.IsNullOrEmpty(_visibleText)) return;
+
+            SpriteFont font = Assets.MonogramFont;
+            Vector2 drawPos = _position;
+            int charsDrawn = 0;
+
+            foreach (var (text, color) in _segments)
+            {
+                for (int i = 0; i < text.Length && charsDrawn < _charIndex; i++)
+                {
+                    string c = text[i].ToString();
+                    spriteBatch.DrawString(font, c, drawPos, color);
+                    drawPos.X += font.MeasureString(c).X;
+                    charsDrawn++;
+                }
+
+                if (charsDrawn >= _charIndex) break;
+            }
+        }
+
+        private void ParseTextWithColors(string input)
+        {
+            _segments.Clear();
+
+            Color currentColor = Color.White;
+            string current = "";
+            bool inTag = false;
+            string tag = "";
+
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (input[i] == '<')
+                {
+                    if (!string.IsNullOrEmpty(current))
+                    {
+                        _segments.Add((current, currentColor));
+                        current = "";
+                    }
+                    inTag = true;
+                    tag = "";
+                }
+                else if (input[i] == '>' && inTag)
+                {
+                    inTag = false;
+                    if (tag.StartsWith("/"))
+                        currentColor = Color.White;
+                    else
+                        currentColor = ParseColor(tag);
+                }
+                else if (inTag)
+                {
+                    tag += input[i];
+                }
+                else
+                {
+                    current += input[i];
+                }
+            }
+
+            if (!string.IsNullOrEmpty(current))
+                _segments.Add((current, currentColor));
+        }
+
+        private int GetTotalCharCount() => _segments.Sum(s => s.text.Length);
+
+        private string GetVisibleText(int count)
+        {
+            string result = "";
+            int c = 0;
+            foreach (var seg in _segments)
+            {
+                if (c + seg.text.Length <= count)
+                {
+                    result += seg.text;
+                    c += seg.text.Length;
+                }
+                else
+                {
+                    result += seg.text.Substring(0, count - c);
+                    break;
+                }
+            }
+            return result;
+        }
+
+        private Color ParseColor(string tag)
+        {
+            return tag.ToLower() switch
+            {
+                "r" => Color.Red,
+                "g" => Color.Green,
+                "b" => Color.Blue,
+                "y" => Color.Yellow,
+                "w" => Color.White,
+                _ => Color.White
+            };
         }
     }
 }
