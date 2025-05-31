@@ -159,6 +159,10 @@ namespace Keeno
             {
                 textManager.SetActive("Buy Keeno");
             };
+            player.FirstStone += () =>
+            {
+                textManager.SetActive("Houses1");
+            };
             testMap.BellRung += () =>
             {
                 foreach (var keeno in keenos)
@@ -175,6 +179,8 @@ namespace Keeno
                     textManager.SetActive("Housing");
                 if (keenos.Count == 3)
                     textManager.SetActive("Population");
+                if (keenos.Count == 4)
+                    textManager.SetActive("Hunger1");
                 if (keenos.Count == 5)
                     textManager.SetActive("BuildersCabin");
                 if (keenos.Count == 6)
@@ -191,11 +197,15 @@ namespace Keeno
             {
                 textManager.SetActive("10 Keeno Milestone");
             };
+            resetManager.TwentyFiveKeenoMilestone += () =>
+            {
+                textManager.SetActive("25 Keeno Milestone");
+            };
 
             #region Button Presses
-            uiManager.OnStartPressed = () =>
+            uiManager.OnPlayPressed = () =>
             {
-                DoStartButtonPressed();
+                DoPlayButtonPressed();
             };
             uiManager.OnContinuePressed = () =>
             {
@@ -228,7 +238,7 @@ namespace Keeno
             #endregion
 
         }
-        private void DoStartButtonPressed()
+        private void DoPlayButtonPressed()
         {
             musicPlayer.PauseMusic();
             currentGameState = GameState.Playing;
@@ -302,7 +312,7 @@ namespace Keeno
 
             if (Globals.Enter_KeyPress)
             {
-                DoStartButtonPressed();
+                DoPlayButtonPressed();
             }
 
             // Random Keeno spawn
@@ -366,7 +376,7 @@ namespace Keeno
             #endregion
             #region EndOfDay / Hunger
             // When the day ends
-            if (brightness <= .1)
+            if (brightness <= .1 || Globals.Enter_KeyPress)
             {
                 endOfDayScreenKeenos.Clear();
                 resetManager.NextDay();

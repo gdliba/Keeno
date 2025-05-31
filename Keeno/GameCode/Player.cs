@@ -36,8 +36,8 @@ namespace Keeno
         private readonly List<Keeno> _followers;
         public List<Keeno> Followers {  get  { return _followers; } }
 
-        public event Action FirstInteraction, FirstFollower, FirstBluePrint, FirstKeeno;
-        private bool _firstInteraction, _firstFollower, _firstBluePrint, _firstKeeno;
+        public event Action FirstInteraction, FirstFollower, FirstBluePrint, FirstKeeno, FirstStone;
+        private bool _firstInteraction, _firstFollower, _firstBluePrint, _firstKeeno, _firstStone;
 
         private readonly List<WorldObject> _objectsNearPlayer;
         private readonly List<EmptyTile> _emptyTilesNearPlayer;
@@ -52,6 +52,7 @@ namespace Keeno
         public Player(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel, Map map, List<Keeno> keenos)
             : base(spriteSheet, fps, rect, pixel, map)
         {
+            _firstStone = true;
             _firstKeeno = true;
             _firstBluePrint = true;
             _firstFollower = true;
@@ -82,6 +83,7 @@ namespace Keeno
         }
         public void Reset()
         {
+            _firstStone = true;
             _firstKeeno = true;
             _firstBluePrint = true;
             _firstFollower = true;
@@ -97,6 +99,11 @@ namespace Keeno
             {
                 FirstKeeno?.Invoke();
                 _firstKeeno = false;
+            }
+            if (_firstStone && ResourceTracker.CanSpend(ResourceType.Stone, 1))
+            {
+                FirstStone?.Invoke();
+                _firstStone = false;
             }
 
             if (_firstFollower && _followers.Count==1)

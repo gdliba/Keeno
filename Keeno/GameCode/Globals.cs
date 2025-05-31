@@ -185,7 +185,7 @@ namespace Keeno
         #region UI
         public static readonly List<string> StartScreenButtons = new List<string>()
         {
-            "Start",
+            "Play",
             "Exit"
         };
         public static readonly List<string> PauseScreenButtons = new List<string>()

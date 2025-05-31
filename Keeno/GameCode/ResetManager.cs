@@ -13,8 +13,8 @@ namespace Keeno.GameCode
         private List<Keeno> _keenosInGame;
         private Player _player;
         private TextManager _textManager;
-        public event Action TenKeenoMilestone;
-        private bool _tenKeenoMilestone;
+        public event Action TenKeenoMilestone, TwentyFiveKeenoMilestone;
+        private bool _tenKeenoMilestone, _twentyFiveKeenoMilestone;
         public ResetManager(Map map, TimeManager timeManager, List<Keeno> keenosInGame, Player player, TextManager textManager )
         {
             _map = map;
@@ -24,6 +24,7 @@ namespace Keeno.GameCode
             _textManager = textManager;
 
             _tenKeenoMilestone = true;
+            _twentyFiveKeenoMilestone= true;
         }
         public void TrackMilestones()
         {
@@ -31,6 +32,11 @@ namespace Keeno.GameCode
             {
                 _tenKeenoMilestone = false;
                 TenKeenoMilestone?.Invoke();
+            }
+            if (_keenosInGame.Count == 25 && _twentyFiveKeenoMilestone)
+            {
+                _twentyFiveKeenoMilestone = false;
+                TwentyFiveKeenoMilestone?.Invoke();
             }
         }
         public void ResetAll()
@@ -45,6 +51,10 @@ namespace Keeno.GameCode
                 _keenosInGame[i].Die();
             }
             ResourceTracker.Reset();
+
+            // Reset Milestones
+            _tenKeenoMilestone = true;
+            _twentyFiveKeenoMilestone = true;
         }
         public void NextDay()
         {

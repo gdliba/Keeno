@@ -12,7 +12,7 @@ namespace Keeno
     {
         private Dictionary<string, Button> buttons;
         private Panel _startPanel, _pausePanel;
-        public Action OnStartPressed, OnContinuePressed, OnRestartPressed, OnMainMenuPressed, OnExitPressed, OnNextDayPressed;
+        public Action OnPlayPressed, OnContinuePressed, OnRestartPressed, OnMainMenuPressed, OnExitPressed, OnNextDayPressed;
 
         private static int _screenWidth;
         private static int _screenHeight;
@@ -32,14 +32,14 @@ namespace Keeno
         {
 
             #region Buttons
-            // Start Button
-            Rectangle startButtonRect = new Rectangle(_screenWidth / 2 - _buttonWidth/2, _screenHeight / 2 - _buttonHeight, _buttonWidth, _buttonHeight);
-            var startButton = new Button(startButtonRect, Globals.StartScreenButtons[0]);
-            startButton.OnClick += () => OnStartPressed?.Invoke();
-            buttons.Add(Globals.StartScreenButtons[0], startButton);
+            // Play Button
+            Rectangle playButtonRect = new Rectangle(_screenWidth / 2 - _buttonWidth/2, _screenHeight / 2 - _buttonHeight, _buttonWidth, _buttonHeight);
+            var playButton = new Button(playButtonRect, Globals.StartScreenButtons[0]);
+            playButton.OnClick += () => OnPlayPressed?.Invoke();
+            buttons.Add(Globals.StartScreenButtons[0], playButton);
 
             // Exit Button
-            Rectangle exitButtonRect = new Rectangle(startButtonRect.X, startButtonRect.Y + 2 * _buttonHeight, _buttonWidth, _buttonHeight);
+            Rectangle exitButtonRect = new Rectangle(playButtonRect.X, playButtonRect.Y + 2 * _buttonHeight, _buttonWidth, _buttonHeight);
             var exitButton = new Button(exitButtonRect, Globals.StartScreenButtons[1]);
             exitButton.OnClick += () => OnExitPressed?.Invoke();
             buttons.Add(Globals.StartScreenButtons[1], exitButton);
