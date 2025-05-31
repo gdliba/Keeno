@@ -36,8 +36,8 @@ namespace Keeno
         private readonly List<Keeno> _followers;
         public List<Keeno> Followers {  get  { return _followers; } }
 
-        public event Action FirstInteraction, FirstFollower;
-        private bool _firstInteraction, _firstFollower;
+        public event Action FirstInteraction, FirstFollower, FirstBluePrint;
+        private bool _firstInteraction, _firstFollower, _firstBluePrint;
 
         private readonly List<WorldObject> _objectsNearPlayer;
         private readonly List<EmptyTile> _emptyTilesNearPlayer;
@@ -52,6 +52,7 @@ namespace Keeno
         public Player(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel, Map map, List<Keeno> keenos)
             : base(spriteSheet, fps, rect, pixel, map)
         {
+            _firstBluePrint = true;
             _firstFollower = true;
             _firstInteraction = true;
             _defaultStartingPos = new Point(rect.X+_rect.Width/2, rect.Y+ _rect.Height/ 2);
@@ -80,6 +81,7 @@ namespace Keeno
         }
         public void Reset()
         {
+            _firstBluePrint = true;
             _firstFollower = true;
             _firstInteraction = true;
             _followers.Clear();
@@ -242,6 +244,11 @@ namespace Keeno
                         // Buy the bluprint
                         else if (Globals.E_KeyPress)
                         {
+                            if (_firstBluePrint)
+                            {
+                                _firstBluePrint = false;
+                                FirstBluePrint?.Invoke();
+                            }
                             _itemCarrying = shopBlueprint.OnInteract(_itemCarryPoint);
                             if (_itemCarrying != null)
                                 _state = PlayerState.BuildingMode;
@@ -253,7 +260,9 @@ namespace Keeno
                 else if (sortedWorldObjectList[0] is WorkStation selectedWorkStation)
                 {
                     // let game1 know to show this is the first interaction with a WORKSTATION
-                    if (_firstInteraction)
+                    if (_firstInteraction && 
+                        selectedWorkStation is not BuilderCabin
+                        && selectedWorkStation is not Bell)
                     {
                         FirstInteraction?.Invoke();
                         _firstInteraction = false;

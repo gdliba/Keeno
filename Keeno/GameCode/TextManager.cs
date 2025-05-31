@@ -26,7 +26,13 @@ namespace Keeno.GameCode
             {   "Wood",                 "The:   icon indicates the <y>Wood</y> you have." },
             {   "Stone",                "The:   icon indicates the <y>Stone</y> you have." },
             {   "Gold",                 "The:   icon indicates the <y>Gold</y> you have." },
-            {   "Building",             "Each <g>Keeno</g> requires 1 <y>Housing Space</y>" }
+            {   "Population",           "Each <g>Keeno</g> requires 1 <y>Housing Space</y>.(   )" },
+            {   "Building",             "To increase   , buy a <y>Building Blueprint</y> from the <y>Shop</y>." },
+            {   "Blueprint1",           "<y>Press E</y> to <y>place</y> the <b>Blueprint</b> on the highlighted tile." },
+            {   "BuildersCabin",        "Make sure to assign a <g>Keeno</g> to work at the <y>Builders Cabin</y>." }
+
+
+
 
 
 
@@ -64,6 +70,7 @@ namespace Keeno.GameCode
                 case "Wood":
                 case "Stone":
                 case "Gold":
+                case "Population":
                     _timer = _timerReset;
                     break;
             }
@@ -75,7 +82,8 @@ namespace Keeno.GameCode
             if (_timer < 0f)
             {
                 if (_currIndex > TutorialText.Keys.ToList().IndexOf("First Follower") 
-                    && _currIndex < TutorialText.Keys.ToList().IndexOf("Gold"))
+                    && _currIndex < TutorialText.Keys.ToList().IndexOf("Gold")
+                    || _currIndex == TutorialText.Keys.ToList().IndexOf("Population"))
                 {
                     _currIndex++;
                     string nextKey = TutorialText.Keys.ToList()[_currIndex];
@@ -113,6 +121,10 @@ namespace Keeno.GameCode
                 item.Value.Draw(sb);
                 if (Tutorials["Housing"].IsActive)
                     sb.Draw(Assets.UIHousingIconTxr, new Rectangle(new Point((int)_position.X+55,(int)_position.Y+2), new Point(32, 32)), Color.White);
+                if (Tutorials["Population"].IsActive)
+                    sb.Draw(Assets.UIHousingIconTxr, new Rectangle(new Point((int)_position.X + 519, (int)_position.Y + 2), new Point(32, 32)), Color.White);
+                if (Tutorials["Building"].IsActive)
+                    sb.Draw(Assets.UIHousingIconTxr, new Rectangle(new Point((int)_position.X + 161, (int)_position.Y + 2), new Point(32, 32)), Color.White);
                 if (Tutorials["Food"].IsActive)
                     sb.Draw(Assets.UIFoodIconTxr, new Rectangle(new Point((int)_position.X + 55, (int)_position.Y + 2), new Point(32, 32)), Color.White);
                 if (Tutorials["Wood"].IsActive)

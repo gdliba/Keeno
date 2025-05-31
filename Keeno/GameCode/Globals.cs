@@ -53,6 +53,8 @@ namespace Keeno
         public static bool DownArrow_KeyPress => KeyPress(Keys.Down);
         public static bool Tab_KeyPress => KeyPress(Keys.Tab);
         public static bool Escape_KeyPress => KeyPress(Keys.Escape);
+        public static bool Enter_KeyPress => KeyPress(Keys.Enter);
+
 
 
 

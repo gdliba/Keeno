@@ -151,6 +151,10 @@ namespace Keeno
             {
                 textManager.SetActive("First Follower");
             };
+            player.FirstBluePrint += () =>
+            {
+                textManager.SetActive("Blueprint1");
+            };
             testMap.BellRung += () =>
             {
                 foreach (var keeno in keenos)
@@ -165,6 +169,10 @@ namespace Keeno
                     textManager.SetActive("First Keeno");
                 if (keenos.Count == 2)
                     textManager.SetActive("Housing");
+                if (keenos.Count == 3)
+                    textManager.SetActive("Population");
+                if (keenos.Count == 5)
+                    textManager.SetActive("BuildersCabin");
             };
 
 
@@ -183,10 +191,7 @@ namespace Keeno
             #region Button Presses
             uiManager.OnStartPressed = () =>
             {
-                musicPlayer.PauseMusic();
-                currentGameState = GameState.Playing;
-                musicPlayer.PlayFirstRain();
-                textManager.CompleteReset();
+                DoStartButtonPressed();
             };
             uiManager.OnContinuePressed = () =>
             {
@@ -218,6 +223,13 @@ namespace Keeno
             };
             #endregion
 
+        }
+        private void DoStartButtonPressed()
+        {
+            musicPlayer.PauseMusic();
+            currentGameState = GameState.Playing;
+            musicPlayer.PlayFirstRain();
+            textManager.CompleteReset();
         }
 
         protected override void Update(GameTime gt)
@@ -301,16 +313,16 @@ namespace Keeno
             uiManager.StartUpdate();
             musicPlayer.PlayMainTheme();
 
-            if (Globals.X_KeyPress)
+            if (Globals.Enter_KeyPress)
             {
-                testText.SetActive();
+                DoStartButtonPressed();
             }
 
+            // Random Keeno spawn
             foreach (var keeno in startScreenkeenos)
             {
                 keeno.Update(gt);
             }
-
             for (int i = 0; i <= 500;)
             {
                 if(startScreenkeenos.Count>=500)
@@ -322,10 +334,6 @@ namespace Keeno
                 startScreenkeenos.Add(newKeeno);
                 break;
             }
-            
-
-
-
         }
         private void EndOfDayUpdate(GameTime gt)
         {
@@ -336,11 +344,12 @@ namespace Keeno
                 currentGameState = GameState.Playing;
             }
 
+
+            // Random Keeno spawn (1 Keeno per alive Keeno in Game)
             foreach (var keeno in endOfDayScreenKeenos)
             {
                 keeno.Update(gt);
             }
-
             for (int i = 0; i <= keenos.Count;)
             {
                 if (endOfDayScreenKeenos.Count == keenos.Count)
@@ -356,8 +365,18 @@ namespace Keeno
 
         private void PlayingUpdate(GameTime gt)
         {
+            #region Updates
             textManager.Update();
-
+            timeManager.UpdateTime((float)gt.ElapsedGameTime.TotalSeconds);
+            testMap.Update(gt);
+            testPlayer.Update(gt);
+            // Keeno
+            foreach (var keeno in keenos)
+            {
+                keeno.Update(gt);
+            }
+            #endregion
+            #region EndOfDay / Hunger
             // When the day ends
             if (brightness <= .1)
             {
@@ -387,37 +406,15 @@ namespace Keeno
                 }
                 currentGameState = GameState.EndOfDay;
             }
-
-            timeManager.UpdateTime((float)gt.ElapsedGameTime.TotalSeconds);
-            testMap.Update(gt);
+            #endregion
 
             if (Globals.I_KeyPress)
                 Globals.HidePromtsAndNames = !Globals.HidePromtsAndNames;
-            // Keeno
-            foreach (var keeno in keenos)
-            {
-                keeno.Update(gt);
-            }
-
-            testPlayer.Update(gt);
-
-            // temp testing code
-            //if (Keyboard.GetState().IsKeyDown(Keys.K))
-            //{
-            //    int x = Globals.RNG.Next(0, _renderTarget.Width);
-            //    int y = Globals.RNG.Next(0, _renderTarget.Height);
-
-            //    var newKeeno = new Keeno(Assets.KeenoTxr,5,new Rectangle(x,y,16,16),Assets.DebugPixelTxr);
-            //    keenos.Add(newKeeno);
-            //}
 
             camera.Position.X = (-testPlayer.Bounds.X + _graphics.PreferredBackBufferWidth / (2 * camera.Zoom));
             camera.Position.Y = (-testPlayer.Bounds.Y + _graphics.PreferredBackBufferHeight / (2 * camera.Zoom));
 
-            // Testing ResourceTracker
-            //if (Globals.Q_KeyPress)
-            //    ResourceTracker.Add(ResourceType.Wood, 10);
-
+#if DEBUG
             switch (debugResource)
             {
                 case ResourceType.None:
@@ -447,8 +444,9 @@ namespace Keeno
                 ResourceTracker.Add(debugResource, 10);
             if (Globals.DownArrow_KeyPress)
                 ResourceTracker.Add(debugResource, -10);
+#endif
 
-
+            // Pause
             if (Globals.Escape_KeyPress)
             {
                 musicPlayer.PauseMusic();
@@ -466,6 +464,7 @@ namespace Keeno
         private void PauseUpdate()
         {
             uiManager.UpdatePause();
+            // UnPause
             if (Globals.Escape_KeyPress)
             {
                 musicPlayer.ResumeMusic();
