@@ -32,7 +32,7 @@ namespace Keeno.GameCode
             {   "Resource Debris",      "Once depleted, resources leave debris.<y>Hold X</y> to <r>remove</r> it." },
             {   "Buy Keeno",            "Go to the <y>Town Centre</y> to grow a <g>Keeno</g>." },
             {   "First Follower",       "<y>Hold Q</y> when near a Resource to assign a <g>Keeno</g> work. " },
-            {   "Keeno Work",           "<g>Keeno</g> will work until the resource depleted." },
+            {   "Keeno Work",           "<g>Keeno</g> will work until the resource is depleted." },
             {   "Housing",              "The:   icon indicates the <y>Housing Space</y> you have." },
             {   "Food",                 "The:   icon indicates the <g>Food</g> you have." },
             {   "Wood",                 "The:   icon indicates the <g>Wood</g> you have." },
@@ -69,9 +69,6 @@ namespace Keeno.GameCode
 
         public static readonly Dictionary<string, string> EndOfDayText = new Dictionary<string, string>()
         {
-            {   "EndOfDay",            " " },
-            {   "Test1234",             "You ended the day with<y>" + ResourceTracker.GetAmount(ResourceType.Keeno).ToString() + "</y>Keeno" }
-
         };
         public TextManager(TextState state) 
         {
