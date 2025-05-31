@@ -32,6 +32,7 @@ namespace Keeno.GameCode
             {   "Resource Debris",      "Once depleted, resources leave debris.<y>Hold X</y> to <r>remove</r> it." },
             {   "Buy Keeno",            "Go to the <y>Town Centre</y> to grow a <g>Keeno</g>." },
             {   "First Follower",       "<y>Hold Q</y> when near a Resource to assign a <g>Keeno</g> work. " },
+            {   "Keeno Work",           "<g>Keeno</g> will work until the resource depleted." },
             {   "Housing",              "The:   icon indicates the <y>Housing Space</y> you have." },
             {   "Food",                 "The:   icon indicates the <g>Food</g> you have." },
             {   "Wood",                 "The:   icon indicates the <g>Wood</g> you have." },
@@ -157,6 +158,7 @@ namespace Keeno.GameCode
                     switch (key)
                     {
                         case "Resource Interact":
+                        case "First Follower":
                         case "Housing":
                         case "Food":
                         case "Wood":
@@ -195,8 +197,9 @@ namespace Keeno.GameCode
                         _timer -= Globals.DeltaTime;
                     if (_timer < 0f)
                     {
-                        if (_currIndex > InGameText.Keys.ToList().IndexOf("First Follower")
+                        if (_currIndex > InGameText.Keys.ToList().IndexOf("Keeno Work")
                             && _currIndex < InGameText.Keys.ToList().IndexOf("Gold")
+                            || _currIndex == InGameText.Keys.ToList().IndexOf("First Follower")
                             || _currIndex == InGameText.Keys.ToList().IndexOf("Resource Interact")
                             || _currIndex == InGameText.Keys.ToList().IndexOf("Population")
                             || _currIndex == InGameText.Keys.ToList().IndexOf("Hunger1")
