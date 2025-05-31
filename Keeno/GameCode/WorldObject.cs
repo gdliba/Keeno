@@ -1916,7 +1916,7 @@ namespace Keeno
             _buttonPrompt_E.Draw(sb);
             string keenoFoodCostText = ResourceTracker.KeenoCost.ToString();
             Vector2 KeenoFoodCostTextSize = _descriptionFont.MeasureString(keenoFoodCostText);
-            Vector2 keenoFoodCostTextPos = new Vector2(_rect.Right + KeenoFoodCostTextSize.X + 10, _rect.Top - 16);
+            Vector2 keenoFoodCostTextPos = new Vector2(_rect.Right + 16, _rect.Top - 16);
             
             sb.DrawString(_descriptionFont, keenoFoodCostText, keenoFoodCostTextPos, _uiColour, 0f, Vector2.Zero, 1, SpriteEffects.None, .099f);
             Vector2 foodUIPos = new Vector2(keenoFoodCostTextPos.X - 8, keenoFoodCostTextPos.Y + 4);

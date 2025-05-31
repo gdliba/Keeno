@@ -13,6 +13,8 @@ namespace Keeno.GameCode
         private List<Keeno> _keenosInGame;
         private Player _player;
         private TextManager _textManager;
+        public event Action TenKeenoMilestone;
+        private bool _tenKeenoMilestone;
         public ResetManager(Map map, TimeManager timeManager, List<Keeno> keenosInGame, Player player, TextManager textManager )
         {
             _map = map;
@@ -20,8 +22,17 @@ namespace Keeno.GameCode
             _keenosInGame = keenosInGame;
             _player = player;
             _textManager = textManager;
-        }
 
+            _tenKeenoMilestone = true;
+        }
+        public void TrackMilestones()
+        {
+            if(_keenosInGame.Count == 10 && _tenKeenoMilestone)
+            {
+                _tenKeenoMilestone = false;
+                TenKeenoMilestone?.Invoke();
+            }
+        }
         public void ResetAll()
         {
             _map.Reset();

@@ -17,19 +17,29 @@ namespace Keeno.GameCode
 
         public static readonly Dictionary<string, string> TutorialText = new Dictionary<string, string>()
         {
-            {   "First Keeno",          "Press <y>Q</y> while near an idle <g>Keeno</g> to make it <y>follow you</y>." },
             {   "Controls",             "Use <y>W</y>/<g>A</g>/<r>S</r>/<b>D</b> to move." },
+            {   "First Keeno",          "Press <y>Q</y> while near an idle <g>Keeno</g> to make it <y>follow you</y>." },
             {   "Resource Interact",    "<y>Hold E</y> when near a Resource to <y>Harvest it</y>." },
+            {   "Resource Debris",      "Once depleted, resources leave debris.<y>Hold X</y> to <r>remove</r> it." },
+            {   "Buy Keeno",            "Go to the <y>Town Centre</y> to grow a <g>Keeno</g>." },
             {   "First Follower",       "<y>Hold Q</y> when near a Resource to assign a <g>Keeno</g> work. " },
             {   "Housing",              "The:   icon indicates the <y>Housing Space</y> you have." },
             {   "Food",                 "The:   icon indicates the <g>Food</g> you have." },
-            {   "Wood",                 "The:   icon indicates the <y>Wood</y> you have." },
-            {   "Stone",                "The:   icon indicates the <y>Stone</y> you have." },
+            {   "Wood",                 "The:   icon indicates the <g>Wood</g> you have." },
+            {   "Stone",                "The:   icon indicates the <g>Stone</g> you have." },
             {   "Gold",                 "The:   icon indicates the <y>Gold</y> you have." },
             {   "Population",           "Each <g>Keeno</g> requires 1 <y>Housing Space</y>.(   )" },
-            {   "Building",             "To increase   , buy a <y>Building Blueprint</y> from the <y>Shop</y>." },
+            {   "Building",             "To increase   , buy a <y>Tent or House Blueprint</y> at the <y>Shop</y>." },
             {   "Blueprint1",           "<y>Press E</y> to <y>place</y> the <b>Blueprint</b> on the highlighted tile." },
-            {   "BuildersCabin",        "Make sure to assign a <g>Keeno</g> to work at the <y>Builders Cabin</y>." }
+            {   "Blueprint2",           "Only <g>Keeno</g> working at the <y>Builders Cabin<y/> can build." },
+            {   "Building Resources",   "Approach a building to see the <y>Required Materials</y>." },
+            {   "BuildersCabin",        "Make sure to assign a <g>Keeno</g> to work at the <y>Builders Cabin</y>." },
+            {   "Bell",                 "If all your <g>Keeno</g> are busy, try using the <y>Bell</y>." },
+            {   "10 Keeno Challenge",   "Try to make it to <y>10</y> <g>Keeno</g>." },
+            {   "10 Keeno Milestone",   "Well done, you made it to <y>10</y> <g>Keeno</g>!" },
+            {   "10 Keeno Milestone2",  "Can you make it to <y>25</y> <g>Keeno</g>?" }
+  
+
 
 
 
@@ -65,12 +75,17 @@ namespace Keeno.GameCode
 
             switch (key)
             {
+                case "Resource Interact":
                 case "Housing":
                 case "Food":
                 case "Wood":
                 case "Stone":
                 case "Gold":
                 case "Population":
+                case "Blueprint1":
+                case "Blueprint2":
+                case "BuildersCabin":
+                case "10 Keeno Milestone":
                     _timer = _timerReset;
                     break;
             }
@@ -83,7 +98,13 @@ namespace Keeno.GameCode
             {
                 if (_currIndex > TutorialText.Keys.ToList().IndexOf("First Follower") 
                     && _currIndex < TutorialText.Keys.ToList().IndexOf("Gold")
-                    || _currIndex == TutorialText.Keys.ToList().IndexOf("Population"))
+                    || _currIndex == TutorialText.Keys.ToList().IndexOf("Resource Interact")
+                    || _currIndex == TutorialText.Keys.ToList().IndexOf("Population")
+                    || _currIndex == TutorialText.Keys.ToList().IndexOf("Blueprint1")
+                    || _currIndex == TutorialText.Keys.ToList().IndexOf("Blueprint2")
+                    || _currIndex == TutorialText.Keys.ToList().IndexOf("BuildersCabin")
+                    || _currIndex == TutorialText.Keys.ToList().IndexOf("10 Keeno Milestone"))
+                    
                 {
                     _currIndex++;
                     string nextKey = TutorialText.Keys.ToList()[_currIndex];
@@ -112,6 +133,12 @@ namespace Keeno.GameCode
             {
                 item.Value.Reset();
             }
+            Tutorials["Controls"].SetActive();
+        }
+        public void Start()
+        {
+            if (_currIndex > 0)
+                return;
             Tutorials["Controls"].SetActive();
         }
         public void Draw(SpriteBatch sb)

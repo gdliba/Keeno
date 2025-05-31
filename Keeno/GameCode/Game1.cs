@@ -155,6 +155,10 @@ namespace Keeno
             {
                 textManager.SetActive("Blueprint1");
             };
+            player.FirstKeeno += () =>
+            {
+                textManager.SetActive("Buy Keeno");
+            };
             testMap.BellRung += () =>
             {
                 foreach (var keeno in keenos)
@@ -173,13 +177,9 @@ namespace Keeno
                     textManager.SetActive("Population");
                 if (keenos.Count == 5)
                     textManager.SetActive("BuildersCabin");
+                if (keenos.Count == 6)
+                    textManager.SetActive("10 Keeno Challenge");
             };
-
-
-            //testHourGlass = new HourGlass(tilesetTxr, new Rectangle(50, 50, 16, 16));
-
-            //testBuildingObject = new (Content.Load<Texture2D>
-            //    ("WorldObjects\\Buildings\\Houses\\tents_w"), 0, new Rectangle(300, 200, 16, 16), Content.Load<Texture2D>("WorldObjects\\Items\\scroll"));
             
             timeManager = new TimeManager();
             uiManager = new UIManager();
@@ -187,6 +187,10 @@ namespace Keeno
             musicPlayer = new MusicPlayer();
 
             resetManager = new ResetManager(testMap, timeManager, keenos, testPlayer, textManager);
+            resetManager.TenKeenoMilestone += () =>
+            {
+                textManager.SetActive("10 Keeno Milestone");
+            };
 
             #region Button Presses
             uiManager.OnStartPressed = () =>
@@ -229,7 +233,7 @@ namespace Keeno
             musicPlayer.PauseMusic();
             currentGameState = GameState.Playing;
             musicPlayer.PlayFirstRain();
-            textManager.CompleteReset();
+            textManager.Start();
         }
 
         protected override void Update(GameTime gt)
@@ -241,8 +245,7 @@ namespace Keeno
             }
 
             Globals.Update(gt);
-            //if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-            //    Exit();
+
 
             // GameState Switch
             switch (currentGameState)
@@ -268,13 +271,7 @@ namespace Keeno
 
         protected override void Draw(GameTime gt)
         {
-            // screen scaling
-            //GraphicsDevice.SetRenderTarget(_renderTarget);
-
             GraphicsDevice.Clear(Color.Black);
-
-            //_spriteBatch.Begin();
-
 
             switch (currentGameState)
             {
@@ -294,16 +291,6 @@ namespace Keeno
                     GameOverDraw();
                     break;
             }
-
-            //_spriteBatch.End();
-            //_spriteBatch.Begin();
-            //_spriteBatch.End();
-
-            //Completing Scale effect on the screen
-            //GraphicsDevice.SetRenderTarget(null);
-            //_spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-            //_spriteBatch.Draw(_renderTarget, GraphicsDevice.Viewport.Bounds, null, Color.White, 0, Vector2.Zero, SpriteEffects.None, 1);
-            //_spriteBatch.End();
 
             base.Draw(gt);
         }
@@ -366,15 +353,16 @@ namespace Keeno
         private void PlayingUpdate(GameTime gt)
         {
             #region Updates
+            resetManager.TrackMilestones();
             textManager.Update();
             timeManager.UpdateTime((float)gt.ElapsedGameTime.TotalSeconds);
             testMap.Update(gt);
-            testPlayer.Update(gt);
             // Keeno
             foreach (var keeno in keenos)
             {
                 keeno.Update(gt);
             }
+            testPlayer.Update(gt);
             #endregion
             #region EndOfDay / Hunger
             // When the day ends
@@ -444,6 +432,14 @@ namespace Keeno
                 ResourceTracker.Add(debugResource, 10);
             if (Globals.DownArrow_KeyPress)
                 ResourceTracker.Add(debugResource, -10);
+
+
+            if (Globals.I_KeyPress)
+            {
+                var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(100, 100, 16, 16), Assets.DebugPixelTxr, null, true);
+                keenos.Add(newKeeno);
+
+            }
 #endif
 
             // Pause
@@ -460,6 +456,8 @@ namespace Keeno
 
                 }
             }
+
+
         }
         private void PauseUpdate()
         {

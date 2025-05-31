@@ -386,6 +386,9 @@ namespace Keeno
         // UI
         public static SoundEffect BlueprintShuffleSFX { get; private set; }
         public static SoundEffect BuySFX { get; private set; }
+        public static SoundEffect TypingSFX { get; private set; }
+
+        
 
 
         // Player
@@ -499,6 +502,7 @@ namespace Keeno
             // UI
             BlueprintShuffleSFX = content.Load<SoundEffect>("Sounds\\Keeno\\PickupBlueprintSFX");
             BuySFX = content.Load<SoundEffect>("Sounds\\UI\\BuySFX");
+            TypingSFX = content.Load<SoundEffect>("Sounds\\UI\\TypingSFX");
 
 
             // World Objects

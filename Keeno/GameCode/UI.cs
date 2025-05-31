@@ -251,6 +251,18 @@ namespace Keeno
                 _timer -= _charDelay;
                 _charIndex++;
                 _visibleText = GetVisibleText(_charIndex);
+
+
+
+                SoundEffectInstance instance = Assets.TypingSFX.CreateInstance();
+
+                // Randomize pitch
+                instance.Pitch = (float)(Globals.RNG.NextDouble() * .5f);
+
+                // Randomize volume
+                instance.Volume = (float)(Globals.RNG.NextDouble() * .2f);
+
+                instance.Play();
             }
         }
 

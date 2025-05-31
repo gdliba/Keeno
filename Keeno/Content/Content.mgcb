@@ -250,6 +250,12 @@
 /processorParam:Quality=Best
 /build:Sounds/UI/BuySFX.wav
 
+#begin Sounds/UI/TypingSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/UI/TypingSFX.wav
+
 #begin Sounds/WorldObjects/BellSoundSFX.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
