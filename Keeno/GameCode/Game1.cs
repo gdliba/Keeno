@@ -40,7 +40,7 @@ namespace Keeno
         // Managers
         TimeManager timeManager;
         UIManager uiManager;
-        ResetManager resetManager;
+        GameManager resetManager;
         MusicPlayer musicPlayer;
         TextManager textManager;
 
@@ -65,6 +65,7 @@ namespace Keeno
         Player testPlayer;
 
         // Keeno
+        int keenosThatStarved;
         List<Keeno> keenos;
         List<Keeno> startScreenkeenos, endOfDayScreenKeenos;
 
@@ -110,7 +111,7 @@ namespace Keeno
             keenos = new List<Keeno>();
             startScreenkeenos = new List<Keeno>();
             endOfDayScreenKeenos = new List<Keeno>();
-
+            keenosThatStarved = 0;
             #endregion
 
             brightness = 1;
@@ -126,7 +127,7 @@ namespace Keeno
 
             Assets.Load(this.Content);
 
-            textManager = new TextManager();
+            textManager = new TextManager(TextState.InGame);
 
 
 
@@ -192,7 +193,7 @@ namespace Keeno
             uiManager.Load();
             musicPlayer = new MusicPlayer();
 
-            resetManager = new ResetManager(testMap, timeManager, keenos, testPlayer, textManager);
+            resetManager = new GameManager(testMap, timeManager, keenos, testPlayer, textManager);
             resetManager.TenKeenoMilestone += () =>
             {
                 textManager.SetActive("10 Keeno Milestone");
@@ -200,6 +201,14 @@ namespace Keeno
             resetManager.TwentyFiveKeenoMilestone += () =>
             {
                 textManager.SetActive("25 Keeno Milestone");
+            };
+            resetManager.OneHundredKeenoMilestone += () =>
+            {
+                textManager.SetActive("100 Keeno Milestone");
+            };
+            resetManager.OneHundredKeenoMilestoneReset += () =>
+            {
+                textManager.SetActive("100 Keeno Milestone Reset");
             };
 
             #region Button Presses
@@ -231,9 +240,7 @@ namespace Keeno
             };
             uiManager.OnNextDayPressed = () =>
             {
-                //resetManager.NextDay();
-                currentGameState = GameState.Playing;
-                endOfDayScreenKeenos.Clear();
+                DoNextDay();
             };
             #endregion
 
@@ -244,6 +251,12 @@ namespace Keeno
             currentGameState = GameState.Playing;
             musicPlayer.PlayFirstRain();
             textManager.Start();
+        }
+        private void DoNextDay()
+        {
+            textManager.SwitchToInGame();
+            currentGameState = GameState.Playing;
+            endOfDayScreenKeenos.Clear();
         }
 
         protected override void Update(GameTime gt)
@@ -310,7 +323,7 @@ namespace Keeno
             uiManager.StartUpdate();
             musicPlayer.PlayMainTheme();
 
-            if (Globals.Enter_KeyPress)
+            if (Globals.Enter_KeyPress || Globals.E_KeyPress)
             {
                 DoPlayButtonPressed();
             }
@@ -334,11 +347,11 @@ namespace Keeno
         }
         private void EndOfDayUpdate(GameTime gt)
         {
+            textManager.Update();
             uiManager.EndOfDayUpdate();
-            if (Globals.X_KeyPress)
+            if (Globals.Enter_KeyPress || Globals.E_KeyPress)
             {
-                resetManager.ResetAll();
-                currentGameState = GameState.Playing;
+                DoNextDay();
             }
 
 
@@ -392,6 +405,7 @@ namespace Keeno
                 if (ResourceTracker.GetAmount(ResourceType.Food) < 0)
                 {
                     int starvingKeeno = ResourceTracker.GetAmount(ResourceType.Food);
+                    keenosThatStarved = Math.Abs(starvingKeeno);
 
                     if (keenos.Count>0)
                         for ( int i = 0; i < Math.Abs(starvingKeeno); i++)
@@ -402,7 +416,10 @@ namespace Keeno
                     // Reset Food to 0 as it doesn't make sense to have negative resources
                     ResourceTracker.Add(ResourceType.Food, Math.Abs(starvingKeeno));
                 }
+                textManager.SwitchToEndOfDay(keenosThatStarved);
                 currentGameState = GameState.EndOfDay;
+                // Reset this global variable to 0
+                keenosThatStarved = 0;
             }
             #endregion
 
@@ -448,7 +465,7 @@ namespace Keeno
             {
                 var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(100, 100, 16, 16), Assets.DebugPixelTxr, null, true);
                 keenos.Add(newKeeno);
-
+                ResourceTracker.Add(ResourceType.Keeno, 1);
             }
 #endif
 
@@ -507,6 +524,10 @@ namespace Keeno
             }
             uiManager.EndOfDaytDraw(_spriteBatch);
             _spriteBatch.End();
+            _spriteBatch.Begin();
+            textManager.Draw(_spriteBatch);
+            _spriteBatch.End();
+
         }
 
         private void PlayingDraw()

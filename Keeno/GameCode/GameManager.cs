@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace Keeno.GameCode
 {
-    class ResetManager
+    class GameManager
     {
         private Map _map;
         private TimeManager _timeManager;
         private List<Keeno> _keenosInGame;
         private Player _player;
         private TextManager _textManager;
-        public event Action TenKeenoMilestone, TwentyFiveKeenoMilestone;
-        private bool _tenKeenoMilestone, _twentyFiveKeenoMilestone;
-        public ResetManager(Map map, TimeManager timeManager, List<Keeno> keenosInGame, Player player, TextManager textManager )
+        public event Action TenKeenoMilestone, TwentyFiveKeenoMilestone, OneHundredKeenoMilestone, OneHundredKeenoMilestoneReset;
+        private bool _tenKeenoMilestone, _twentyFiveKeenoMilestone, _oneHundredKeenoMilestone, _oneHundredKeenoMilestoneReset;
+        public GameManager(Map map, TimeManager timeManager, List<Keeno> keenosInGame, Player player, TextManager textManager )
         {
             _map = map;
             _timeManager = timeManager;
@@ -24,7 +24,8 @@ namespace Keeno.GameCode
             _textManager = textManager;
 
             _tenKeenoMilestone = true;
-            _twentyFiveKeenoMilestone= true;
+            _twentyFiveKeenoMilestone = true;
+            _oneHundredKeenoMilestone = true;
         }
         public void TrackMilestones()
         {
@@ -37,6 +38,16 @@ namespace Keeno.GameCode
             {
                 _twentyFiveKeenoMilestone = false;
                 TwentyFiveKeenoMilestone?.Invoke();
+            }
+            if (_keenosInGame.Count == 100 && _oneHundredKeenoMilestone)
+            {
+                _oneHundredKeenoMilestone = false;
+                OneHundredKeenoMilestone?.Invoke();
+            }
+            if (_keenosInGame.Count < 100 && !_oneHundredKeenoMilestone)
+            {
+                _oneHundredKeenoMilestone = true;
+                OneHundredKeenoMilestoneReset?.Invoke();
             }
         }
         public void ResetAll()
@@ -55,11 +66,12 @@ namespace Keeno.GameCode
             // Reset Milestones
             _tenKeenoMilestone = true;
             _twentyFiveKeenoMilestone = true;
+            _oneHundredKeenoMilestone = true;
         }
         public void NextDay()
         {
             _map.ClearAllWorkers();
-            _player.Reset();
+            _player.DayReset();
             _timeManager.RestartDay();
             for (int i = 0; i < _keenosInGame.Count; i++)
             {

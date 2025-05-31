@@ -93,6 +93,13 @@ namespace Keeno
             _position = _defaultStartingPos.ToVector2();
             _itemCarrying = null;
         }
+        public void DayReset()
+        {
+            _followers.Clear();
+            _state = PlayerState.Normal;
+            _position = _defaultStartingPos.ToVector2();
+            _itemCarrying = null;
+        }
         public override void Update(GameTime gt)
         {
             if (_firstKeeno && ResourceTracker.CanSpend(ResourceType.Food, ResourceTracker.KeenoCost))
