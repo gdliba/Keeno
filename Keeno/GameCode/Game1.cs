@@ -25,11 +25,7 @@ namespace Keeno
         private SpriteBatch _spriteBatch;
 
         // Adding Render Target to scale the screen
-        private RenderTarget2D _renderTarget;
-
-        // RNG
-        //public static readonly Random RNG = new Random();
-
+        //private RenderTarget2D _renderTarget;
 
         #region VARIABLES
 
@@ -43,12 +39,6 @@ namespace Keeno
         GameManager gameManager;
         MusicPlayer musicPlayer;
         TextManager textManager;
-
-
-
-        // Debug Pixel
-        //private Texture2D debugPixel;
-
         // TESTS
         TypewriterText testText, firstKeenoTutorial;
 
@@ -69,7 +59,8 @@ namespace Keeno
         List<Keeno> keenos;
         List<Keeno> startScreenkeenos, endOfDayScreenKeenos;
 
-        
+        // Game Completed check
+        bool gameCompleted;
 
 
         // Fonts
@@ -115,6 +106,7 @@ namespace Keeno
             #endregion
 
             brightness = 1;
+            gameCompleted = false;
 
             base.Initialize();
         }
@@ -122,8 +114,8 @@ namespace Keeno
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            _renderTarget = new RenderTarget2D(_spriteBatch.GraphicsDevice,
-                _graphics.PreferredBackBufferWidth/4, _graphics.PreferredBackBufferHeight/4);
+            //_renderTarget = new RenderTarget2D(_spriteBatch.GraphicsDevice,
+            //    _graphics.PreferredBackBufferWidth/4, _graphics.PreferredBackBufferHeight/4);
 
             Assets.Load(this.Content);
 
@@ -223,6 +215,7 @@ namespace Keeno
             };
             uiManager.OnRestartPressed = () =>
             {
+                gameCompleted = false;
                 textManager.SwitchToInGame();
                 musicPlayer.PlayFirstRain();
                 gameManager.ResetAll();
@@ -248,6 +241,11 @@ namespace Keeno
         }
         private void DoPlayButtonPressed()
         {
+            if (gameCompleted)
+            {
+                gameCompleted = false;
+                gameManager.ResetAll();
+            }
             musicPlayer.PauseMusic();
             currentGameState = GameState.Playing;
             musicPlayer.PlayFirstRain();
@@ -348,14 +346,6 @@ namespace Keeno
         }
         private void EndOfDayUpdate(GameTime gt)
         {
-            // Win condition
-            if(keenos.Count >=100 && keenosThatStarved == 0)
-            {
-                currentGameState = GameState.GameOver;
-                textManager.SwitchToGameOver();
-                return;
-            }
-
             textManager.Update();
             uiManager.EndOfDayUpdate();
             if (Globals.Enter_KeyPress || Globals.E_KeyPress)
@@ -425,9 +415,16 @@ namespace Keeno
                     // Reset Food to 0 as it doesn't make sense to have negative resources
                     ResourceTracker.Add(ResourceType.Food, Math.Abs(starvingKeeno));
                 }
+                // Win condition
+                if (keenos.Count >= 100 && keenosThatStarved == 0)
+                {
+                    currentGameState = GameState.GameOver;
+                    textManager.SwitchToGameOver();
+                    return;
+                }
                 textManager.SwitchToEndOfDay(keenosThatStarved);
                 currentGameState = GameState.EndOfDay;
-                // Reset this global variable to 0
+                // Reset this variable to 0
                 keenosThatStarved = 0;
             }
             #endregion
@@ -510,12 +507,13 @@ namespace Keeno
 
         private void GameOverUpdate(GameTime gt)
         {
+            gameCompleted = true;
             textManager.Update();
             uiManager.GameOverUpdate();
-            if (Globals.Enter_KeyPress || Globals.E_KeyPress)
-            {
-                DoNextDay();
-            }
+            //if (Globals.Enter_KeyPress || Globals.E_KeyPress)
+            //{
+            //    DoNextDay();
+            //}
 
 
             // Random Keeno spawn (1 Keeno per alive Keeno in Game)

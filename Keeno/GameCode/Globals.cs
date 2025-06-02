@@ -86,7 +86,7 @@ namespace Keeno
         {
             Graphics.PreferredBackBufferWidth = width;
             Graphics.PreferredBackBufferHeight = height;
-            Graphics.IsFullScreen = true;
+            //Graphics.IsFullScreen = true;
             Graphics.ApplyChanges();
         }
         public static void Update(GameTime gt)
@@ -676,6 +676,11 @@ namespace Keeno
         /// </summary>
         public static void Reset()
         {
+            GrandTotalFood = 0;
+            GrandTotalWood = 0;
+            GrandTotalStone = 0;
+            GrandTotalGold = 0;
+
             foreach (var key in _amounts.Keys.ToList())
             {
                 _amounts[key] = 0;

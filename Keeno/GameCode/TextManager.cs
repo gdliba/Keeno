@@ -76,6 +76,7 @@ namespace Keeno.GameCode
             _counter = 0;
 
             _inGamePosition = new Vector2(180, Globals.ScreenHeight - 50);
+            _endOfDayPosition = new Vector2(100, 64);
             _timer = 0f;
             _timerReset = 6f;
             foreach (var pair in InGameText)
@@ -100,11 +101,13 @@ namespace Keeno.GameCode
         }
         public void SwitchToGameOver()
         {
+            GameOver.Clear();
             _state = TextState.GameOver;
             int offset = 64;
+            _counter++;
 
 
-            string gameoverText = "<y>Well</y> done! You have proven your leadership. The <g>Keeno</g> are safe in your capable hands!";
+            string gameoverText = "<y>Well done! </y>You have proven your leadership. The <g>Keeno</g> are safe in your capable hands!";
 
             string totalDays =  "You reached the goal in: <y>"  + _counter + " Days</y>";
             string totalFood =  "You collected a total of: <y>" + ResourceTracker.GrandTotalFood.ToString()     + " Food</y>";
@@ -156,7 +159,7 @@ namespace Keeno.GameCode
                 string congratulations = "";
                 string but = "";
                 if (keenoAmount >= 100)
-                    congratulations += " <y>Well Done!!!</y>";
+                    congratulations += " <y>Really close... Survive a day with 100 Keeno, without any </y><r>starving</r>.";
                 if (keenoAmount != 0)
                     but += " but";
                 if (keenosThatStarved == 1) 

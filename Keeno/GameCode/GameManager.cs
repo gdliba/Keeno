@@ -56,12 +56,14 @@ namespace Keeno.GameCode
             _timeManager.RestartDay();
             _player.Reset();
             _textManager.CompleteReset();
+            ResourceTracker.Reset();
+            Globals.HidePromtsAndNames = false;
+
 
             for (int i = 0; i < _keenosInGame.Count; i++)
             {
                 _keenosInGame[i].Die();
             }
-            ResourceTracker.Reset();
 
             // Reset Milestones
             _tenKeenoMilestone = true;
