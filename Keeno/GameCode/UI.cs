@@ -201,17 +201,21 @@ namespace Keeno
     }
     class TypewriterText
     {
-        private bool _isActive;
-        public bool IsActive { get { return _isActive; } }
+        private Vector2 _position;
 
         public string RawText { get; private set; }
-        private Vector2 _position;
-        private float _charDelay;
+        private string _visibleText;
 
         private List<(string text, Color color)> _segments = new();
-        private float _timer;
+
         private int _charIndex;
-        private string _visibleText;
+
+        private float _charDelay;
+        private float _timer;
+
+
+        private bool _isActive;
+        public bool IsActive { get { return _isActive; } }
 
         public TypewriterText(Vector2 position, string text)
         {
@@ -222,7 +226,7 @@ namespace Keeno
             _charDelay = .06f;
             _visibleText = "";
             RawText = text;
-            ParseTextWithColors(text);
+            ParseTextWithColours(text);
         }
 
         public void SetActive()
@@ -289,11 +293,11 @@ namespace Keeno
             }
         }
 
-        private void ParseTextWithColors(string input)
+        private void ParseTextWithColours(string input)
         {
             _segments.Clear();
 
-            Color currentColor = Color.White;
+            Color currentColour = Color.White;
             string current = "";
             bool inTag = false;
             string tag = "";
@@ -304,7 +308,7 @@ namespace Keeno
                 {
                     if (!string.IsNullOrEmpty(current))
                     {
-                        _segments.Add((current, currentColor));
+                        _segments.Add((current, currentColour));
                         current = "";
                     }
                     inTag = true;
@@ -314,9 +318,9 @@ namespace Keeno
                 {
                     inTag = false;
                     if (tag.StartsWith("/"))
-                        currentColor = Color.White;
+                        currentColour = Color.White;
                     else
-                        currentColor = ParseColor(tag);
+                        currentColour = ParseColour(tag);
                 }
                 else if (inTag)
                 {
@@ -329,7 +333,7 @@ namespace Keeno
             }
 
             if (!string.IsNullOrEmpty(current))
-                _segments.Add((current, currentColor));
+                _segments.Add((current, currentColour));
         }
 
         private int GetTotalCharCount() => _segments.Sum(s => s.text.Length);
@@ -337,24 +341,24 @@ namespace Keeno
         private string GetVisibleText(int count)
         {
             string result = "";
-            int c = 0;
-            foreach (var seg in _segments)
+            int chars = 0;
+            foreach (var segs in _segments)
             {
-                if (c + seg.text.Length <= count)
+                if (chars + segs.text.Length <= count)
                 {
-                    result += seg.text;
-                    c += seg.text.Length;
+                    result += segs.text;
+                    chars += segs.text.Length;
                 }
                 else
                 {
-                    result += seg.text.Substring(0, count - c);
+                    result += segs.text.Substring(0, count - chars);
                     break;
                 }
             }
             return result;
         }
 
-        private Color ParseColor(string tag)
+        private Color ParseColour(string tag)
         {
             return tag.ToLower() switch
             {
