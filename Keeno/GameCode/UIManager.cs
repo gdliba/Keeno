@@ -59,8 +59,8 @@ namespace Keeno
             // Restart Game Over Button
             Rectangle restartGOButtonRect = new Rectangle(continueButtonRect.X, continueButtonRect.Y, _buttonWidth, _buttonHeight);
             var restartGOButton = new Button(restartButtonRect, Globals.PauseScreenButtons[1]);
-            restartButton.OnClick += () => OnRestartPressed?.Invoke();
-            buttons.Add(Globals.GameOverScreenButtons[0], restartButton);
+            restartGOButton.OnClick += () => OnRestartPressed?.Invoke();
+            buttons.Add(Globals.GameOverScreenButtons[0], restartGOButton);
 
 
             // Main Menu Button

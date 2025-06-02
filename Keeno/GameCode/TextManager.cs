@@ -62,12 +62,6 @@ namespace Keeno.GameCode
             {   "100 Keeno Milestone",  "Well done, you made it to <y>100 Keeno</y>!" },
             {   "100 Keeno Milestone2", "Now survive a day with <y>100 Keeno</y>, don't let any <r>starve!</r>" },
             {   "100 Keeno Milestone Reset",  "Ouch, you were so close... <y>sustain 100 Keeno for 1 day</y>." },
-
-
-
-
-
-
         };
 
         //public static readonly Dictionary<string, string> EndOfDayText = new Dictionary<string, string>()

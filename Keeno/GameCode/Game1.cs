@@ -40,7 +40,7 @@ namespace Keeno
         // Managers
         TimeManager timeManager;
         UIManager uiManager;
-        GameManager resetManager;
+        GameManager gameManager;
         MusicPlayer musicPlayer;
         TextManager textManager;
 
@@ -102,7 +102,7 @@ namespace Keeno
             //_graphics.ApplyChanges();
 
 
-            currentGameState = GameState.GameOver;
+            currentGameState = GameState.Start;
             camera.Position = Vector2.Zero;
             camera.Zoom = 5;
 
@@ -193,20 +193,20 @@ namespace Keeno
             uiManager.Load();
             musicPlayer = new MusicPlayer();
 
-            resetManager = new GameManager(testMap, timeManager, keenos, testPlayer, textManager);
-            resetManager.TenKeenoMilestone += () =>
+            gameManager = new GameManager(testMap, timeManager, keenos, testPlayer, textManager);
+            gameManager.TenKeenoMilestone += () =>
             {
                 textManager.SetActive("10 Keeno Milestone");
             };
-            resetManager.TwentyFiveKeenoMilestone += () =>
+            gameManager.TwentyFiveKeenoMilestone += () =>
             {
                 textManager.SetActive("25 Keeno Milestone");
             };
-            resetManager.OneHundredKeenoMilestone += () =>
+            gameManager.OneHundredKeenoMilestone += () =>
             {
                 textManager.SetActive("100 Keeno Milestone");
             };
-            resetManager.OneHundredKeenoMilestoneReset += () =>
+            gameManager.OneHundredKeenoMilestoneReset += () =>
             {
                 textManager.SetActive("100 Keeno Milestone Reset");
             };
@@ -223,8 +223,9 @@ namespace Keeno
             };
             uiManager.OnRestartPressed = () =>
             {
+                textManager.SwitchToInGame();
                 musicPlayer.PlayFirstRain();
-                resetManager.ResetAll();
+                gameManager.ResetAll();
                 currentGameState = GameState.Playing;
             };
             uiManager.OnMainMenuPressed = () =>
@@ -383,7 +384,7 @@ namespace Keeno
         private void PlayingUpdate(GameTime gt)
         {
             #region Updates
-            resetManager.TrackMilestones();
+            gameManager.TrackMilestones();
             textManager.Update();
             timeManager.UpdateTime((float)gt.ElapsedGameTime.TotalSeconds);
             testMap.Update(gt);
@@ -399,7 +400,7 @@ namespace Keeno
             if (brightness <= .1 || Globals.Enter_KeyPress)
             {
                 endOfDayScreenKeenos.Clear();
-                resetManager.NextDay();
+                gameManager.NextDay();
 
                 // Each Keeno should Eat
                 foreach ( var keeno in keenos)
@@ -468,12 +469,12 @@ namespace Keeno
                 ResourceTracker.Add(debugResource, -10);
 
 
-            if (Globals.I_KeyPress)
-            {
-                var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(100, 100, 16, 16), Assets.DebugPixelTxr, null, true);
-                keenos.Add(newKeeno);
-                ResourceTracker.Add(ResourceType.Keeno, 1);
-            }
+            //if (Globals.I_KeyPress)
+            //{
+            //    var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(100, 100, 16, 16), Assets.DebugPixelTxr, null, true);
+            //    keenos.Add(newKeeno);
+            //    ResourceTracker.Add(ResourceType.Keeno, 1);
+            //}
 #endif
 
             // Pause

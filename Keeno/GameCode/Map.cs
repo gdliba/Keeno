@@ -444,30 +444,30 @@ namespace Keeno
 
             //}
             // Test Item spawn
-            if (Globals.DownArrow_KeyPress)
-            {
-                var newBlueprint = new ShopBuildingBlueprint(new Point(31, 20), BuildingType.Tent);
-                _worldObjects.Add(newBlueprint);
-                newBlueprint.BuildingBlueprintPurchaced += bp =>
-                {
-                    // add the Blueprint as a wolrd object
-                    _worldObjects.Add(bp);
+            //if (Globals.DownArrow_KeyPress)
+            //{
+            //    var newBlueprint = new ShopBuildingBlueprint(new Point(31, 20), BuildingType.Tent);
+            //    _worldObjects.Add(newBlueprint);
+            //    newBlueprint.BuildingBlueprintPurchaced += bp =>
+            //    {
+            //        // add the Blueprint as a wolrd object
+            //        _worldObjects.Add(bp);
 
-                    // Subscribe to the BuildingSpawned of the blueprint that was spawned
-                    bp.BuildingSpawned += spawnedBuilding =>
-                    {
-                        // add the Building as a wolrd object
-                        _worldObjects.Add(spawnedBuilding);
+            //        // Subscribe to the BuildingSpawned of the blueprint that was spawned
+            //        bp.BuildingSpawned += spawnedBuilding =>
+            //        {
+            //            // add the Building as a wolrd object
+            //            _worldObjects.Add(spawnedBuilding);
 
-                        // Subscribe to the WorkStationSpawned of the building that was spawned
-                        spawnedBuilding.WorkStationSpawned += spawnedWorkStation =>
-                        {
-                            // add the WorkStation as a wolrd object
-                            _worldObjects.Add(spawnedWorkStation);
-                        };
-                    };
-                };
-            }
+            //            // Subscribe to the WorkStationSpawned of the building that was spawned
+            //            spawnedBuilding.WorkStationSpawned += spawnedWorkStation =>
+            //            {
+            //                // add the WorkStation as a wolrd object
+            //                _worldObjects.Add(spawnedWorkStation);
+            //            };
+            //        };
+            //    };
+            //}
         }
 
         /// <summary>
