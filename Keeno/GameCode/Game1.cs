@@ -324,7 +324,7 @@ namespace Keeno
             uiManager.StartUpdate();
             musicPlayer.PlayMainTheme();
 
-            if (Globals.Enter_KeyPress || Globals.E_KeyPress)
+            if (Globals.Enter_KeyPress)
             {
                 DoPlayButtonPressed();
             }
@@ -353,6 +353,7 @@ namespace Keeno
             {
                 currentGameState = GameState.GameOver;
                 textManager.SwitchToGameOver();
+                return;
             }
 
             textManager.Update();
