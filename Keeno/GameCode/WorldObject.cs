@@ -1867,7 +1867,9 @@ namespace Keeno
                 else 
                     _canUse = false; 
             }
-            if (_canUse)
+            else
+            _HGInteract.Reset();
+            if (_canUse && _isSelected)
             {
                 if (ResourceTracker.CanSpend(ResourceType.Food,
                                ResourceTracker.KeenoCost) && ResourceTracker.HasHousingSpace(1))

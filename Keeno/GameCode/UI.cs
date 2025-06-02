@@ -270,7 +270,7 @@ namespace Keeno
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch sb)
         {
 
             if (!_isActive || string.IsNullOrEmpty(_visibleText)) return;
@@ -283,9 +283,9 @@ namespace Keeno
             {
                 for (int i = 0; i < text.Length && charsDrawn < _charIndex; i++)
                 {
-                    string c = text[i].ToString();
-                    spriteBatch.DrawString(font, c, drawPos, color);
-                    drawPos.X += font.MeasureString(c).X;
+                    string character = text[i].ToString();
+                    sb.DrawString(font, character, drawPos, color);
+                    drawPos.X += font.MeasureString(character).X;
                     charsDrawn++;
                 }
 
