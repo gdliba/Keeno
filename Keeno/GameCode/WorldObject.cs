@@ -1846,6 +1846,9 @@ namespace Keeno
         }
         public override void Update(GameTime gt)
         {
+            if (Globals.UpArrow_KeyDown && Globals.K_KeyDown)
+                SpawnKeeno();
+
             // apply the appropriate effect
             if (_flashingFontTimer > 0)
             {

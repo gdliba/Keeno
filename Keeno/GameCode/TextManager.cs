@@ -12,13 +12,16 @@ namespace Keeno.GameCode
     enum TextState
     {
         InGame,
-        EndOfDay
+        EndOfDay,
+        GameOver
     }
     class TextManager
     {
         private Vector2 _inGamePosition, _endOfDayPosition;
         public static Dictionary<string,TypewriterText> InGame = new ();
         public static Dictionary<string, TypewriterText> EndOfDay = new();
+        public static Dictionary<string, TypewriterText> GameOver = new();
+
 
         private float _timer, _timerReset;
         private int _currIndex =-1;
@@ -67,9 +70,12 @@ namespace Keeno.GameCode
 
         };
 
-        public static readonly Dictionary<string, string> EndOfDayText = new Dictionary<string, string>()
-        {
-        };
+        //public static readonly Dictionary<string, string> EndOfDayText = new Dictionary<string, string>()
+        //{
+        //};
+        //public static readonly Dictionary<string, string> GameOverText = new Dictionary<string, string>()
+        //{
+        //};
         public TextManager(TextState state) 
         {
             _state = state;
@@ -89,22 +95,66 @@ namespace Keeno.GameCode
             _inGamePosition = new Vector2(180, Globals.ScreenHeight - 50);
             _timer = 0f;
             _timerReset = 6f;
-            foreach (var pair in EndOfDayText)
-            {
-                string key = pair.Key;
-                string text = pair.Value;
+            //foreach (var pair in EndOfDayText)
+            //{
+            //    string key = pair.Key;
+            //    string text = pair.Value;
 
-                EndOfDay.Add(key, new TypewriterText(_inGamePosition, text));
-            }
-            
+            //    EndOfDay.Add(key, new TypewriterText(_inGamePosition, text));
+            //}
+
+        }
+        public void SwitchToGameOver()
+        {
+            _state = TextState.GameOver;
+            int offset = 64;
+
+
+            string gameoverText = "<y>Well</y> done! You have proven your leadership. The <g>Keeno</g> are safe in your capable hands!";
+
+            string totalDays =  "You reached the goal in: <y>"  + _counter + " Days</y>";
+            string totalFood =  "You collected a total of: <y>" + ResourceTracker.GrandTotalFood.ToString()     + " Food</y>";
+            string totalWood =  "You collected a total of: <y>" + ResourceTracker.GrandTotalWood.ToString()     + " Wood</y>";
+            string totalStone = "You collected a total of: <y>" + ResourceTracker.GrandTotalStone.ToString()    + " Stone</y>";
+            string totalGold =  "You collected a total of: <y>" + ResourceTracker.GrandTotalGold.ToString()     + " Gold</y>";
+
+            var gOtemp = new TypewriterText(_endOfDayPosition, gameoverText);
+            GameOver.Add("GameOver", gOtemp);
+            GameOver["GameOver"].SetActive();
+
+            Vector2 dayCountPos = new Vector2(_endOfDayPosition.X, _endOfDayPosition.Y + offset);
+            var dayTemp = new TypewriterText(dayCountPos, totalDays);
+            GameOver.Add("totalDays", dayTemp);
+            GameOver["totalDays"].SetActive();
+
+            Vector2 foodPos = new Vector2(_endOfDayPosition.X, dayCountPos.Y + offset);
+            var foodTemp = new TypewriterText(foodPos, totalFood);
+            GameOver.Add("totalFood", foodTemp);
+            GameOver["totalFood"].SetActive();
+
+            Vector2 woodPos = new Vector2(_endOfDayPosition.X, foodPos.Y + offset);
+            var woodTemp = new TypewriterText(woodPos, totalWood);
+            GameOver.Add("totalWood", woodTemp);
+            GameOver["totalWood"].SetActive();
+
+            Vector2 stonePos = new Vector2(_endOfDayPosition.X, woodPos.Y + offset);
+            var stoneTemp = new TypewriterText(stonePos, totalStone);
+            GameOver.Add("totalStone", stoneTemp);
+            GameOver["totalStone"].SetActive();
+
+            Vector2 goldPos = new Vector2(_endOfDayPosition.X, stonePos.Y + offset);
+            var goldTemp = new TypewriterText(goldPos, totalGold);
+            GameOver.Add("totalGold", goldTemp);
+            GameOver["totalGold"].SetActive();
         }
         public void SwitchToEndOfDay(int keenosThatStarved)
         {
             _lastInGameIndex = _currIndex;
             _state = TextState.EndOfDay;
             EndOfDay.Clear();
+            _counter++;
 
-            string day = "day" + _counter++.ToString();
+            string day = "<y>Day</y>: " + _counter.ToString();
             int keenoAmount = ResourceTracker.GetAmount(ResourceType.Keeno);
             string endOfDayText = "You ended the day with <y>" + keenoAmount + "</y> Keeno";
             if (keenosThatStarved > 0)
@@ -125,8 +175,11 @@ namespace Keeno.GameCode
                 var temp = new TypewriterText(_inGamePosition, endOfDayText);
             EndOfDay.Add(day,temp);
             EndOfDay[day].SetActive();
-            //temp.SetActive();
-            //EndOfDay["EndOfDay"].SetActive();
+
+            string tempName = _counter.ToString();
+            var dayText = new TypewriterText(_endOfDayPosition, day);
+            EndOfDay.Add(tempName, dayText);
+            EndOfDay[tempName].SetActive();
         }
         public void SwitchToInGame()
         {
@@ -138,8 +191,6 @@ namespace Keeno.GameCode
         }
         public void SetActive(string key)
         {
-
-
             switch (_state)
             {
                 case TextState.InGame:
@@ -180,6 +231,7 @@ namespace Keeno.GameCode
                     break;
 
                 case TextState.EndOfDay:
+                case TextState.GameOver:
                     break;
             }
             
@@ -233,6 +285,13 @@ namespace Keeno.GameCode
                         item.Value.Update();
                     }
                     break;
+                case TextState.GameOver:
+
+                    foreach (var item in GameOver)
+                    {
+                        item.Value.Update();
+                    }
+                    break;
             }
             
         }
@@ -246,6 +305,10 @@ namespace Keeno.GameCode
                 item.Value.Reset();
             }
             foreach (var item in EndOfDay)
+            {
+                item.Value.Reset();
+            }
+            foreach (var item in GameOver)
             {
                 item.Value.Reset();
             }
@@ -301,6 +364,12 @@ namespace Keeno.GameCode
 
                 case TextState.EndOfDay:
                     foreach (var item in EndOfDay)
+                    {
+                        item.Value.Draw(sb);
+                    }
+                    break;
+                case TextState.GameOver:
+                    foreach (var item in GameOver)
                     {
                         item.Value.Draw(sb);
                     }

@@ -56,6 +56,13 @@ namespace Keeno
             restartButton.OnClick += () => OnRestartPressed?.Invoke();
             buttons.Add(Globals.PauseScreenButtons[1], restartButton);
 
+            // Restart Game Over Button
+            Rectangle restartGOButtonRect = new Rectangle(continueButtonRect.X, continueButtonRect.Y, _buttonWidth, _buttonHeight);
+            var restartGOButton = new Button(restartButtonRect, Globals.PauseScreenButtons[1]);
+            restartButton.OnClick += () => OnRestartPressed?.Invoke();
+            buttons.Add(Globals.GameOverScreenButtons[0], restartButton);
+
+
             // Main Menu Button
             Rectangle mainMenuButtonRect = new Rectangle(restartButtonRect.X, restartButtonRect.Y + 2 * _buttonHeight, _buttonWidth, _buttonHeight);
             var mainMenuButton = new Button(mainMenuButtonRect, Globals.PauseScreenButtons[2]);
@@ -107,6 +114,13 @@ namespace Keeno
         public void EndOfDayUpdate()
         {
             foreach (var button in Globals.EndOfDayScreenButtons)
+            {
+                buttons[button].Update();
+            }
+        }
+        public void GameOverUpdate()
+        {
+            foreach (var button in Globals.GameOverScreenButtons)
             {
                 buttons[button].Update();
             }
@@ -171,6 +185,13 @@ namespace Keeno
         public void EndOfDaytDraw(SpriteBatch sb)
         {
             foreach (var button in Globals.EndOfDayScreenButtons)
+            {
+                buttons[button].Draw(sb);
+            }
+        }
+        public void GameOverDraw(SpriteBatch sb)
+        {
+            foreach (var button in Globals.GameOverScreenButtons)
             {
                 buttons[button].Draw(sb);
             }

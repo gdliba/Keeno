@@ -43,12 +43,17 @@ namespace Keeno
         public static bool Q_KeyDown => KeyDown(Keys.Q);
         public static bool E_KeyDown => KeyDown(Keys.E);
         public static bool X_KeyDown => KeyDown(Keys.X);
+        public static bool K_KeyDown => KeyDown(Keys.K);
+        public static bool UpArrow_KeyDown => KeyDown(Keys.Up);
+
+
 
 
         public static bool Q_KeyPress => KeyPress(Keys.Q);
         public static bool E_KeyPress => KeyPress(Keys.E);
         public static bool X_KeyPress => KeyPress(Keys.X);
         public static bool I_KeyPress => KeyPress(Keys.I);
+
         public static bool UpArrow_KeyPress=> KeyPress(Keys.Up);
         public static bool DownArrow_KeyPress => KeyPress(Keys.Down);
         public static bool Tab_KeyPress => KeyPress(Keys.Tab);
@@ -199,6 +204,12 @@ namespace Keeno
         {
             "Next Day",
             "Exit"
+        };
+        public static readonly List<string> GameOverScreenButtons = new List<string>()
+        {
+            "Restart GameOver",
+            "Main Menu",
+            "Quit"
         };
 
 
@@ -563,6 +574,11 @@ namespace Keeno
 
     static class ResourceTracker
     {
+        public static int GrandTotalFood;
+        public static int GrandTotalWood;
+        public static int GrandTotalStone;
+        public static int GrandTotalGold;
+
         public const int KeenoCost = 10;
 
         // Store resource Type and Amount
@@ -607,16 +623,20 @@ namespace Keeno
                     return;
                 case ResourceType.Gold:
                     sfx = Assets.GoldCoinCollectSFX.CreateInstance();
+                    GrandTotalGold += amount;
                     break;
                 case ResourceType.Food:
                     sfx = Assets.FoodDropOffSFX.CreateInstance();
+                    GrandTotalFood += amount;
                     sfx.Volume = .6f;
                     break;
                 case ResourceType.Wood:
                     sfx = Assets.WoodDropOffSFX.CreateInstance();
+                    GrandTotalWood += amount;
                     break;
                 case ResourceType.Stone:
                     sfx = Assets.StoneDropOffSFX.CreateInstance();
+                    GrandTotalStone += amount;
                     break;
             }
             sfx.Play();

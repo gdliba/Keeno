@@ -102,7 +102,7 @@ namespace Keeno
             //_graphics.ApplyChanges();
 
 
-            currentGameState = GameState.Start;
+            currentGameState = GameState.GameOver;
             camera.Position = Vector2.Zero;
             camera.Zoom = 5;
 
@@ -286,7 +286,7 @@ namespace Keeno
                     PauseUpdate();
                     break;
                 case GameState.GameOver:
-                    GameOverUpdate();
+                    GameOverUpdate(gt);
                     break;
             }
             base.Update(gt);
@@ -347,6 +347,13 @@ namespace Keeno
         }
         private void EndOfDayUpdate(GameTime gt)
         {
+            // Win condition
+            if(keenos.Count >=100 && keenosThatStarved == 0)
+            {
+                currentGameState = GameState.GameOver;
+                textManager.SwitchToGameOver();
+            }
+
             textManager.Update();
             uiManager.EndOfDayUpdate();
             if (Globals.Enter_KeyPress || Globals.E_KeyPress)
@@ -499,9 +506,32 @@ namespace Keeno
 
         }
 
-        private void GameOverUpdate()
+        private void GameOverUpdate(GameTime gt)
         {
+            textManager.Update();
+            uiManager.GameOverUpdate();
+            if (Globals.Enter_KeyPress || Globals.E_KeyPress)
+            {
+                DoNextDay();
+            }
 
+
+            // Random Keeno spawn (1 Keeno per alive Keeno in Game)
+            foreach (var keeno in endOfDayScreenKeenos)
+            {
+                keeno.Update(gt);
+            }
+            for (int i = 0; i <= keenos.Count;)
+            {
+                if (endOfDayScreenKeenos.Count == keenos.Count)
+                    break;
+                int x = Globals.RNG.Next(Globals.ScreenWidth / 4, 3 * Globals.ScreenWidth / 4);
+                int y = Globals.RNG.Next(Globals.ScreenHeight / 4, 3 * Globals.ScreenHeight / 4);
+
+                var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(x, y, 16, 16), Assets.DebugPixelTxr, null, true);
+                endOfDayScreenKeenos.Add(newKeeno);
+                break;
+            }
         }
         #endregion
         #region STATE DRAWS
@@ -527,7 +557,6 @@ namespace Keeno
             _spriteBatch.Begin();
             textManager.Draw(_spriteBatch);
             _spriteBatch.End();
-
         }
 
         private void PlayingDraw()
@@ -600,7 +629,16 @@ namespace Keeno
 
         private void GameOverDraw()
         {
-
+            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            foreach (var keeno in endOfDayScreenKeenos)
+            {
+                keeno.Draw(_spriteBatch);
+            }
+            uiManager.GameOverDraw(_spriteBatch);
+            _spriteBatch.End();
+            _spriteBatch.Begin();
+            textManager.Draw(_spriteBatch);
+            _spriteBatch.End();
         }
         #endregion
     }
