@@ -297,7 +297,9 @@ namespace Keeno
         public static int TentStoneCost = 0;
         public static int TentUpgradeWoodCost = 5;
         public static int TentUpgradeStoneCost = 0;
-        public static int TentPopulationAddition = 1;
+        // DEMO version rebalance
+        //public static int TentPopulationAddition = 1;
+        public static int TentPopulationAddition = 2;
         public static int TentBLGoldPrice = 1;
 
             // House
@@ -305,7 +307,9 @@ namespace Keeno
         public static int HouseStoneCost = 5;
         public static int HouseUpgradeWoodCost = 5;
         public static int HouseUpgradeStoneCost = 5;
-        public static int HousePopulationAddition = 2;
+        // DEMO version rebalance
+        //public static int HousePopulationAddition = 2;
+        public static int HousePopulationAddition = 3;
         public static int HouseBLGoldPrice = 2;
 
             // ResourceStorage
