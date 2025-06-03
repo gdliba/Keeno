@@ -47,7 +47,9 @@ namespace Keeno
             sBatch.Draw(_txr, _rect, _staticSrcRect, Color.White);
         }
     }
-
+    /// <summary>
+    /// An in between class, only used for inheritance
+    /// </summary>
     class MotionGraphic : StaticGraphic
     {
         protected Vector2 _position;
@@ -68,7 +70,9 @@ namespace Keeno
             sBatch.Draw(_txr, _rect, Color.White);
         }
     }
-
+    /// <summary>
+    /// Class that cycles through a spritesheet and draws accordingly
+    /// </summary>
     class Animated2D : MotionGraphic
     {
         protected Rectangle _srcRect;

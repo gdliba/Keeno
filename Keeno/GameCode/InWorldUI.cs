@@ -3,18 +3,23 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Keeno
 {
+    /// <summary>
+    /// Primary mains of player interaction and feedback.
+    /// As the conditions of this class are met, it fills up, 
+    /// else it "empties" (goes back down to 0).
+    /// The hourglass is meant to display the work progress of the majority of actions taken in the game:
+    /// Beit by the player or by the Keeno.
+    /// </summary>
     class HourGlass : StaticGraphic
     {
         private float _fill;
+
         private Color _tint;
         private Color _defaultTint;
-
 
         private Rectangle _emptySrcRect;
         private Rectangle _fullSrcRect;
         private Rectangle _originalRect;
-
-
         public Rectangle Bounds { get { return _rect; } }
 
         public HourGlass(Texture2D Spritesheet, Rectangle rect, Color tint)
@@ -45,6 +50,14 @@ namespace Keeno
         {
             _rect = _originalRect;
         }
+        /// <summary>
+        /// Update() is in charge of all the logic of the HourGlass class.
+        /// While the "input" boll is true, fill the Hourglass by "deltaFill";
+        /// </summary>
+        /// <param name="input"> condition that must be met in order to start filling </param>
+        /// <param name="deltaFill"> the ammount it is filled by </param>
+        /// <returns>   Returns true once it's full,
+        ///              Else returns fals.         </returns>
         public bool Update(bool input, float deltaFill)
         {
             if (input)
@@ -54,6 +67,11 @@ namespace Keeno
             return false;
 
         }
+        /// <summary>
+        /// Handles the Increment.
+        /// </summary>
+        /// <param name="deltaFill"></param>
+        /// <returns></returns>
         public bool Increment(float deltaFill)
         {
             _tint = _defaultTint;
@@ -68,6 +86,10 @@ namespace Keeno
             }
             return false;
         }
+        /// <summary>
+        /// Handles the Decrement.
+        /// </summary>
+        /// <param name="deltaFill"></param>
         public void Decrement(float deltaFill)
         {
             _tint = _defaultTint;
@@ -86,6 +108,9 @@ namespace Keeno
             }
 
         }
+        /// <summary>
+        /// Reset method empties the HourGlass.
+        /// </summary>
         public void Reset()
         {
             _fill = 0f;
@@ -112,12 +137,13 @@ namespace Keeno
             // Draw the "Filling"
             sb.Draw(_txr, updatedDrawRect, 
                     updatedSrcRect, _tint, 0, Vector2.Zero, SpriteEffects.None, Globals.HourGlassLD);
-            // Draw the "Outline"
-            //sb.Draw(_spritesheet, _rect, 
-            //        _emptySrcRect, Color.White);
 
         }
     }
+    /// <summary>
+    /// Simply draws a Button Prompt on screen,
+    /// letting the player know what to press to interract with the given object.
+    /// </summary>
     class ButtonPrompt : StaticGraphic
     {
         public ButtonPrompt(Texture2D tileset, Rectangle rect, int tileIndex)

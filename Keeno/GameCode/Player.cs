@@ -49,8 +49,8 @@ namespace Keeno
         public Rectangle InteractionRange { get { return _interactionRange; } }
 
 
-        public Player(Texture2D spriteSheet, int fps, Rectangle rect, Texture2D pixel, Map map, List<Keeno> keenos)
-            : base(spriteSheet, fps, rect, pixel, map)
+        public Player(Texture2D spriteSheet, int fps, Rectangle rect, Map map, List<Keeno> keenos)
+            : base(spriteSheet, fps, rect, map)
         {
             _firstStone = true;
             _firstKeeno = true;
@@ -437,12 +437,13 @@ namespace Keeno
             // Draw test pixel
             if (_drawBounds)
             {
-                sb.Draw(_testPixel, Position, Color.Black);  // Draw Player Position
+                var pixel = Assets.DebugPixelTxr;
+                sb.Draw(pixel, Position, Color.Black);  // Draw Player Position
 
-                sb.Draw(_testPixel, _tileTargetedRect, Color.Green * .8f);      // Draw _tileTargetedRect
-                sb.Draw(_testPixel, TargetDestinationBounds, Color.White * .8f);      // Draw _targetDestinationBound
-                sb.Draw(_testPixel, Bounds, Color.Blue * .7f);                          // Draw Player Bounds
-                sb.Draw(_testPixel, _interactionRange, Color.Red * .75f);               // Draw interactionRange
+                sb.Draw(pixel, _tileTargetedRect, Color.Green * .8f);      // Draw _tileTargetedRect
+                sb.Draw(pixel, TargetDestinationBounds, Color.White * .8f);      // Draw _targetDestinationBound
+                sb.Draw(pixel, Bounds, Color.Blue * .7f);                          // Draw Player Bounds
+                sb.Draw(pixel, _interactionRange, Color.Red * .75f);               // Draw interactionRange
             }
             // Draw Player
             sb.Draw(_txr, _rect, _srcRect, _tint, 0f,

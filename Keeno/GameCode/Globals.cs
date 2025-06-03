@@ -11,6 +11,13 @@ using System.Reflection.Metadata;
 
 namespace Keeno
 {
+    /// <summary>
+    /// Globals static class. An accumulation of global variables and properties that
+    /// all classes may access.
+    /// Keeps good encapsulation and avoids "passing in" a lot of paramaters to various
+    /// constructors.
+    /// Also helps keep Game1 clean
+    /// </summary>
     static class Globals
     {
         public static float DeltaTime { get; private set; }
@@ -22,20 +29,29 @@ namespace Keeno
         public static GraphicsDeviceManager Graphics;
         public static int ScreenWidth { get => Graphics.PreferredBackBufferWidth; }
         public static int ScreenHeight { get => Graphics.PreferredBackBufferHeight; }
-
+        /// <summary>
+        /// Changes the resolution of the game.
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        public static void ChangeResolution(int width, int height)
+        {
+            Graphics.PreferredBackBufferWidth = width;
+            Graphics.PreferredBackBufferHeight = height;
+            //Graphics.IsFullScreen = true;
+            Graphics.ApplyChanges();
+        }
         #region Input Properties
+        // Mouse Properties
         public static Point MousePosition { get; private set; }
-
         public static MouseState MsCurr { get; private set; }
         public static MouseState MsOld { get; private set; }
 
+        // Keyboard Properties
         public static KeyboardState KbCurr { get; private set; }
         public static KeyboardState KbOld { get; private set; }
 
-        public static bool LeftClick { get; private set; }
-        public static bool RightClick { get; private set; }
-        public static bool MiddleClick { get; private set; }
-
+        // KeyDowns
         public static bool W_KeyDown => KeyDown(Keys.W);
         public static bool A_KeyDown => KeyDown(Keys.A);
         public static bool S_KeyDown => KeyDown(Keys.S);
@@ -50,21 +66,19 @@ namespace Keeno
         public static bool LeftShift_KeyDown => KeyDown(Keys.LeftShift);
         public static bool LeftControl_KeyDown => KeyDown(Keys.LeftControl);
 
-
-
-
+        // KeyPresses
+        public static bool LeftClick { get; private set; }
+        public static bool RightClick { get; private set; }
+        public static bool MiddleClick { get; private set; }
         public static bool Q_KeyPress => KeyPress(Keys.Q);
         public static bool E_KeyPress => KeyPress(Keys.E);
         public static bool X_KeyPress => KeyPress(Keys.X);
         public static bool I_KeyPress => KeyPress(Keys.I);
-
         public static bool UpArrow_KeyPress=> KeyPress(Keys.Up);
         public static bool DownArrow_KeyPress => KeyPress(Keys.Down);
         public static bool Tab_KeyPress => KeyPress(Keys.Tab);
         public static bool Escape_KeyPress => KeyPress(Keys.Escape);
         public static bool Enter_KeyPress => KeyPress(Keys.Enter);
-
-
 
 
         /// <summary>
@@ -86,13 +100,7 @@ namespace Keeno
         {
             return KbCurr.IsKeyDown(key);
         }
-        public static void ChangeResolution(int width, int height)
-        {
-            Graphics.PreferredBackBufferWidth = width;
-            Graphics.PreferredBackBufferHeight = height;
-            //Graphics.IsFullScreen = true;
-            Graphics.ApplyChanges();
-        }
+        #endregion
         public static void Update(GameTime gt)
         {
             DeltaTime = (float)gt.ElapsedGameTime.TotalSeconds;
@@ -109,7 +117,6 @@ namespace Keeno
             RightClick = MsCurr.RightButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed && MsOld.RightButton == Microsoft.Xna.Framework.Input.ButtonState.Released;
             MiddleClick = MsCurr.MiddleButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed && MsOld.MiddleButton == Microsoft.Xna.Framework.Input.ButtonState.Released;
         }
-        #endregion
 
         #region Tile Properties and Indexes
         // Tile Properties
@@ -191,7 +198,7 @@ namespace Keeno
 
         #endregion
 
-        #region UI
+        #region What Buttons are drawn on each screen
         public static readonly List<string> StartScreenButtons = new List<string>()
         {
             "Play",
@@ -215,10 +222,9 @@ namespace Keeno
             "Main Menu",
             "Quit"
         };
-
-
         #endregion
 
+        #region Game Balance
         // Player
         public static int PlayerMovementSpeed = 50;
         public static float DropOffKeenoSpeed = .03f;
@@ -227,8 +233,7 @@ namespace Keeno
         public static float DestroyInteractSpeed = .02f;
         public static float UpgradeInteractSpeed = .02f;
 
-        // Keeno
-        //public static float KeenoMovementSpeed = 20;
+        ////////////////////////////////////////////////////////// Resources \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
         // Tree
         public static int TreeHealth = 5;
@@ -244,14 +249,11 @@ namespace Keeno
         public static float FarmWorkAmount = 8f;
         public static float PlayerMadeFarmWorkAmount = 16f;
 
-
-
         // Rock / Stone
         public static int RockHealth = 5;
         public static int RockStoneAmount = 1;
         public static int RockWorkerSlots = 1;
         public static float RockWorkAmount = 24f;
-
 
         // Gold
         public static int GoldHealth = 1;
@@ -267,31 +269,10 @@ namespace Keeno
         //public static float BreakableWallWorkAmount = 120f;
 
 
-        // Layer Depths
-        public static float UIHighlightLD = .052f;
-        public static float UIButtonLD = .051f;
-        public static float UIPannelLD = .050f;
-        public static float InGameUILD = .049f;
-        public static float ItemSelectedTxrLD = .048f;
-        public static float ItemTxrLD = .047f;
-        public static float BlueprintTxrLD = .046f;
-        public static float PlayerLD = .045f;
-        public static float ButtonPromptLD = .044f;
-        public static float ResourceBeingCarriedTxrLD = .043f;
-        public static float HourGlassLD = .042f;
-        public static float KeenoLD = .041f;
-        public static float SelectedTxrLD = .040f;
-        public static float WolrdObjectLD = .039f;
-        public static float BuildingLD = .038f;
-        public static float RiverLD = .037f;
-        public static float EmptyTileLD = .001f;
-        public static float MapLD = 0f;
-
         // Starting Housing Value 
         public static int StartingHousingValue = 5;
 
-        
-        // Buildings
+        ////////////////////////////////////////////////////////// Buildings \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
         // Tent
         public static int TentWoodCost = 10;
         public static int TentStoneCost = 0;
@@ -302,7 +283,7 @@ namespace Keeno
         //public static int TentPopulationAddition = 2;
         public static int TentBLGoldPrice = 1;
 
-            // House
+        // House
         public static int HouseWoodCost = 10;
         public static int HouseStoneCost = 5;
         public static int HouseUpgradeWoodCost = 5;
@@ -312,7 +293,7 @@ namespace Keeno
         //public static int HousePopulationAddition = 3;
         public static int HouseBLGoldPrice = 2;
 
-            // ResourceStorage
+        // ResourceStorage
         public static int ResourceStorageWoodCost = 15;
         public static int ResourceStorageStoneCost = 10;
         public static int ResourceStorageUpgradeWoodCost = 1;
@@ -334,63 +315,93 @@ namespace Keeno
         public static int FarmLandUpgradeWoodCost = 2;
         public static int FarmLandUpgradeStoneCost = 1;
         public static int FarmLandBLGoldPrice = 2;
+        #endregion
+
+        #region Layer Depths
+        // Layer Depths
+        public static float UIHighlightLD = .052f;
+        public static float UIButtonLD = .051f;
+        public static float UIPannelLD = .050f;
+        public static float InGameUILD = .049f;
+        public static float ItemSelectedTxrLD = .048f;
+        public static float ItemTxrLD = .047f;
+        public static float BlueprintTxrLD = .046f;
+        public static float PlayerLD = .045f;
+        public static float ButtonPromptLD = .044f;
+        public static float ResourceBeingCarriedTxrLD = .043f;
+        public static float HourGlassLD = .042f;
+        public static float KeenoLD = .041f;
+        public static float SelectedTxrLD = .040f;
+        public static float WolrdObjectLD = .039f;
+        public static float BuildingLD = .038f;
+        public static float RiverLD = .037f;
+        public static float EmptyTileLD = .001f;
+        public static float MapLD = 0f;
+        #endregion
     }
+    /// <summary>
+    /// A globals class for Assets. Similar use to the Globals class, but more specialised.
+    /// </summary>
     static class Assets
     {
         #region Textures
+        // Keeno
         public static Texture2D KeenoTxr {  get; private set; }
-        public static Texture2D WorkerKeenoTxr { get; private set; }
         public static Texture2D KeenoCarryingTxr { get; private set; }
 
-
+        // debug Pixel
         public static Texture2D DebugPixelTxr { get; private set; }
+
+        // TileSets
         public static Texture2D TilesetTxr { get; private set; }
         public static Texture2D MonochromaticTilesetTxr { get; private set; }
         public static Texture2D InputsTilesetTxr { get; private set; }
-        public static Texture2D ChoppedTreeTxr {  get; private set; }
+
+        // Tents
         public static Texture2D TentsTxr { get; private set; }
         public static Texture2D TentsWhiteTxr { get; private set; }
 
+        // Houses
         public static Texture2D HousesTxr { get; private set; }
         public static Texture2D HousesWhiteTxr { get; private set; }
+
+        // Resources
+        public static Texture2D ChoppedTreeTxr {  get; private set; }
         public static Texture2D FarmLandWhiteTxr { get; private set; }
-
-
-
-        public static Texture2D BlueprintTxr { get; private set; }
         public static Texture2D RockTxr { get; private set; }
-
         public static Texture2D WhiteRockTxr { get; private set; }
         public static Texture2D GoldOreTxr { get; private set; }
 
+        // Blueprint
+        public static Texture2D BlueprintTxr { get; private set; }
 
-        // UI Objects
+        // In game UI Objects (The ones Keenos carry on their backs)
         public static Texture2D UIWoodTxr { get; private set; }
         public static Texture2D UIStoneTxr { get; private set; }
         public static Texture2D UIFoodTxr { get; private set; }
 
-        // UI Icons
+        // UI Icons (the ones listes as the cost of things like the TC has cost of food and housing)
         public static Texture2D UIWoodIconTxr { get; private set; }
         public static Texture2D UIStoneIconTxr { get; private set; }
         public static Texture2D UIFoodIconTxr { get; private set; }
         public static Texture2D UIGoldIconTxr { get; private set; }
         public static Texture2D UIHousingIconTxr { get; private set; }
-
+        // Icon on the Building Blueprint that shows the player that they can swap blueprints by pressing Q
         public static Texture2D UISwapIconTxr { get; private set; }
-
 
         // UI Interface
         public static Texture2D UIPanelTxr { get; private set; }
         public static Texture2D UIHighlightTxr { get; private set; }
         public static Texture2D UIPanelBorderTxr { get; private set; }
 
-        // Hud
+        // Hud (Bottom left corner of Playing screen. Includes Text Bar)
         public static Texture2D ResourceHUD { get; private set; }
         #endregion
-        // Fonts
+        #region Fonts
+        // Main Font for UI or text on screen
         public static SpriteFont MonogramFont { get; private set; }
         public static SpriteFont MonogramDescriptionFont { get; private set; }
-
+        #endregion
         #region Sound Effects
         // Buttons
         public static SoundEffect PauseSFX { get; private set; }
@@ -457,7 +468,10 @@ namespace Keeno
 
 
         #endregion
-
+        /// <summary>
+        /// Called in Game1's LoadContent. Loads all the assets needed.
+        /// </summary>
+        /// <param name="content"></param>
         public static void Load(ContentManager content)
         {
             #region Textures
@@ -465,7 +479,6 @@ namespace Keeno
 
             // Keeno
             KeenoTxr = content.Load<Texture2D>("Characters\\Keeno");
-            WorkerKeenoTxr = content.Load<Texture2D>("Characters\\WorkerKeeno");
             KeenoCarryingTxr = content.Load<Texture2D>("Characters\\KeenoCarrying");
 
 
@@ -510,10 +523,11 @@ namespace Keeno
             ResourceHUD = content.Load<Texture2D>("UI\\ResourceUI1");
 
             #endregion
-            // Font
+            #region Fonts
             MonogramFont = content.Load<SpriteFont>("Fonts\\monogram");
             MonogramDescriptionFont = content.Load<SpriteFont>("Fonts\\monogramDescription");
 
+            #endregion
             #region Sound Effects
             // Buttons
             PauseSFX = content.Load<SoundEffect>("Sounds\\UI\\Buttons\\PauseSFX");
@@ -585,7 +599,11 @@ namespace Keeno
         Keeno,
         Gold
     }
-
+    /// <summary>
+    /// Global Class that tracks the player's Resources.
+    /// Done it this way so that every time a resource is gained it calls the same method.
+    /// The only way to add resources in the game is to call ResourceTracker.Add().
+    /// </summary>
     static class ResourceTracker
     {
         public static int GrandTotalFood;
@@ -595,13 +613,11 @@ namespace Keeno
 
         public const int KeenoCost = 10;
 
-        // Store resource Type and Amount
         private static readonly Dictionary<ResourceType, int> _amounts;
 
-        //// fired whenever any resource changes
-        //public static event Action<ResourceType, int> ResourceChanged;
-
-
+        /// <summary>
+        /// Create a dictionary of resource types and ammounts
+        /// </summary>
         static ResourceTracker()
         {
             _amounts = Enum
@@ -620,14 +636,10 @@ namespace Keeno
         /// </summary>
         public static void Add(ResourceType type, int amount)
         {
-            // debugging
-            //if (amount <= 0)
-            //    throw new ArgumentException(
-            //        "Must add a positive amount", nameof(amount));
 
             _amounts[type] += amount;
-            //ResourceChanged?.Invoke(type, _amounts[type]);
 
+            // handle sound effects
             SoundEffectInstance sfx = null;
             switch (type)
             {
@@ -657,19 +669,19 @@ namespace Keeno
         }
 
         /// <summary>
-        /// Tries to spend (subtract) the given cost from the specified resource.
-        /// Returns true if successful, false if insufficient funds.
+        /// Spends (subtracts) the given cost from the specified resource.
         /// </summary>
         public static void Spend(ResourceType type, int cost)
         {
-            // debugging
-            //if (cost <= 0)
-            //    throw new ArgumentException(
-            //        "Cost must be positive", nameof(cost));
-
             _amounts[type] -= cost;
-            //ResourceChanged?.Invoke(type, _amounts[type]);
         }
+        /// <summary>
+        /// Originally was joined to the previous method, but I found it more human readable
+        /// to check IF the player could spend x resources instead of telling it to "attempt to spend".
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="cost"></param>
+        /// <returns></returns>
         public static bool CanSpend(ResourceType type, int cost)
         {
             if (_amounts[type] < cost)
@@ -677,6 +689,16 @@ namespace Keeno
 
             return true;
         }
+        /// <summary>
+        /// Checks that the current amount of Keeno in the game + the one I'm trying to spawn do not exceed
+        /// the housing space available to the player.
+        /// 
+        /// Didn't have to separate this mathod from the previous, but I find it more 
+        /// human readable to have this method stand on its own instead of having it do something different
+        /// in the case that the resource I'm checkikng is the Housing.
+        /// </summary>
+        /// <param name="cost"></param>
+        /// <returns></returns>
         public static bool HasHousingSpace(int cost)
         {
             if (_amounts[ResourceType.Housing] < cost + _amounts[ResourceType.Keeno])
@@ -686,7 +708,8 @@ namespace Keeno
         }
 
         /// <summary>
-        /// Resets all resources back to zero.
+        /// Resets all resources back to 0.
+        /// Resets all grand totals to 0.
         /// </summary>
         public static void Reset()
         {
@@ -699,7 +722,6 @@ namespace Keeno
             {
                 _amounts[key] = 0;
                 _amounts[ResourceType.Housing] = Globals.StartingHousingValue;
-                //ResourceChanged?.Invoke(key, 0);
             }
         }
     }

@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace Keeno.GameCode
 {
+    /// <summary>
+    /// Mostly responsible for Reset methods. (Thus is was originally named ResetManager).
+    /// Tracks the milestones the player is working towards (10, 25 or 100 Keeno) 
+    /// and tells Game1 about them so that the appropriate text is displayed on screen.
+    /// </summary>
     class GameManager
     {
         private Map _map;
@@ -13,6 +18,7 @@ namespace Keeno.GameCode
         private List<Keeno> _keenosInGame;
         private Player _player;
         private TextManager _textManager;
+
         public event Action TenKeenoMilestone, TwentyFiveKeenoMilestone, OneHundredKeenoMilestone, OneHundredKeenoMilestoneReset;
         private bool _tenKeenoMilestone, _twentyFiveKeenoMilestone, _oneHundredKeenoMilestone, _oneHundredKeenoMilestoneReset;
         public GameManager(Map map, TimeManager timeManager, List<Keeno> keenosInGame, Player player, TextManager textManager )
@@ -77,7 +83,7 @@ namespace Keeno.GameCode
             _timeManager.RestartDay();
             for (int i = 0; i < _keenosInGame.Count; i++)
             {
-                _keenosInGame[i].NewDay();
+                _keenosInGame[i].SwitchToNewDay();
             }
         }
     }

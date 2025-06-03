@@ -134,7 +134,7 @@ namespace Keeno
             testMap = new Map("Content/MapData/MainMap1.csv");
 
             var player = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(400, 300, 16, 16),
-                Assets.DebugPixelTxr, testMap, keenos);
+                testMap, keenos);
             testPlayer = player;
             player.FirstInteraction += () =>
             {
@@ -341,7 +341,7 @@ namespace Keeno
                 int x = Globals.RNG.Next(0, Globals.ScreenWidth);
                 int y = Globals.RNG.Next(0, Globals.ScreenHeight);
 
-                var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(x, y, 16, 16), Assets.DebugPixelTxr, null, true);
+                var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(x, y, 16, 16), null, true);
                 startScreenkeenos.Add(newKeeno);
                 break;
             }
@@ -368,7 +368,7 @@ namespace Keeno
                 int x = Globals.RNG.Next(Globals.ScreenWidth/4, 3*Globals.ScreenWidth/4);
                 int y = Globals.RNG.Next(Globals.ScreenHeight / 4, 3 * Globals.ScreenHeight / 4);
 
-                var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(x, y, 16, 16), Assets.DebugPixelTxr, null, true);
+                var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(x, y, 16, 16), null, true);
                 endOfDayScreenKeenos.Add(newKeeno);
                 break;
             }
@@ -544,7 +544,7 @@ namespace Keeno
                 int x = Globals.RNG.Next(Globals.ScreenWidth / 4, 3 * Globals.ScreenWidth / 4);
                 int y = Globals.RNG.Next(Globals.ScreenHeight / 4, 3 * Globals.ScreenHeight / 4);
 
-                var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(x, y, 16, 16), Assets.DebugPixelTxr, null, true);
+                var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(x, y, 16, 16), null, true);
                 endOfDayScreenKeenos.Add(newKeeno);
                 break;
             }

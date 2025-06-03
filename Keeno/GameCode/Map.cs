@@ -10,10 +10,12 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Keeno
 {
-
+    /// <summary>
+    /// Class in charge of drawing themap and Managing all the WorldObjects.
+    /// </summary>
     class Map
     {
-        // Reset variables
+        #region Variables
 
         private readonly string _csvPath;
 
@@ -43,15 +45,11 @@ namespace Keeno
         // How many columns (tiles per row) are in the tileset image
         private int _tilesetColumns;
 
-
+        #endregion
         /// <summary>
-        /// takes a CSV path and tile settings, loads the map
+        /// Takes a CSV path and tile settings, loads the map and Creates WorldObjects along with it.
         /// </summary>
         /// <param name="csvPath"></param>
-        /// <param name="tilesetTexture"></param>
-        /// <param name="tileWidth"></param>
-        /// <param name="tileHeight"></param>
-        /// <param name="tilesetColumns"></param>
         public Map(string csvPath)
         {
             _csvPath = csvPath;
@@ -64,18 +62,14 @@ namespace Keeno
 
             // Loads the map data from the CSV
             LoadMap(csvPath);
-
+            // Create all the world objects present on the map
             PopulateWorldObjects();
         }
-        public void Reset()
-        {
-            foreach (var worldObject in WorldObjects)
-                    worldObject.DestroyMeAndMyWorkers();
-
-            LoadMap(_csvPath);
-
-            PopulateWorldObjects();
-        }
+        /// <summary>
+        /// Checks all the tile IDs on the CSV file.
+        /// If they match the specific tile Index of an object,
+        /// creates said object.
+        /// </summary>
         private void PopulateWorldObjects()
         {
             _keenos.Clear();
@@ -178,10 +172,9 @@ namespace Keeno
         /// with any existing world objects that are tagged as Impassable.
         /// </summary>
         /// <param name="destinationRect"></param>
-        /// <returns>
-        /// TRUE if player movement is permitted
-        /// otherwise, FALSE.
-        /// </returns>
+        /// <returns>   TRUE if player movement 
+        ///             is permitted
+        ///             otherwise, FALSE.       </returns>
         public bool IsWalkable(Rectangle destinationRect)
         {    
             // Loop through WorldObjects
@@ -194,6 +187,15 @@ namespace Keeno
             }
             return true;
         }
+
+        #region Add "this World Object"
+        // Each of these methods simply add the corresponding
+        // World Object to the List of WorldObjects of the class.
+
+        /// <summary>
+        /// All Indexes on the CSV that don't correspond to any listed bellow are treated
+        /// as generic, impassable WorldObjects.
+        /// </summary>
         private void AddWorldObject(int x, int y)
         {
             int index = _mapData[y, x];
@@ -237,6 +239,10 @@ namespace Keeno
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }
+        /// <summary>
+        /// Adds TownCentre and subscribes to its event.
+        /// It then invokes its own event, that Game1 will subscribe to.
+        /// </summary>
         private void AddTownCentre(int x, int y)
         {
             var townCentre = new TownCentre(new Point(x, y), Globals.TownCentreTileIndex, this);
@@ -259,6 +265,13 @@ namespace Keeno
             _mapData[y, x] = Globals.EmptyTileIndex;
             
         }
+        /// <summary>
+        /// The bridge is technically a building, this it uses coordinates a little differently:
+        /// Instead of tile coordinates, it works with "in world space" coordinates.
+        /// Hence why the x and y multiplication.
+        /// Also hence the order variation compared to the rest of the similar methods:
+        /// "_mapData[y, x] = Globals.EmptyTileIndex" comes first, as it uses the unmiltiplied coordinates.
+        /// </summary>
         private void AddBrokenBridge(int x, int y)
         {
             _mapData[y, x] = Globals.EmptyTileIndex;
@@ -280,6 +293,11 @@ namespace Keeno
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }
+        /// <summary>
+        /// Used by buildings the player places, lets other buildings know that this tile
+        /// is currently occupied by another building.
+        /// Thus the player cannot build buildings on top of eachother.
+        /// </summary>
         private void ReplaceEmptyWithOccupied(int x, int y)
         {
 
@@ -307,6 +325,11 @@ namespace Keeno
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }
+        /// <summary>
+        /// Adds a ShopBuilding, but also its corresponding blueprint.
+        /// It then subscribes to the blueprint's Event AND the event of the blueprint
+        /// spawned in the player's hands after purchasing the one displayed by the shop.
+        /// </summary>
         private void AddShopBuilding(int x, int y)
         {
             var shop = new Shop(new Point(x, y), Globals.ShopBuildingTileIndex);
@@ -337,7 +360,10 @@ namespace Keeno
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }
-
+        /// <summary>
+        /// Adds Bell and subscribes to its Event and invokes its own to let Game1 know about it.
+        /// It then prompts all the buildings to "let go" of their workers.
+        /// </summary>
         private void AddBell(int x, int y)
         {
             var newBell = new Bell(new Point(x, y), Globals.BellTileIndex);
@@ -363,6 +389,16 @@ namespace Keeno
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }
+        private void AddGoldCoin(int x, int y)
+        {
+            _worldObjects.Add(new GoldCoin(new Point(x, y)));
+
+            _mapData[y, x] = Globals.EmptyTileIndex;
+        }
+        #endregion
+        /// <summary>
+        /// Method that prompts all world objects to "let go" of their workers.
+        /// </summary>
         public void ClearAllWorkers()
         {
             foreach (var worldObject in _worldObjects)
@@ -377,40 +413,21 @@ namespace Keeno
                 }
             }
         }
-        private void AddGoldCoin(int x, int y)
-        {
-            _worldObjects.Add(new GoldCoin(new Point(x, y)));
-
-            _mapData[y, x] = Globals.EmptyTileIndex;
-        }
-
+        /// <summary>
+        /// Updates all WorldObjects and removes "dead" ones.
+        /// </summary>
+        /// <param name="gt"></param>
         public void Update(GameTime gt)
         {
-            //// Test Item spawn
-            //if (Globals.DownArrow_KeyPress)
-            //    _worldObjects.Add(new Building(new Point(400, 320), Assets.TentsTxr));
-
-
             for (int i = _worldObjects.Count - 1; i >= 0; i--)
             {
                 // Update WorldObjects
                 _worldObjects[i].Update(gt);
 
-                // Remove Dead WorldObjects
-                //if (_worldObjects[i].State == ObjectState.Dead && _worldObjects[i] is Item)
-                //{
-                //    int y = _worldObjects[i].TilePosition.Y / Globals.Tile_Width_Height;
-                //    int x = _worldObjects[i].TilePosition.X / Globals.Tile_Width_Height;
-
-
-                //    // Replace their tile with and Empty one so that the player can build on it
-                //    _worldObjects.RemoveAt(i);
-                //}
                 if (_worldObjects[i].State == ObjectState.Dead)
                 {
                     int y = _worldObjects[i].TilePosition.Y / Globals.Tile_Width_Height;
                     int x = _worldObjects[i].TilePosition.X / Globals.Tile_Width_Height;
-
 
                     // Replace their tile with and Empty one so that the player can build on it
                     ReplaceWithEmpty(x, y);
@@ -426,52 +443,16 @@ namespace Keeno
                     ReplaceEmptyWithOccupied(x, y);
                 }
             }
-
-            // Test Item spawn
-            //if (Globals.UpArrow_KeyPress)
-            //{
-            //    var newBlueprint = new BuildingBlueprint(new Point(25, 18), BuildingType.House);
-            //    _worldObjects.Add(newBlueprint);
-            //    newBlueprint.BuildingSpawned += building => _worldObjects.Add(building);
-
-            //}
-            //// Test Item spawn
-            //if (Globals.DownArrow_KeyPress)
-            //{
-            //    var newBlueprint = new BuildingBlueprint(new Point(370, 332), BuildingType.ResourceStorage);
-            //    _worldObjects.Add(newBlueprint);
-            //    newBlueprint.BuildingSpawned += building => _worldObjects.Add(building);
-
-            //}
-            // Test Item spawn
-            //if (Globals.DownArrow_KeyPress)
-            //{
-            //    var newBlueprint = new ShopBuildingBlueprint(new Point(31, 20), BuildingType.Tent);
-            //    _worldObjects.Add(newBlueprint);
-            //    newBlueprint.BuildingBlueprintPurchaced += bp =>
-            //    {
-            //        // add the Blueprint as a wolrd object
-            //        _worldObjects.Add(bp);
-
-            //        // Subscribe to the BuildingSpawned of the blueprint that was spawned
-            //        bp.BuildingSpawned += spawnedBuilding =>
-            //        {
-            //            // add the Building as a wolrd object
-            //            _worldObjects.Add(spawnedBuilding);
-
-            //            // Subscribe to the WorkStationSpawned of the building that was spawned
-            //            spawnedBuilding.WorkStationSpawned += spawnedWorkStation =>
-            //            {
-            //                // add the WorkStation as a wolrd object
-            //                _worldObjects.Add(spawnedWorkStation);
-            //            };
-            //        };
-            //    };
-            //}
         }
-
+        public void Reset()
+        {
+            foreach (var worldObject in WorldObjects)
+                worldObject.DestroyMeAndMyWorkers();
+            LoadMap(_csvPath);
+            PopulateWorldObjects();
+        }
         /// <summary>
-        /// Draw Method for the class
+        /// Draw Method for the class.
         /// </summary>
         /// <param name="sb"></param>
         public void Draw(SpriteBatch sb)
@@ -481,18 +462,21 @@ namespace Keeno
                 _worldObjects[i].Draw(sb);
             }
 
-
             // Loop through the tiles to process their information
             for (int y = 0; y < _mapHeight; y++)
             {
                 for (int x = 0; x < _mapWidth; x++)
                 {
-                    int tileIndex = _mapData[y, x]; // Get the tile index
+                    // Get the tile index
+                    int tileIndex = _mapData[y, x]; 
+                    // Skip "empty" tiles
                     if (tileIndex == Globals.EmptyTileIndex)
-                        continue;                   // skip "empty" tiles
+                        continue;
 
-                    int col = (tileIndex) % _tilesetColumns;    // X position in the tileset
-                    int row = (tileIndex) / _tilesetColumns;    // Y position in the tileset
+                    // X position in the tileset
+                    int col = (tileIndex) % _tilesetColumns;
+                    // Y position in the tileset
+                    int row = (tileIndex) / _tilesetColumns;   
 
                     // Adjust source rectangle
                     Rectangle sourceRect = new Rectangle(col * _tileWidth, 

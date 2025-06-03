@@ -1898,7 +1898,7 @@ namespace Keeno
 
             Rectangle temp = new Rectangle(_rect.X-_rect.Width/2, _rect.Y , 16, 16);
 
-            var newKeeno = new Keeno(Assets.KeenoTxr, 5, temp, Assets.DebugPixelTxr, _map, false);
+            var newKeeno = new Keeno(Assets.KeenoTxr, 5, temp, _map, false);
             _keenosISpawned.Add(newKeeno);
             //Debug.WriteLine("Spawning Keeno: firing event");
             KeenoSpawned?.Invoke(newKeeno);
