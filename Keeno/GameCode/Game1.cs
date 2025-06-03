@@ -319,6 +319,8 @@ namespace Keeno
         #region STATE UPDATES
         private void StartUpdate(GameTime gt)
         {
+            //testMap.Update(gt);
+            
             uiManager.StartUpdate();
             musicPlayer.PlayMainTheme();
 
@@ -371,7 +373,45 @@ namespace Keeno
                 break;
             }
         }
+        public void GoToNextDay()
+        {
+            endOfDayScreenKeenos.Clear();
+            gameManager.NextDay();
 
+            // Each Keeno should Eat
+            foreach (var keeno in keenos)
+            {
+                ResourceTracker.Spend(ResourceType.Food, 1);
+                keeno.StopConstructingSound();
+                keeno.StopWorkSound();
+            }
+            // If you don't have enough food for every Keeno
+            if (ResourceTracker.GetAmount(ResourceType.Food) < 0)
+            {
+                int starvingKeeno = ResourceTracker.GetAmount(ResourceType.Food);
+                keenosThatStarved = Math.Abs(starvingKeeno);
+
+                if (keenos.Count > 0)
+                    for (int i = 0; i < Math.Abs(starvingKeeno); i++)
+                    {
+                        ResourceTracker.Spend(ResourceType.Keeno, 1);
+                        keenos.RemoveAt(0);
+                    }
+                // Reset Food to 0 as it doesn't make sense to have negative resources
+                ResourceTracker.Add(ResourceType.Food, Math.Abs(starvingKeeno));
+            }
+            // Win condition
+            if (keenos.Count >= 100 && keenosThatStarved == 0)
+            {
+                currentGameState = GameState.GameOver;
+                textManager.SwitchToGameOver();
+                return;
+            }
+            textManager.SwitchToEndOfDay(keenosThatStarved);
+            currentGameState = GameState.EndOfDay;
+            // Reset this variable to 0
+            keenosThatStarved = 0;
+        }
         private void PlayingUpdate(GameTime gt)
         {
             #region Updates
@@ -388,44 +428,9 @@ namespace Keeno
             #endregion
             #region EndOfDay / Hunger
             // When the day ends
-            if (brightness <= .1 || Globals.Enter_KeyPress)
+            if (brightness <= .1)
             {
-                endOfDayScreenKeenos.Clear();
-                gameManager.NextDay();
-
-                // Each Keeno should Eat
-                foreach ( var keeno in keenos)
-                {
-                    ResourceTracker.Spend(ResourceType.Food, 1);
-                    keeno.StopConstructingSound();
-                    keeno.StopWorkSound();
-                }
-                // If you don't have enough food for every Keeno
-                if (ResourceTracker.GetAmount(ResourceType.Food) < 0)
-                {
-                    int starvingKeeno = ResourceTracker.GetAmount(ResourceType.Food);
-                    keenosThatStarved = Math.Abs(starvingKeeno);
-
-                    if (keenos.Count>0)
-                        for ( int i = 0; i < Math.Abs(starvingKeeno); i++)
-                        {
-                            ResourceTracker.Spend(ResourceType.Keeno, 1);
-                            keenos.RemoveAt(0);
-                        }
-                    // Reset Food to 0 as it doesn't make sense to have negative resources
-                    ResourceTracker.Add(ResourceType.Food, Math.Abs(starvingKeeno));
-                }
-                // Win condition
-                if (keenos.Count >= 100 && keenosThatStarved == 0)
-                {
-                    currentGameState = GameState.GameOver;
-                    textManager.SwitchToGameOver();
-                    return;
-                }
-                textManager.SwitchToEndOfDay(keenosThatStarved);
-                currentGameState = GameState.EndOfDay;
-                // Reset this variable to 0
-                keenosThatStarved = 0;
+                GoToNextDay();
             }
             #endregion
 
@@ -490,6 +495,17 @@ namespace Keeno
                 }
             }
 
+            // CHEATS
+            if (Globals.LeftShift_KeyDown && Globals.LeftControl_KeyDown && Globals.Enter_KeyPress)
+                GoToNextDay();
+            if (Globals.LeftShift_KeyDown && Globals.F_KeyDown && Globals.UpArrow_KeyPress)
+                ResourceTracker.Add(ResourceType.Food, 10);
+            if (Globals.LeftShift_KeyDown && Globals.W_KeyDown && Globals.UpArrow_KeyPress)
+                ResourceTracker.Add(ResourceType.Wood, 10);
+            if (Globals.LeftShift_KeyDown && Globals.S_KeyDown && Globals.UpArrow_KeyPress)
+                ResourceTracker.Add(ResourceType.Stone, 10);
+            if (Globals.LeftShift_KeyDown && Globals.G_KeyDown && Globals.UpArrow_KeyPress)
+                ResourceTracker.Add(ResourceType.Gold, 10);
 
         }
         private void PauseUpdate()

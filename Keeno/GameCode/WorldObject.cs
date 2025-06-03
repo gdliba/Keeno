@@ -1846,7 +1846,7 @@ namespace Keeno
         }
         public override void Update(GameTime gt)
         {
-            if (Globals.UpArrow_KeyDown && Globals.K_KeyDown)
+            if (Globals.UpArrow_KeyPress && Globals.K_KeyDown && Globals.LeftShift_KeyDown)
                 SpawnKeeno();
 
             // apply the appropriate effect
@@ -1943,7 +1943,9 @@ namespace Keeno
             : base(position, globalTileIndex)
         {
             _state = ObjectState.Neutral;
-            _workerSlots = 10;
+            //_workerSlots = 10;
+            _workerSlots = 20;
+
             _name = "Builders Cabin";
         }
         public override void Update(GameTime gt)

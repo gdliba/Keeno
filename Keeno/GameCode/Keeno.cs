@@ -300,6 +300,7 @@ namespace Keeno
             //_moveSpeed = _normalMoveSpeed = Globals.RNG.Next(40, 56) + (float)Globals.RNG.NextDouble();
 
             _carryingMovementSpeed = 10f;
+
             //_carryingMovementSpeed = _moveSpeed;
 
             _facingRight = Globals.RNG.Next(2) == 0;

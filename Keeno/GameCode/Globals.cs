@@ -44,7 +44,11 @@ namespace Keeno
         public static bool E_KeyDown => KeyDown(Keys.E);
         public static bool X_KeyDown => KeyDown(Keys.X);
         public static bool K_KeyDown => KeyDown(Keys.K);
+        public static bool F_KeyDown => KeyDown(Keys.F);
+        public static bool G_KeyDown => KeyDown(Keys.G);
         public static bool UpArrow_KeyDown => KeyDown(Keys.Up);
+        public static bool LeftShift_KeyDown => KeyDown(Keys.LeftShift);
+        public static bool LeftControl_KeyDown => KeyDown(Keys.LeftControl);
 
 
 
@@ -258,7 +262,10 @@ namespace Keeno
         // BreakableWall
         public static int BreakableWallHealth = 1;
         public static int BreakableWallWorkerSlots = 100;
-        public static float BreakableWallWorkAmount = 300f;
+        // Commented ou for DEMO version
+        //public static float BreakableWallWorkAmount = 300f;
+        public static float BreakableWallWorkAmount = 120f;
+
 
         // Layer Depths
         public static float UIHighlightLD = .052f;
@@ -307,11 +314,14 @@ namespace Keeno
         public static int ResourceStorageUpgradeWoodCost = 1;
         public static int ResourceStorageUpgradeStoneCost = 0;
         public static int ResourceStorageBLGoldPrice = 3;
-        
+
         // Bridge
-        public static int BridgeWoodCost = 50;
+        // coomented out values for DEMO version
+        //public static int BridgeWoodCost = 50;
+        public static int BridgeWoodCost = 25;
         public static int BridgeStoneCost = 0;
-        public static int BridgeUpgradeWoodCost = 50;
+        //public static int BridgeUpgradeWoodCost = 50;
+        public static int BridgeUpgradeWoodCost = 25;
         public static int BridgeUpgradeStoneCost = 0;
 
         // FarmLand
@@ -579,7 +589,7 @@ namespace Keeno
         public static int GrandTotalStone;
         public static int GrandTotalGold;
 
-        public const int KeenoCost = 10;
+        public const int KeenoCost = 5;
 
         // Store resource Type and Amount
         private static readonly Dictionary<ResourceType, int> _amounts;
