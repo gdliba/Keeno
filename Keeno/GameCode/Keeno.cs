@@ -293,8 +293,8 @@ namespace Keeno
             _drawBounds = false;
             _isCarryingResource = false;
 
-            _defaultTint =_tint = new Color(Globals.RNG.Next(0, 256),
-                Globals.RNG.Next(0, 256), Globals.RNG.Next(0, 256));
+            _defaultTint =_tint = new Color(Globals.RNG.Next(25, 226),
+                Globals.RNG.Next(25, 226), Globals.RNG.Next(25, 226));
 
             _moveSpeed = _normalMoveSpeed = Globals.RNG.Next(20, 26) + (float)Globals.RNG.NextDouble();
             //_moveSpeed = _normalMoveSpeed = Globals.RNG.Next(40, 56) + (float)Globals.RNG.NextDouble();
