@@ -154,10 +154,10 @@ namespace Keeno
                      _rect.Height / 4);
 
 
-            if (Globals.Tab_KeyPress)
-                _state++;
-            if (_state == PlayerState.Dead)
-                _state = PlayerState.Normal;
+            //if (Globals.Tab_KeyPress)
+            //    _state++;
+            //if (_state == PlayerState.Dead)
+            //    _state = PlayerState.Normal;
             if(_state == PlayerState.BuildingMode)
             {
                 BuildingMode();
