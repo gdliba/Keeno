@@ -90,7 +90,7 @@ namespace Keeno
         {
             Graphics.PreferredBackBufferWidth = width;
             Graphics.PreferredBackBufferHeight = height;
-            Graphics.IsFullScreen = true;
+            //Graphics.IsFullScreen = true;
             Graphics.ApplyChanges();
         }
         public static void Update(GameTime gt)
@@ -263,8 +263,8 @@ namespace Keeno
         public static int BreakableWallHealth = 1;
         public static int BreakableWallWorkerSlots = 100;
         // Commented ou for DEMO version
-        //public static float BreakableWallWorkAmount = 300f;
-        public static float BreakableWallWorkAmount = 120f;
+        public static float BreakableWallWorkAmount = 300f;
+        //public static float BreakableWallWorkAmount = 120f;
 
 
         // Layer Depths
@@ -298,8 +298,8 @@ namespace Keeno
         public static int TentUpgradeWoodCost = 5;
         public static int TentUpgradeStoneCost = 0;
         // DEMO version rebalance
-        //public static int TentPopulationAddition = 1;
-        public static int TentPopulationAddition = 2;
+        public static int TentPopulationAddition = 1;
+        //public static int TentPopulationAddition = 2;
         public static int TentBLGoldPrice = 1;
 
             // House
@@ -308,8 +308,8 @@ namespace Keeno
         public static int HouseUpgradeWoodCost = 5;
         public static int HouseUpgradeStoneCost = 5;
         // DEMO version rebalance
-        //public static int HousePopulationAddition = 2;
-        public static int HousePopulationAddition = 3;
+        public static int HousePopulationAddition = 2;
+        //public static int HousePopulationAddition = 3;
         public static int HouseBLGoldPrice = 2;
 
             // ResourceStorage
@@ -321,11 +321,11 @@ namespace Keeno
 
         // Bridge
         // coomented out values for DEMO version
-        //public static int BridgeWoodCost = 50;
-        public static int BridgeWoodCost = 25;
+        public static int BridgeWoodCost = 50;
+        //public static int BridgeWoodCost = 25;
         public static int BridgeStoneCost = 0;
-        //public static int BridgeUpgradeWoodCost = 50;
-        public static int BridgeUpgradeWoodCost = 25;
+        public static int BridgeUpgradeWoodCost = 50;
+        //public static int BridgeUpgradeWoodCost = 25;
         public static int BridgeUpgradeStoneCost = 0;
 
         // FarmLand
@@ -593,7 +593,7 @@ namespace Keeno
         public static int GrandTotalStone;
         public static int GrandTotalGold;
 
-        public const int KeenoCost = 5;
+        public const int KeenoCost = 10;
 
         // Store resource Type and Amount
         private static readonly Dictionary<ResourceType, int> _amounts;
