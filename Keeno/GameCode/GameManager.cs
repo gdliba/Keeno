@@ -33,6 +33,9 @@ namespace Keeno.GameCode
             _twentyFiveKeenoMilestone = true;
             _oneHundredKeenoMilestone = true;
         }
+        /// <summary>
+        /// Lets Game1 know if the conditions for the milestones have been met
+        /// </summary>
         public void TrackMilestones()
         {
             if(_keenosInGame.Count == 10 && _tenKeenoMilestone)
@@ -56,6 +59,9 @@ namespace Keeno.GameCode
                 OneHundredKeenoMilestoneReset?.Invoke();
             }
         }
+        /// <summary>
+        /// Complete Reset method
+        /// </summary>
         public void ResetAll()
         {
             _map.Reset();
@@ -76,6 +82,9 @@ namespace Keeno.GameCode
             _twentyFiveKeenoMilestone = true;
             _oneHundredKeenoMilestone = true;
         }
+        /// <summary>
+        /// Softer Reset method, only resets necessary gameObjects for the New Day
+        /// </summary>
         public void NextDay()
         {
             _map.ClearAllWorkers();

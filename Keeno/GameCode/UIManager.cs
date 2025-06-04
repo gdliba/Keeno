@@ -8,10 +8,13 @@ using System.Reflection.Metadata;
 
 namespace Keeno
 {
+    /// <summary>
+    /// Class in charge of Updating and displaying UI elements.
+    /// </summary>
     class UIManager
     {
         private Dictionary<string, Button> buttons;
-        private Panel _startPanel, _pausePanel;
+        private Panel _pausePanel;
         public Action OnPlayPressed, OnContinuePressed, OnRestartPressed, OnMainMenuPressed, OnExitPressed, OnNextDayPressed;
 
         private static int _screenWidth;
@@ -28,6 +31,10 @@ namespace Keeno
             _buttonHeight = 40;
         }
 
+        /// <summary>
+        /// Creates the UI elements.
+        /// Called in LoadContent of Game1.
+        /// </summary>
         public void Load()
         {
 
@@ -92,11 +99,13 @@ namespace Keeno
                 11 * _buttonHeight);
             _pausePanel = new Panel(pausePanelPosition, Color.Black * .9f);
 
-            Rectangle startPanelPosition = 
-                new Rectangle(pausePanelPosition.X,pausePanelPosition.Y, pausePanelPosition.Width, 7*_buttonHeight);
-            _startPanel = new Panel(startPanelPosition, Color.Black * .9f);
-
         }
+
+        #region Update Methods
+        // Update methods called in the corresponding screens.
+        // All buttons are part of a Global list of strings.
+        // If those buttons are part of said list, update them.
+
         public void StartUpdate()
         {
             foreach (var button in Globals.StartScreenButtons)
@@ -104,7 +113,7 @@ namespace Keeno
                 buttons[button].Update();
             }
         }
-        public void UpdatePause()
+        public void PauseUpdate()
         {
             foreach (var button in Globals.PauseScreenButtons)
             {
@@ -125,6 +134,13 @@ namespace Keeno
                 buttons[button].Update();
             }
         }
+        #endregion
+
+        #region Draw Methods
+        // Draw methods called in the corresponding screens.
+        // All buttons are part of a Global list of strings.
+        // If those buttons are part of said list, draw them.
+
         public void StartDraw(SpriteBatch sb)
         {
             foreach (var button in Globals.StartScreenButtons)
@@ -132,12 +148,18 @@ namespace Keeno
                 buttons[button].Draw(sb);
             }
         }
-        public void DrawPlaying(SpriteBatch sb, List<Keeno> keenos)
+        /// <summary>
+        /// This method is longer as it includes the positions for 
+        /// the resource display on screen during gameplay.
+        /// </summary>
+        /// <param name="sb"></param>
+        /// <param name="keenos"></param>
+        public void PlayingDraw(SpriteBatch sb, List<Keeno> keenos)
         {
+            // Darws InGame HUD (Bottom left corner of the screen)
             sb.Draw(Assets.ResourceHUD, new Rectangle(0, 0, Globals.ScreenWidth, Globals.ScreenHeight), Color.White);
 
             var offsetY = 40;
-
 
             // Housing
             Vector2 pos1 = new Vector2(66, Globals.ScreenHeight - 220);
@@ -174,7 +196,7 @@ namespace Keeno
                 pos5,
                  Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);
         }
-        public void DrawPause(SpriteBatch sb)
+        public void PauseDraw(SpriteBatch sb)
         {
             _pausePanel.Draw(sb);
             foreach (var button in Globals.PauseScreenButtons)
@@ -196,5 +218,6 @@ namespace Keeno
                 buttons[button].Draw(sb);
             }
         }
+        #endregion
     }
 }

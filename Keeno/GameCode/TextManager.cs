@@ -2,10 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using System.Linq;
-using static System.Net.Mime.MediaTypeNames;
-
-
-
 
 namespace Keeno.GameCode
 {
@@ -15,6 +11,9 @@ namespace Keeno.GameCode
         EndOfDay,
         GameOver
     }
+    /// <summary>
+    /// Class that handles what text (of type TypewriterText) is displayed on screen.
+    /// </summary>
     class TextManager
     {
         private Vector2 _inGamePosition, _endOfDayPosition;
@@ -27,6 +26,10 @@ namespace Keeno.GameCode
         private int _currIndex =-1;
         private int _lastInGameIndex, _counter;
         private TextState _state;
+
+        /// <summary>
+        /// Dictionary with all the text displayed during gameplay (includes colour tags).
+        /// </summary>
         public static readonly Dictionary<string, string> InGameText = new Dictionary<string, string>()
         {
             {   "Controls",             "Use <y>W</y>/<g>A</g>/<r>S</r>/<b>D</b> to move." },
@@ -63,22 +66,20 @@ namespace Keeno.GameCode
             {   "100 Keeno Milestone2", "Now survive a day with <y>100 Keeno</y>, don't let any <r>starve!</r>" },
             {   "100 Keeno Milestone Reset",  "Ouch, you were so close... <y>sustain 100 Keeno for 1 day</y>." },
         };
-
-        //public static readonly Dictionary<string, string> EndOfDayText = new Dictionary<string, string>()
-        //{
-        //};
-        //public static readonly Dictionary<string, string> GameOverText = new Dictionary<string, string>()
-        //{
-        //};
+        /// <summary>
+        /// Constructor for TextManager. Sets default values and populates "InGameText" Dictionary.
+        /// Takes in a state, for flexibilty in use. Not really necessary in this case.
+        /// </summary>
         public TextManager(TextState state) 
         {
             _state = state;
             _counter = 0;
+            _timer = 0f;
+            _timerReset = 6f;
 
             _inGamePosition = new Vector2(180, Globals.ScreenHeight - 50);
             _endOfDayPosition = new Vector2(100, 64);
-            _timer = 0f;
-            _timerReset = 6f;
+
             foreach (var pair in InGameText)
             {
                 string key = pair.Key;
@@ -86,29 +87,25 @@ namespace Keeno.GameCode
 
                 InGame.Add(key, new TypewriterText(_inGamePosition, text));
             }
-
-            _inGamePosition = new Vector2(180, Globals.ScreenHeight - 50);
-            _timer = 0f;
-            _timerReset = 6f;
-            //foreach (var pair in EndOfDayText)
-            //{
-            //    string key = pair.Key;
-            //    string text = pair.Value;
-
-            //    EndOfDay.Add(key, new TypewriterText(_inGamePosition, text));
-            //}
-
         }
+        /// <summary>
+        /// Switches TextManager state to "GameOver" thus drawing the GameOver related text.
+        /// There is no Dictionary for this one, as it takes in values that change throughout
+        /// gameplay and has to update. Instead the strings that should appear on screen are 
+        /// created when this method is called.
+        /// </summary>
         public void SwitchToGameOver()
         {
+            // Clear the list, as, the next time this method is called, the Key
+            // for the entry in the Dictionary will be the same and will crash
+            // the program by attempting to add the same enty twice.
             GameOver.Clear();
             _state = TextState.GameOver;
             int offset = 64;
             _counter++;
 
-
+            #region Create Strings and set them Active
             string gameoverText = "<y>Well done! </y>You have proven your leadership. The <g>Keeno</g> are safe in your capable hands!";
-
             string totalDays =  "You reached the goal in: <y>"  + _counter + " Days</y>";
             string totalFood =  "You collected a total of: <y>" + ResourceTracker.GrandTotalFood.ToString()     + " Food</y>";
             string totalWood =  "You collected a total of: <y>" + ResourceTracker.GrandTotalWood.ToString()     + " Wood</y>";
@@ -143,17 +140,32 @@ namespace Keeno.GameCode
             var goldTemp = new TypewriterText(goldPos, totalGold);
             GameOver.Add("totalGold", goldTemp);
             GameOver["totalGold"].SetActive();
+            #endregion
         }
+        /// <summary>
+        /// Switches TextManager state to "EndOfDay" thus drawing the EndOfDay related text.
+        /// There is no Dictionary for this one, as it takes in values that change throughout
+        /// gameplay and has to update. Instead the strings that should appear on screen are 
+        /// created when this method is called.
+        /// </summary>
         public void SwitchToEndOfDay(int keenosThatStarved)
         {
+            // Clear the list, as, the next time this method is called, the Key
+            // for the entry in the Dictionary will be the same and will crash
+            // the program by attempting to add the same enty twice.
+            GameOver.Clear();
+            EndOfDay.Clear();
+            // Remember where you left off so that you can display the text again
+            // at the start of the next day
             _lastInGameIndex = _currIndex;
             _state = TextState.EndOfDay;
-            EndOfDay.Clear();
             _counter++;
 
+            #region Create Strings and set them Active
             string day = "<y>Day</y>: " + _counter.ToString();
             int keenoAmount = ResourceTracker.GetAmount(ResourceType.Keeno);
             string endOfDayText = "You ended the day with <y>" + keenoAmount + "</y> Keeno";
+
             if (keenosThatStarved > 0)
             {
                 string congratulations = "";
@@ -169,7 +181,8 @@ namespace Keeno.GameCode
             }
             else
                 endOfDayText += ".";
-                var temp = new TypewriterText(_inGamePosition, endOfDayText);
+
+            var temp = new TypewriterText(_inGamePosition, endOfDayText);
             EndOfDay.Add(day,temp);
             EndOfDay[day].SetActive();
 
@@ -177,7 +190,12 @@ namespace Keeno.GameCode
             var dayText = new TypewriterText(_endOfDayPosition, day);
             EndOfDay.Add(tempName, dayText);
             EndOfDay[tempName].SetActive();
+            #endregion
         }
+        /// <summary>
+        /// Switches TextManager state to "InGame" and remembers where it left off,
+        /// thus displaying the last line of text it was displaying the day before.
+        /// </summary>
         public void SwitchToInGame()
         {
             _state = TextState.InGame;
@@ -186,11 +204,18 @@ namespace Keeno.GameCode
             string lastInGameText = InGameText.Keys.ToList()[_lastInGameIndex];
             SetActive(lastInGameText);
         }
+        /// <summary>
+        /// Sets the text with the key given to Active (see TypeWriterText.SetActive).
+        /// Some lines of text will have a timer associated to them and will display 
+        /// another line of text at the end of said timer. Update will take care of that.
+        /// </summary>
         public void SetActive(string key)
         {
             switch (_state)
             {
                 case TextState.InGame:
+                    // Remove what isn't currently active from screen.
+                    // Thus only displaying the Active string.
                     foreach (var item in InGame)
                     {
                         item.Value.Reset();
@@ -199,7 +224,8 @@ namespace Keeno.GameCode
                     InGame[key].SetActive();
                     _currIndex = InGameText.Keys.ToList().IndexOf(key);
 
-
+                    // The Dictionary entries with these keys have timer associated
+                    // to them and will display another line of text after said timer.
                     switch (key)
                     {
                         case "Resource Interact":
@@ -210,9 +236,7 @@ namespace Keeno.GameCode
                         case "Stone":
                         case "Gold":
                         case "Population":
-                        case "Hunger1":
                         case "Hunger2":
-
                         case "Blueprint1":
                         case "Blueprint2":
                         case "BuildersCabin":
@@ -221,21 +245,23 @@ namespace Keeno.GameCode
                         case "Houses2":
                         case "25 Keeno Milestone":
                         case "100 Keeno Milestone":
-
                             _timer = _timerReset;
                             break;
+
                     }
                     break;
 
-                case TextState.EndOfDay:
-                case TextState.GameOver:
+                default:
                     break;
             }
             
         }
+        /// <summary>
+        /// Updates all text depending on state. 
+        /// If any text has a timer associated to it, count down.
+        /// </summary>
         public void Update()
         {
-
             switch (_state)
             {
                 case TextState.InGame:
@@ -243,12 +269,12 @@ namespace Keeno.GameCode
                         _timer -= Globals.DeltaTime;
                     if (_timer < 0f)
                     {
-                        if (_currIndex > InGameText.Keys.ToList().IndexOf("Keeno Work")
-                            && _currIndex < InGameText.Keys.ToList().IndexOf("Gold")
+                        // If the current text that is active is one of these:
+                        if (   _currIndex >  InGameText.Keys.ToList().IndexOf("Keeno Work")
+                            && _currIndex <  InGameText.Keys.ToList().IndexOf("Gold")
                             || _currIndex == InGameText.Keys.ToList().IndexOf("First Follower")
                             || _currIndex == InGameText.Keys.ToList().IndexOf("Resource Interact")
                             || _currIndex == InGameText.Keys.ToList().IndexOf("Population")
-                            || _currIndex == InGameText.Keys.ToList().IndexOf("Hunger1")
                             || _currIndex == InGameText.Keys.ToList().IndexOf("Hunger2")
                             || _currIndex == InGameText.Keys.ToList().IndexOf("Blueprint1")
                             || _currIndex == InGameText.Keys.ToList().IndexOf("Blueprint2")
@@ -259,14 +285,12 @@ namespace Keeno.GameCode
                             || _currIndex == InGameText.Keys.ToList().IndexOf("25 Keeno Milestone")
                             || _currIndex == InGameText.Keys.ToList().IndexOf("100 Keeno Milestone")
                             )
-
                         {
+                            // Once the timer runs out, display the next entry in the Dictionary.
                             _currIndex++;
                             string nextKey = InGameText.Keys.ToList()[_currIndex];
                             SetActive(nextKey);
                         }
-                        if (_currIndex == InGameText.Keys.ToList().IndexOf("Gold") && _timer < 0)
-                            Reset();
                     }
 
                     foreach (var item in InGame)
@@ -292,6 +316,10 @@ namespace Keeno.GameCode
             }
             
         }
+        /// <summary>
+        /// Resets counter and timer to 0.
+        /// Resets all TypeWriterTexts.
+        /// </summary>
         public void Reset()
         {
             _counter = 0;
@@ -310,17 +338,30 @@ namespace Keeno.GameCode
                 item.Value.Reset();
             }
         }
+        /// <summary>
+        /// When the GameOver Screen has been reached, this harder reset is called.
+        /// </summary>
         public void CompleteReset()
         {
             Reset();
-            InGame["Controls"].SetActive();
+            SwitchToInGame();
+            _lastInGameIndex = -1;
+            Start();
         }
+        /// <summary>
+        /// Initial Text on screen
+        /// </summary>
         public void Start()
         {
             if (_currIndex > 0)
                 return;
             InGame["Controls"].SetActive();
         }
+        /// <summary>
+        /// Simple draw method for the class. 
+        /// Calls the individual draw methods of the TypeWriterTexts.
+        /// </summary>
+        /// <param name="sb"></param>
         public void Draw(SpriteBatch sb)
         {
             switch (_state)
@@ -329,7 +370,15 @@ namespace Keeno.GameCode
                     foreach (var item in InGame)
                     {
                         item.Value.Draw(sb);
+
                         #region Icons
+
+                        // Given that I haven't integrated a built in method in the
+                        // TypeWriterText to display icons (due to time constraint)
+                        // I'm manually adding them here. A little tedious,
+                        // but it adds a lot to the charm/aesthetic of the initial
+                        // tutorialisation of the game.
+
                         // Housing
                         if (InGame["Housing"].IsActive)
                             sb.Draw(Assets.UIHousingIconTxr, new Rectangle(new Point((int)_inGamePosition.X + 55, (int)_inGamePosition.Y + 2), new Point(32, 32)), Color.White);

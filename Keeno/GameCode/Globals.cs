@@ -34,13 +34,6 @@ namespace Keeno
         /// </summary>
         /// <param name="width"></param>
         /// <param name="height"></param>
-        public static void ChangeResolution(int width, int height)
-        {
-            Graphics.PreferredBackBufferWidth = width;
-            Graphics.PreferredBackBufferHeight = height;
-            //Graphics.IsFullScreen = true;
-            Graphics.ApplyChanges();
-        }
         #region Input Properties
         // Mouse Properties
         public static Point MousePosition { get; private set; }
@@ -101,6 +94,13 @@ namespace Keeno
             return KbCurr.IsKeyDown(key);
         }
         #endregion
+        public static void ChangeResolution(int width, int height)
+        {
+            Graphics.PreferredBackBufferWidth = width;
+            Graphics.PreferredBackBufferHeight = height;
+            //Graphics.IsFullScreen = true;
+            Graphics.ApplyChanges();
+        }
         public static void Update(GameTime gt)
         {
             DeltaTime = (float)gt.ElapsedGameTime.TotalSeconds;

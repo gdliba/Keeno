@@ -24,9 +24,6 @@ namespace Keeno
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        // Adding Render Target to scale the screen
-        //private RenderTarget2D _renderTarget;
-
         #region VARIABLES
 
         // Game State
@@ -39,20 +36,18 @@ namespace Keeno
         GameManager gameManager;
         MusicPlayer musicPlayer;
         TextManager textManager;
-        // TESTS
-        TypewriterText testText, firstKeenoTutorial;
 
-
+        // Track DayTime
         float brightness;
-        Map testMap;
-        ResourceType debugResource;
+
+        //Map
+        Map map;
 
         //Camera
         Camera camera;
 
-
         // Player
-        Player testPlayer;
+        Player player;
 
         // Keeno
         int keenosThatStarved;
@@ -77,26 +72,19 @@ namespace Keeno
             Content.RootDirectory = "Content";
             Window.Title = "Keeno";
             IsMouseVisible = true;
-            Globals.ChangeResolution(1920, 1080);
 
+            // Decided to move the resolution into Globals.
+            // In this case I mainly did that so that if I decided to change
+            // the resolution of the game for some reason, all the 
+            // variables that use the screen width/height would dynamically change too.
+            Globals.ChangeResolution(1920, 1080);
         }
 
         protected override void Initialize()
         {
-            // Match the resolution to the current display
-            //_graphics.PreferredBackBufferWidth = 1920;
-            //GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            //_graphics.PreferredBackBufferHeight = 1080;
-            //GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-            // Set screen to Fullscreen
-            //_graphics.IsFullScreen = false;
-            //_graphics.ApplyChanges();
-
-
             currentGameState = GameState.Start;
             camera.Position = Vector2.Zero;
             camera.Zoom = 5;
-
 
             #region List Initialisations
             keenos = new List<Keeno>();
@@ -114,28 +102,23 @@ namespace Keeno
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            //_renderTarget = new RenderTarget2D(_spriteBatch.GraphicsDevice,
-            //    _graphics.PreferredBackBufferWidth/4, _graphics.PreferredBackBufferHeight/4);
 
             Assets.Load(this.Content);
 
             textManager = new TextManager(TextState.InGame);
-
-
 
             // Fonts
 #if DEBUG
             debugFont = Content.Load<SpriteFont>("Fonts\\debugFont");
 
 #endif
-            //monogramFont = Content.Load<SpriteFont>("Fonts\\monogram");
+            map = new Map("Content/MapData/MainMap1.csv");
 
-            //testMap = new Map("Content/MapData/testLevel_Map.csv");
-            testMap = new Map("Content/MapData/MainMap1.csv");
 
-            var player = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(400, 300, 16, 16),
-                testMap, keenos);
-            testPlayer = player;
+            player = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(400, 300, 16, 16),
+                map, keenos);
+            // Subscribe to all of the player's Events.
+            // They are mostly in charge of showing tutorial Text.
             player.FirstInteraction += () =>
             {
                 textManager.SetActive("Resource Interact");
@@ -156,14 +139,15 @@ namespace Keeno
             {
                 textManager.SetActive("Houses1");
             };
-            testMap.BellRung += () =>
+
+            map.BellRung += () =>
             {
                 foreach (var keeno in keenos)
                 {
                     keeno.PlayerRangBell();
                 }
             };
-            testMap.TownCentreSpawnedKeeno += keeno =>
+            map.TownCentreSpawnedKeeno += keeno =>
             {
                 keenos.Add(keeno);
                 if (keenos.Count == 1)
@@ -173,7 +157,7 @@ namespace Keeno
                 if (keenos.Count == 3)
                     textManager.SetActive("Population");
                 if (keenos.Count == 4)
-                    textManager.SetActive("Hunger1");
+                    textManager.SetActive("Hunger2");
                 if (keenos.Count == 5)
                     textManager.SetActive("BuildersCabin");
                 if (keenos.Count == 6)
@@ -185,7 +169,7 @@ namespace Keeno
             uiManager.Load();
             musicPlayer = new MusicPlayer();
 
-            gameManager = new GameManager(testMap, timeManager, keenos, testPlayer, textManager);
+            gameManager = new GameManager(map, timeManager, keenos, this.player, textManager);
             gameManager.TenKeenoMilestone += () =>
             {
                 textManager.SetActive("10 Keeno Milestone");
@@ -418,13 +402,13 @@ namespace Keeno
             gameManager.TrackMilestones();
             textManager.Update();
             timeManager.UpdateTime((float)gt.ElapsedGameTime.TotalSeconds);
-            testMap.Update(gt);
+            map.Update(gt);
             // Keeno
             foreach (var keeno in keenos)
             {
                 keeno.Update(gt);
             }
-            testPlayer.Update(gt);
+            player.Update(gt);
             #endregion
             #region EndOfDay / Hunger
             // When the day ends
@@ -437,39 +421,39 @@ namespace Keeno
             if (Globals.I_KeyPress)
                 Globals.HidePromtsAndNames = !Globals.HidePromtsAndNames;
 
-            camera.Position.X = (-testPlayer.Bounds.X + _graphics.PreferredBackBufferWidth / (2 * camera.Zoom));
-            camera.Position.Y = (-testPlayer.Bounds.Y + _graphics.PreferredBackBufferHeight / (2 * camera.Zoom));
+            camera.Position.X = (-player.Bounds.X + _graphics.PreferredBackBufferWidth / (2 * camera.Zoom));
+            camera.Position.Y = (-player.Bounds.Y + _graphics.PreferredBackBufferHeight / (2 * camera.Zoom));
 
 #if DEBUG
-            switch (debugResource)
-            {
-                case ResourceType.None:
-                    if (Globals.Tab_KeyPress)
-                        debugResource = ResourceType.Food;
-                    break;
-                case ResourceType.Food:
-                    if (Globals.Tab_KeyPress)
-                        debugResource = ResourceType.Wood;
-                    break;
-                case ResourceType.Wood:
-                    if (Globals.Tab_KeyPress)
-                        debugResource = ResourceType.Gold;
-                    break;
-                case ResourceType.Gold:
-                    if (Globals.Tab_KeyPress)
-                        debugResource = ResourceType.Stone;
-                    break;
-                case ResourceType.Stone:
-                    if (Globals.Tab_KeyPress)
-                        debugResource = ResourceType.Food;
-                    break;
-            }
-            //if (Globals.X_KeyPress)
-            //    ResourceTracker.Reset();
-            if (Globals.UpArrow_KeyPress)
-                ResourceTracker.Add(debugResource, 10);
-            if (Globals.DownArrow_KeyPress)
-                ResourceTracker.Add(debugResource, -10);
+            //switch (debugResource)
+            //{
+            //    case ResourceType.None:
+            //        if (Globals.Tab_KeyPress)
+            //            debugResource = ResourceType.Food;
+            //        break;
+            //    case ResourceType.Food:
+            //        if (Globals.Tab_KeyPress)
+            //            debugResource = ResourceType.Wood;
+            //        break;
+            //    case ResourceType.Wood:
+            //        if (Globals.Tab_KeyPress)
+            //            debugResource = ResourceType.Gold;
+            //        break;
+            //    case ResourceType.Gold:
+            //        if (Globals.Tab_KeyPress)
+            //            debugResource = ResourceType.Stone;
+            //        break;
+            //    case ResourceType.Stone:
+            //        if (Globals.Tab_KeyPress)
+            //            debugResource = ResourceType.Food;
+            //        break;
+            //}
+            ////if (Globals.X_KeyPress)
+            ////    ResourceTracker.Reset();
+            //if (Globals.UpArrow_KeyPress)
+            //    ResourceTracker.Add(debugResource, 10);
+            //if (Globals.DownArrow_KeyPress)
+            //    ResourceTracker.Add(debugResource, -10);
 
 
             //if (Globals.I_KeyPress)
@@ -510,7 +494,7 @@ namespace Keeno
         }
         private void PauseUpdate()
         {
-            uiManager.UpdatePause();
+            uiManager.PauseUpdate();
             // UnPause
             if (Globals.Escape_KeyPress)
             {
@@ -582,14 +566,14 @@ namespace Keeno
             _spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, camera.getCam());
 
             // TEST MAP
-            testMap.Draw(_spriteBatch);
+            map.Draw(_spriteBatch);
 
             // Keenos
             foreach (var keeno in keenos)
             {
                 keeno.Draw(_spriteBatch);
             }
-            testPlayer.Draw(_spriteBatch);
+            player.Draw(_spriteBatch);
 
 
             #region Night Time Overlay
@@ -622,7 +606,7 @@ namespace Keeno
             // Hud Test
             //_spriteBatch.Draw(Assets.UITest, new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
             //uiManager.Draw(_spriteBatch);
-            uiManager.DrawPlaying(_spriteBatch, keenos);
+            uiManager.PlayingDraw(_spriteBatch, keenos);
             textManager.Draw(_spriteBatch);
 
 #if DEBUG
@@ -639,7 +623,7 @@ namespace Keeno
         {
             PlayingDraw();
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-            uiManager.DrawPause(_spriteBatch);
+            uiManager.PauseDraw(_spriteBatch);
             _spriteBatch.End();
         }
 

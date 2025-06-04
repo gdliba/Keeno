@@ -5,6 +5,9 @@ using System.Threading;
 
 namespace Keeno
 {
+    /// <summary>
+    /// The base class for almost all game objects.
+    /// </summary>
     class StaticGraphic
     {
         protected Rectangle _rect;
