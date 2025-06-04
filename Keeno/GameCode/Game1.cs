@@ -56,14 +56,6 @@ namespace Keeno
 
         // Game Completed check
         bool gameCompleted;
-
-
-        // Fonts
-#if DEBUG
-        public static SpriteFont debugFont;
-
-#endif
-
         #endregion
 
         public Game1()
@@ -107,39 +99,7 @@ namespace Keeno
 
             textManager = new TextManager(TextState.InGame);
 
-            // Fonts
-#if DEBUG
-            debugFont = Content.Load<SpriteFont>("Fonts\\debugFont");
-
-#endif
             map = new Map("Content/MapData/MainMap1.csv");
-
-
-            player = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(400, 300, 16, 16),
-                map, keenos);
-            // Subscribe to all of the player's Events.
-            // They are mostly in charge of showing tutorial Text.
-            player.FirstInteraction += () =>
-            {
-                textManager.SetActive("Resource Interact");
-            };
-            player.FirstFollower += () =>
-            {
-                textManager.SetActive("First Follower");
-            };
-            player.FirstBluePrint += () =>
-            {
-                textManager.SetActive("Blueprint1");
-            };
-            player.FirstKeeno += () =>
-            {
-                textManager.SetActive("Buy Keeno");
-            };
-            player.FirstStone += () =>
-            {
-                textManager.SetActive("Houses1");
-            };
-
             map.BellRung += () =>
             {
                 foreach (var keeno in keenos)
@@ -163,13 +123,42 @@ namespace Keeno
                 if (keenos.Count == 6)
                     textManager.SetActive("10 Keeno Challenge");
             };
-            
+
+            player = new Player(Content.Load<Texture2D>("Characters\\Keeno"), 5, new Rectangle(400, 300, 16, 16),
+                map, keenos);
+            #region Player Events
+            // Subscribe to all of the player's Events.
+            // They are mostly in charge of showing tutorial Text.
+            player.FirstInteraction += () =>
+            {
+                textManager.SetActive("Resource Interact");
+            };
+            player.FirstFollower += () =>
+            {
+                textManager.SetActive("First Follower");
+            };
+            player.FirstBluePrint += () =>
+            {
+                textManager.SetActive("Blueprint1");
+            };
+            player.FirstKeeno += () =>
+            {
+                textManager.SetActive("Buy Keeno");
+            };
+            player.FirstStone += () =>
+            {
+                textManager.SetActive("Houses1");
+            };
+            #endregion
+
             timeManager = new TimeManager();
             uiManager = new UIManager();
             uiManager.Load();
             musicPlayer = new MusicPlayer();
 
             gameManager = new GameManager(map, timeManager, keenos, this.player, textManager);
+            #region GameManager Events
+            // Subscribe to all of the GameManager Events.
             gameManager.TenKeenoMilestone += () =>
             {
                 textManager.SetActive("10 Keeno Milestone");
@@ -186,8 +175,10 @@ namespace Keeno
             {
                 textManager.SetActive("100 Keeno Milestone Reset");
             };
+            #endregion
 
             #region Button Presses
+            // Subscribe to all of the Button Press Events.
             uiManager.OnPlayPressed = () =>
             {
                 DoPlayButtonPressed();
@@ -223,6 +214,9 @@ namespace Keeno
             #endregion
 
         }
+        /// <summary>
+        /// Method Called when the Play Button is Pressed.
+        /// </summary>
         private void DoPlayButtonPressed()
         {
             if (gameCompleted)
@@ -235,6 +229,10 @@ namespace Keeno
             musicPlayer.PlayFirstRain();
             textManager.Start();
         }
+
+        /// <summary>
+        /// Method Called when a new day starts.
+        /// </summary>
         private void DoNextDay()
         {
             textManager.SwitchToInGame();
@@ -242,8 +240,12 @@ namespace Keeno
             endOfDayScreenKeenos.Clear();
         }
 
+        /// <summary>
+        /// Main Update Method. In charge of updating everything.
+        /// </summary>
         protected override void Update(GameTime gt)
         {
+            // Removes dead Keenos, regardless of currentGameState
             for (int i = keenos.Count - 1; i >= 0; i--)
             {
                 if (keenos[i].State == KeenoState.Dead)
@@ -251,7 +253,6 @@ namespace Keeno
             }
 
             Globals.Update(gt);
-
 
             // GameState Switch
             switch (currentGameState)
@@ -275,6 +276,10 @@ namespace Keeno
             base.Update(gt);
         }
 
+        /// <summary>
+        /// Main Draw Method. In charge of Drawing Everything.
+        /// </summary>
+        /// <param name="gt"></param>
         protected override void Draw(GameTime gt)
         {
             GraphicsDevice.Clear(Color.Black);
@@ -300,15 +305,19 @@ namespace Keeno
 
             base.Draw(gt);
         }
+
         #region STATE UPDATES
+        // State Specific Draw Methods.
+
+        /// <summary>
+        /// Start Screen Update Method.
+        /// </summary>
         private void StartUpdate(GameTime gt)
         {
-            //testMap.Update(gt);
-            
             uiManager.StartUpdate();
             musicPlayer.PlayMainTheme();
 
-            if (Globals.Enter_KeyPress)
+            if (Globals.Enter_KeyPress || Globals.E_KeyPress)
             {
                 DoPlayButtonPressed();
             }
@@ -330,15 +339,19 @@ namespace Keeno
                 break;
             }
         }
+
+        /// <summary>
+        /// EndOfDay Screen Update Method.
+        /// </summary>
         private void EndOfDayUpdate(GameTime gt)
         {
             textManager.Update();
             uiManager.EndOfDayUpdate();
+
             if (Globals.Enter_KeyPress || Globals.E_KeyPress)
             {
                 DoNextDay();
             }
-
 
             // Random Keeno spawn (1 Keeno per alive Keeno in Game)
             foreach (var keeno in endOfDayScreenKeenos)
@@ -357,6 +370,12 @@ namespace Keeno
                 break;
             }
         }
+
+        /// <summary>
+        /// Method Called when the day ends.
+        /// Works out if any Keeno starve.
+        /// Checks if the game's win condition is fulfilled.
+        /// </summary>
         public void GoToNextDay()
         {
             endOfDayScreenKeenos.Clear();
@@ -396,6 +415,10 @@ namespace Keeno
             // Reset this variable to 0
             keenosThatStarved = 0;
         }
+
+        /// <summary>
+        /// Playing Screen Update Method.
+        /// </summary>
         private void PlayingUpdate(GameTime gt)
         {
             #region Updates
@@ -418,12 +441,13 @@ namespace Keeno
             }
             #endregion
 
+            // Hides/unhides the Button Prompts and Building Names.
             if (Globals.I_KeyPress)
                 Globals.HidePromtsAndNames = !Globals.HidePromtsAndNames;
 
+            // Make sure the Camera Follows the player.
             camera.Position.X = (-player.Bounds.X + _graphics.PreferredBackBufferWidth / (2 * camera.Zoom));
             camera.Position.Y = (-player.Bounds.Y + _graphics.PreferredBackBufferHeight / (2 * camera.Zoom));
-
 #if DEBUG
             //switch (debugResource)
             //{
@@ -463,7 +487,6 @@ namespace Keeno
             //    ResourceTracker.Add(ResourceType.Keeno, 1);
             //}
 #endif
-
             // Pause
             if (Globals.Escape_KeyPress)
             {
@@ -490,8 +513,11 @@ namespace Keeno
                 ResourceTracker.Add(ResourceType.Stone, 10);
             if (Globals.LeftShift_KeyDown && Globals.G_KeyDown && Globals.UpArrow_KeyPress)
                 ResourceTracker.Add(ResourceType.Gold, 10);
-
         }
+
+        /// <summary>
+        /// Pause Screen Update Method.
+        /// </summary>
         private void PauseUpdate()
         {
             uiManager.PauseUpdate();
@@ -502,19 +528,16 @@ namespace Keeno
                 currentGameState = GameState.Playing;
                 Assets.ButtonPressSFX.Play();
             }
-
         }
 
+        /// <summary>
+        /// GameOver Screen Update Method.
+        /// </summary>
         private void GameOverUpdate(GameTime gt)
         {
             gameCompleted = true;
             textManager.Update();
             uiManager.GameOverUpdate();
-            //if (Globals.Enter_KeyPress || Globals.E_KeyPress)
-            //{
-            //    DoNextDay();
-            //}
-
 
             // Random Keeno spawn (1 Keeno per alive Keeno in Game)
             foreach (var keeno in endOfDayScreenKeenos)
@@ -534,7 +557,12 @@ namespace Keeno
             }
         }
         #endregion
+
         #region STATE DRAWS
+
+        /// <summary>
+        /// Start Screen Draw Method.
+        /// </summary>
         private void StartDraw(GameTime gt)
         {
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
@@ -545,6 +573,10 @@ namespace Keeno
             uiManager.StartDraw(_spriteBatch);
             _spriteBatch.End();
         }
+
+        /// <summary>
+        /// EndOfDay Screen Draw Method.
+        /// </summary>
         private void EndOfDayDraw(GameTime gt)
         {
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
@@ -559,23 +591,22 @@ namespace Keeno
             _spriteBatch.End();
         }
 
+        /// <summary>
+        /// Playing Screen Draw Method.
+        /// Camera is in charge of what is visible on screen.
+        /// UI and HUD are drawn over the Camera so they aren't affected by the Night Time Overlay
+        /// </summary>
         private void PlayingDraw()
         {
-
-
             _spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, camera.getCam());
-
-            // TEST MAP
+            //MAP
             map.Draw(_spriteBatch);
-
             // Keenos
             foreach (var keeno in keenos)
             {
                 keeno.Draw(_spriteBatch);
             }
             player.Draw(_spriteBatch);
-
-
             #region Night Time Overlay
             // Night Time Overlay
             float t = timeManager.TimeOfDay / timeManager.DayLengthSeconds;
@@ -601,32 +632,29 @@ namespace Keeno
             #endregion
             _spriteBatch.End();
 
-            // Draw the Hud
+            // Draw the Hud and UI
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-            // Hud Test
-            //_spriteBatch.Draw(Assets.UITest, new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
-            //uiManager.Draw(_spriteBatch);
             uiManager.PlayingDraw(_spriteBatch, keenos);
             textManager.Draw(_spriteBatch);
-
-#if DEBUG
-            //_spriteBatch.DrawString(Assets.MonogramFont,
-            //    _renderTarget.Width + "x " + _renderTarget.Height
-            //    + "\nTime Of Day: " + timeManager._timeOfDay,
-
-            //    new Vector2(10, 10), Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, .1f);
-#endif
             _spriteBatch.End();
-
         }
+
+        /// <summary>
+        /// Pause Screen Draw Method.
+        /// </summary>
         private void PauseDraw()
         {
+            // Draw everything in the playing screen so that the
+            // player is not looking at a blank screen.
             PlayingDraw();
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
             uiManager.PauseDraw(_spriteBatch);
             _spriteBatch.End();
         }
 
+        /// <summary>
+        /// GameOver Draw Method.
+        /// </summary>
         private void GameOverDraw()
         {
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
