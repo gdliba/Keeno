@@ -98,7 +98,7 @@ namespace Keeno
         {
             Graphics.PreferredBackBufferWidth = width;
             Graphics.PreferredBackBufferHeight = height;
-            Graphics.IsFullScreen = true;
+            Graphics.IsFullScreen = false;
             Graphics.ApplyChanges();
         }
         public static void Update(GameTime gt)
