@@ -446,8 +446,16 @@ namespace Keeno
                 Globals.HidePromtsAndNames = !Globals.HidePromtsAndNames;
 
             // Make sure the Camera Follows the player.
-            camera.Position.X = (-player.Bounds.X + _graphics.PreferredBackBufferWidth / (2 * camera.Zoom));
-            camera.Position.Y = (-player.Bounds.Y + _graphics.PreferredBackBufferHeight / (2 * camera.Zoom));
+            //camera.Position.X = (-player.Bounds.X + _graphics.PreferredBackBufferWidth / (2 * camera.Zoom));
+            //camera.Position.Y = (-player.Bounds.Y + _graphics.PreferredBackBufferHeight / (2 * camera.Zoom));
+
+            camera.Position = new Vector2(
+                    -player.RenderPosition.X +
+                    _graphics.PreferredBackBufferWidth / (2f * camera.Zoom),
+
+                    -player.RenderPosition.Y +
+                    _graphics.PreferredBackBufferHeight / (2f * camera.Zoom)
+);
 #if DEBUG
             //switch (debugResource)
             //{

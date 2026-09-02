@@ -22,6 +22,7 @@ namespace Keeno
     class Player : AnimatedKeeno2D
     {
         #region Variables
+        public Vector2 RenderPosition => _position;
 
         private PlayerState _state;
         private bool _swapToNormalState;
@@ -490,8 +491,19 @@ namespace Keeno
             }
 
             // Draw Player
-            sb.Draw(_txr, _rect, _srcRect, _tint, 0f,
-                    Vector2.Zero, flip, Globals.PlayerLD);
+            //sb.Draw(_txr, _rect, _srcRect, _tint, 0f,
+            //        Vector2.Zero, flip, Globals.PlayerLD);
+
+            sb.Draw(
+                    _txr,
+                    RenderPosition,
+                    _srcRect,
+                    _tint,
+                    0f,
+                    Vector2.Zero,
+                    1f,
+                    flip,
+                    Globals.PlayerLD);  
         }
     }
 }
