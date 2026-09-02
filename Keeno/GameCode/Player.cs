@@ -46,6 +46,7 @@ namespace Keeno
         public Rectangle InteractionRange { get { return _interactionRange; } }
         private Rectangle _tileTargetedRect;
         private Rectangle _interactionRange;
+        private Vector2 _lastMovementDirection;
         #endregion
 
         /// <summary>
@@ -70,6 +71,7 @@ namespace Keeno
             _moveSpeed = Globals.PlayerMovementSpeed;
             _swapToNormalState = false;
             _interactionRange = new Rectangle((int)_position.X - rect.Width, (int)_position.Y - rect.Height, rect.Width * 3, rect.Height * 3);
+            _lastMovementDirection = Vector2.UnitY;
             _itemCarrying = null;
             _workSpeed = 10f;
             _footstepTimer = 0;
@@ -151,12 +153,13 @@ namespace Keeno
             _objectsNearPlayer.Clear();
             _emptyTilesNearPlayer.Clear();
 
-            // Inherit the way the player animates
+            // Decide which movement is safe before applying it.
+            ColisionDependantMovement();
+
+            // Animate the player and apply the safe velocity.
             base.Update(gt);
 
-            // Regardless of your state, you will always check for collisions
-            // And you will move in the same way.
-            ColisionDependantMovement();
+            UpdateInteractionRange();
 
             // tell the item you are holding to follow you
             _itemCarrying?.FollowPlayer(_itemCarryPoint);
@@ -274,8 +277,10 @@ namespace Keeno
                     _objectsNearPlayer.Add(_worldObjects[i]);
             }
             // Sort the list by distance to the player
-            Vector2 positionBasedOnDirection = new Vector2(Position.X + 5f * _direction.X, Position.Y + 5f * _direction.Y);
-            var sortedWorldObjectList = _objectsNearPlayer.OrderBy(x => x.DistanceTo(positionBasedOnDirection)).ToList();
+            Vector2 positionBasedOnDirection =
+                Position + _lastMovementDirection * 10f;
+            var sortedWorldObjectList = 
+                _objectsNearPlayer.OrderBy(x => x.DistanceTo(positionBasedOnDirection)).ToList();
             #endregion
 
             if (sortedWorldObjectList.Count > 0)
@@ -388,20 +393,89 @@ namespace Keeno
                 }
             }
         }
+        private void UpdateInteractionRange()
+        {
+            _interactionRange.X = (int)_position.X - _rect.Width;
+            _interactionRange.Y = (int)_position.Y - _rect.Height;
+        }
         /// <summary>
-        /// Method that dictates the way the player can move with regards to the map.
+        /// Method that handles the player's movement and collision detection. 
+        /// It checks for potential collisions with the map and adjusts 
+        /// the player's velocity accordingly to prevent moving into non-walkable areas.
         /// </summary>
         private void ColisionDependantMovement()
         {
-            // Player movement
             SetDirection();
-            
-            if (_direction != Vector2.Zero && _map.IsWalkable(TargetDestinationBounds))
+
+            if (_direction == Vector2.Zero)
             {
-                MoveInDirection(_direction);
+                _velocity = Vector2.Zero;
+                return;
             }
-            else
-                MoveInDirection(Vector2.Zero);
+
+            // Calculate and preserve movement direction and speed
+            Vector2 normalizedDirection = Vector2.Normalize(_direction);
+
+            Vector2 intendedVelocity =
+                normalizedDirection * _moveSpeed;
+
+            Vector2 intendedMovement =
+                intendedVelocity * Globals.DeltaTime;
+
+            Vector2 collisionTestPosition = _position;
+            Vector2 allowedVelocity = Vector2.Zero;
+
+            // Test horizontal movement
+            if (intendedMovement.X != 0f)
+            {
+                Vector2 horizontalPosition = new Vector2(
+                    _position.X + intendedMovement.X,
+                    _position.Y
+                );
+
+                Rectangle horizontalBounds =
+                    GetCollisionBoundsAt(horizontalPosition);
+
+                if (_map.IsWalkable(horizontalBounds))
+                {
+                    collisionTestPosition.X = horizontalPosition.X;
+                    allowedVelocity.X = intendedVelocity.X;
+                }
+            }
+
+            // Test vertical movement from the horizontally resolved position.
+            if (intendedMovement.Y != 0f)
+            {
+                Vector2 verticalPosition = new Vector2(
+                    collisionTestPosition.X,
+                    _position.Y + intendedMovement.Y
+                );
+
+                Rectangle verticalBounds =
+                    GetCollisionBoundsAt(verticalPosition);
+
+                if (_map.IsWalkable(verticalBounds))
+                {
+                    allowedVelocity.Y = intendedVelocity.Y;
+                }
+            }
+
+            _velocity = allowedVelocity;
+        }
+        /// <summary>
+        /// Method that returns a rectangle that represents the player's collision bounds 
+        /// at a given position.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <returns></returns>
+        private Rectangle GetCollisionBoundsAt(Vector2 position)
+        {
+            return new Rectangle(
+                (int)position.X + _rect.Width / 4,
+                (int)position.Y + _rect.Height / 4,
+                _rect.Width / 2,
+                _rect.Height / 2
+            );
         }
         /// <summary>
         /// Method that dictates the way the player interacts with the Keeno.
@@ -454,6 +528,7 @@ namespace Keeno
         }
         /// <summary>
         /// Method that sets the player's desired direction.
+        /// Also updates the last movement direction if the player is moving.
         /// </summary>
         public void SetDirection()
         {
@@ -464,14 +539,15 @@ namespace Keeno
             if (Globals.S_KeyDown) _direction.Y += 1; // Down
             if (Globals.A_KeyDown) _direction.X -= 1; // Left
             if (Globals.D_KeyDown) _direction.X += 1; // Right
+
+            if (_direction != Vector2.Zero)
+            {
+                _lastMovementDirection = Vector2.Normalize(_direction);
+            }
         }
 
         public override void Draw(SpriteBatch sb)
         {
-            // Make sure the rectangle moves and is drawn in the right position
-            _interactionRange.X = (int)_position.X - _rect.Width;
-            _interactionRange.Y = (int)_position.Y - _rect.Height;
-
             // Make sure the rectangle moves and is drawn in the right position
             _rect.Location = _position.ToPoint();
 
@@ -491,9 +567,6 @@ namespace Keeno
             }
 
             // Draw Player
-            //sb.Draw(_txr, _rect, _srcRect, _tint, 0f,
-            //        Vector2.Zero, flip, Globals.PlayerLD);
-
             sb.Draw(
                     _txr,
                     RenderPosition,

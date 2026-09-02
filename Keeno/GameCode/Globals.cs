@@ -226,7 +226,8 @@ namespace Keeno
 
         #region Game Balance
         // Player
-        public static int PlayerMovementSpeed = 50;
+        public static int PlayerMovementSpeed = 80;
+
         public static float DropOffKeenoSpeed = .03f;
         public static float NeutralInteractSpeed = .02f;
 
