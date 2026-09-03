@@ -288,8 +288,32 @@ namespace Keeno
         }
         private void ReplaceWithEmpty(int x, int y)
         {
+            foreach (var worldObject in _worldObjects)
+            {
+                // Dead objects no longer occupy their tiles.
+                if (worldObject.State == ObjectState.Dead)
+                    continue;
 
-            _worldObjects.Add(new EmptyTile(new Point(x, y), Globals.EmptyTileIndex));
+                int objectTileX =
+                    worldObject.TilePosition.X / Globals.Tile_Width_Height;
+
+                int objectTileY =
+                    worldObject.TilePosition.Y / Globals.Tile_Width_Height;
+
+                if (objectTileX != x || objectTileY != y)
+                    continue;
+
+                // Don't expose a building's tile or create duplicate empty tiles.
+                if (worldObject is Building ||
+                    worldObject is ShopBuildingBlueprint ||
+                    worldObject is EmptyTile)
+                {
+                    return;
+                }
+            }
+
+            _worldObjects.Add(
+                new EmptyTile(new Point(x, y), Globals.EmptyTileIndex));
 
             _mapData[y, x] = Globals.EmptyTileIndex;
         }
@@ -338,6 +362,9 @@ namespace Keeno
             var newBlueprint = new ShopBuildingBlueprint(new Point(x, y - 1), BuildingType.Tent);
             _worldObjects.Add(newBlueprint);
 
+            // Reserve the shop display's tile so buildings cannot be placed here.
+            ReplaceEmptyWithOccupied(x, y - 1);
+
             newBlueprint.BuildingBlueprintPurchaced += bp =>
             {
                 // add the Blueprint as a wolrd object
@@ -346,13 +373,17 @@ namespace Keeno
                 // Subscribe to the BuildingSpawned of the blueprint that was spawned
                 bp.BuildingSpawned += spawnedBuilding =>
                 {
-                    // add the Building as a wolrd object
                     _worldObjects.Add(spawnedBuilding);
 
-                    // Subscribe to the WorkStationSpawned of the building that was spawned
+                    // Occupy this tile once, when the building is placed.
+                    int tileX = spawnedBuilding.TilePosition.X / Globals.Tile_Width_Height;
+                    int tileY = spawnedBuilding.TilePosition.Y / Globals.Tile_Width_Height;
+
+                    ReplaceEmptyWithOccupied(tileX, tileY);
+
+                    // Keep the existing farm/workstation spawning behaviour.
                     spawnedBuilding.WorkStationSpawned += spawnedWorkStation =>
                     {
-                        // add the WorkStation as a wolrd object
                         _worldObjects.Add(spawnedWorkStation);
                     };
                 };
@@ -382,7 +413,8 @@ namespace Keeno
                         building.ClearWorkerList();
                     }
                 }
-                System.Diagnostics.Debug.WriteLine("Map bell notification fired");
+                //System.Diagnostics.Debug.WriteLine("Map bell notification fired");
+
                 // Then notify Game1 once, after the entire loop finishes.
                 this.BellRung?.Invoke();
             };
@@ -423,27 +455,26 @@ namespace Keeno
         {
             for (int i = _worldObjects.Count - 1; i >= 0; i--)
             {
-                // Update WorldObjects
-                _worldObjects[i].Update(gt);
+                var worldObject = _worldObjects[i];
 
-                if (_worldObjects[i].State == ObjectState.Dead)
-                {
-                    int y = _worldObjects[i].TilePosition.Y / Globals.Tile_Width_Height;
-                    int x = _worldObjects[i].TilePosition.X / Globals.Tile_Width_Height;
+                worldObject.Update(gt);
 
-                    // Replace their tile with and Empty one so that the player can build on it
-                    ReplaceWithEmpty(x, y);
-                    _worldObjects.RemoveAt(i);
-                }
+                if (worldObject.State != ObjectState.Dead)
+                    continue;
 
-                // if there's a building on the tile, replace the Empty Tile with an occupied one
-                if (_worldObjects[i] is Building building)
-                {
-                    int y = building.TilePosition.Y / Globals.Tile_Width_Height;
-                    int x = building.TilePosition.X / Globals.Tile_Width_Height;
+                _worldObjects.RemoveAt(i);
 
-                    ReplaceEmptyWithOccupied(x, y);
-                }
+                // Using up a blueprint doesn't make a world tile vacant.
+                if (worldObject is BuildingBlueprint)
+                    continue;
+
+                int tileX =
+                    worldObject.TilePosition.X / Globals.Tile_Width_Height;
+
+                int tileY =
+                    worldObject.TilePosition.Y / Globals.Tile_Width_Height;
+
+                ReplaceWithEmpty(tileX, tileY);
             }
         }
         public void Reset()
