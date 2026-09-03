@@ -370,7 +370,7 @@ namespace Keeno
 
             newBell.BellRung += () =>
             {
-
+                // First, release workers from their workplaces.
                 foreach (var worldObject in _worldObjects)
                 {
                     if(worldObject is WorkStation workStation)
@@ -381,8 +381,10 @@ namespace Keeno
                     {
                         building.ClearWorkerList();
                     }
-                this.BellRung?.Invoke();
                 }
+                System.Diagnostics.Debug.WriteLine("Map bell notification fired");
+                // Then notify Game1 once, after the entire loop finishes.
+                this.BellRung?.Invoke();
             };
 
             _worldObjects.Add(newBell);
