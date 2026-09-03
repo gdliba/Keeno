@@ -467,9 +467,7 @@ namespace Keeno
                     FindClosestDropOffPoint();
                     MoveTo(_closestDropOffPoint);
                     if (_position == _closestDropOffPoint.ToVector2())
-                    {
-                        _state = KeenoState.Idle;
-                    }
+                        SwitchToIdle();
                     break;
 
                     case KeenoState.WalkingToBuilderCabin:
@@ -481,7 +479,7 @@ namespace Keeno
 
                     WalkToBuilderCabin();
                     if (_position == _placeOfWork.ToVector2())
-                        _state = KeenoState.ReadyToBuild;
+                        SwitchToReadyToBuild();
                     break;
 
                 case KeenoState.BelRing:
@@ -834,6 +832,7 @@ namespace Keeno
         }
         public void SwitchToIdle()
         {
+            _velocity = Vector2.Zero;
             _state = KeenoState.Idle;
         }
         public void SwitchWalkingToIdleSpot()
