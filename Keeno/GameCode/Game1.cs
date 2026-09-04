@@ -457,43 +457,10 @@ namespace Keeno
                     _graphics.PreferredBackBufferHeight / (2f * camera.Zoom)
 );
 #if DEBUG
-            //switch (debugResource)
-            //{
-            //    case ResourceType.None:
-            //        if (Globals.Tab_KeyPress)
-            //            debugResource = ResourceType.Food;
-            //        break;
-            //    case ResourceType.Food:
-            //        if (Globals.Tab_KeyPress)
-            //            debugResource = ResourceType.Wood;
-            //        break;
-            //    case ResourceType.Wood:
-            //        if (Globals.Tab_KeyPress)
-            //            debugResource = ResourceType.Gold;
-            //        break;
-            //    case ResourceType.Gold:
-            //        if (Globals.Tab_KeyPress)
-            //            debugResource = ResourceType.Stone;
-            //        break;
-            //    case ResourceType.Stone:
-            //        if (Globals.Tab_KeyPress)
-            //            debugResource = ResourceType.Food;
-            //        break;
-            //}
-            ////if (Globals.X_KeyPress)
-            ////    ResourceTracker.Reset();
-            //if (Globals.UpArrow_KeyPress)
-            //    ResourceTracker.Add(debugResource, 10);
-            //if (Globals.DownArrow_KeyPress)
-            //    ResourceTracker.Add(debugResource, -10);
-
-
-            //if (Globals.I_KeyPress)
-            //{
-            //    var newKeeno = new Keeno(Assets.KeenoTxr, 5, new Rectangle(100, 100, 16, 16), Assets.DebugPixelTxr, null, true);
-            //    keenos.Add(newKeeno);
-            //    ResourceTracker.Add(ResourceType.Keeno, 1);
-            //}
+            if (Globals.Tab_KeyPress)
+            {
+                gameManager.NextDay();
+            }
 #endif
             // Pause
             if (Globals.Escape_KeyPress)

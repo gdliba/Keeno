@@ -344,7 +344,7 @@ namespace Keeno
 
             _constructingInst = Assets.ConstructingSFX.CreateInstance();
             _constructingInst.Volume = .2f;
-            _resourceAmmount = 1;
+            _resourceAmmount = 0;
         }
         public override void Update(GameTime gt)
         {
@@ -355,11 +355,11 @@ namespace Keeno
                     break;
 
                 case KeenoState.Idle:
-                    MarkAsNotCarryingResource();
+                    UpdateCarryingStatus();
                     break;
 
                 case KeenoState.DeliveringMaterials:
-                    MarkAsCarryingResource();
+                    UpdateCarryingStatus();
                     MoveTo(_closestBuildingAwaitingResources);
 
                     if (_position == _closestBuildingAwaitingResources.ToVector2())
@@ -370,13 +370,13 @@ namespace Keeno
                         soundInst.Play();
 
                         _buildingImDeliveringTo.TakeThisResource(_resourceType);
+                        MarkAsNotCarryingResource();
                         _state = KeenoState.WalkingToBuilderCabin;
-                        _isCarryingResource = false;
                     }
                     break;
 
                 case KeenoState.ReadyToBuild:
-                    MarkAsNotCarryingResource();
+                    UpdateCarryingStatus();
 
                     if (ScanForBuildingsUnderConstruction())
                         break;
@@ -389,7 +389,7 @@ namespace Keeno
                     break;
 
                 case KeenoState.Building:
-                    MarkAsNotCarryingResource();
+                    UpdateCarryingStatus();
 
                     if (!_isWalking)
                         PlayConstructingSound();
@@ -397,19 +397,19 @@ namespace Keeno
                     break;
 
                 case KeenoState.Following:
-                    MarkAsNotCarryingResource();
+                    UpdateCarryingStatus();
                     break;
 
                 case KeenoState.Working:
                     if (!_isWalking)
                         PlayWorkSound();
 
-                    MarkAsNotCarryingResource();
+                    UpdateCarryingStatus();
                     break;
 
                 case KeenoState.DroppingOff:
                     StopWorkSound();
-                    MarkAsCarryingResource();
+                    UpdateCarryingStatus();
 
                     // Search when starting a delivery or retrying a failed search.
                     if (!_hasDropOffPoint && !FindClosestDropOffPoint())
@@ -427,6 +427,7 @@ namespace Keeno
                         {
                             ResourceTracker.Add(_resourceType, _resourceAmmount);
                             MarkAsNotCarryingResource();
+                            ClearDropOffTarget();
                             _state = KeenoState.Working;
                         }
                         else
@@ -438,24 +439,38 @@ namespace Keeno
 
                 case KeenoState.DroppingOffAndIdle:
                     StopWorkSound();
-                    MarkAsCarryingResource();
+                    UpdateCarryingStatus();
 
-                    if (!FindClosestDropOffPoint())
+                    // Search only if we don't currently have a destination.
+                    if (!_hasDropOffPoint && !FindClosestDropOffPoint())
                         break;
 
                     MoveTo(_closestDropOffPoint);
 
-                    // This destination was already checked during this update.
                     if (_position == _closestDropOffPoint.ToVector2())
                     {
-                        ResourceTracker.Add(_resourceType, _resourceAmmount);
-                        MarkAsNotCarryingResource();
-                        SwitchToIdle();
+                        // Confirm that a valid drop-off point still exists on arrival.
+                        if (!FindClosestDropOffPoint())
+                            break;
+
+                        // The closest valid point may have changed while travelling.
+                        if (_position == _closestDropOffPoint.ToVector2())
+                        {
+                            ResourceTracker.Add(_resourceType, _resourceAmmount);
+                            MarkAsNotCarryingResource();
+                            ClearDropOffTarget();
+                            SwitchToIdle();
+                        }
+                        else
+                        {
+                            MoveTo(_closestDropOffPoint);
+                        }
                     }
+
                     break;
 
                 case KeenoState.WalkingToIdleSpot:
-                    MarkAsNotCarryingResource();
+                    UpdateCarryingStatus();
                     StopConstructingSound();
                     StopWorkSound();
 
@@ -470,7 +485,7 @@ namespace Keeno
                     break;
 
                 case KeenoState.WalkingToBuilderCabin:
-                    MarkAsNotCarryingResource();
+                    UpdateCarryingStatus();
                     StopConstructingSound();
 
                     if (ScanForBuildingsUnderConstruction())
@@ -676,6 +691,11 @@ namespace Keeno
 
             return true;
         }
+        private void ClearDropOffTarget()
+        {
+            _hasDropOffPoint = false;
+            _closestDropOffPoint = default;
+        }
         #endregion
         /// <summary>
         /// Given that after every resource delivery or building build you return to the Builders Cabin,
@@ -764,21 +784,30 @@ namespace Keeno
         }
         #region Resource Carrying and Movement Speed
         /// <summary>
-        /// If you're carrying a resource, walk slow and flip the bool to true
+        /// Updates the Keeno's movement speed and carrying status based 
+        /// on whether or not they are carrying a resource.
         /// </summary>
+        private void UpdateCarryingStatus()
+        {
+            if (_resourceType == ResourceType.None || _resourceAmmount <= 0)
+                MarkAsNotCarryingResource();
+            else
+                MarkAsCarryingResource();
+        }
+
         private void MarkAsCarryingResource()
         {
-            if(_resourceType == ResourceType.None)
-                return;
             WalkSlow();
             _isCarryingResource = true;
         }
-        /// <summary>
-        /// If you're not carrying a resource, walk fast and flip the bool to false
-        /// </summary>
+
         private void MarkAsNotCarryingResource()
         {
             _isCarryingResource = false;
+            _resourceType = ResourceType.None;
+            _resourceAmmount = 0;
+            _resourceTxr = null;
+
             WalkNormal();
         }
         private void WalkNormal()
@@ -797,7 +826,7 @@ namespace Keeno
             _state = KeenoState.DroppingOff;
             _resourceType = type;
             _resourceAmmount = amount;
-            MarkAsCarryingResource();
+            UpdateCarryingStatus();
         }
         public void DropOffAndIdle(ResourceType type, int amount)
         {
@@ -805,7 +834,7 @@ namespace Keeno
             _state = KeenoState.DroppingOffAndIdle;
             _resourceType = type;
             _resourceAmmount = amount;
-            MarkAsCarryingResource();
+            UpdateCarryingStatus();
         }
         #endregion
         #region Switch State to:

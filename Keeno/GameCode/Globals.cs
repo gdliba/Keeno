@@ -637,6 +637,8 @@ namespace Keeno
         /// </summary>
         public static void Add(ResourceType type, int amount)
         {
+            if (amount == 0)
+                return;
 
             _amounts[type] += amount;
 
