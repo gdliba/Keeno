@@ -1211,21 +1211,34 @@ namespace Keeno
         {
             lock (this)
             {
-                // Check if the building requires Wood
-                var temp = _woodCost - (_woodDelivered + _woodPromissed);
-                if (temp > 0 && ResourceTracker.CanSpend(ResourceType.Wood, 1))
+                ResourceType type = GetNextDeliverableResource();
+
+                switch (type)
                 {
-                    _woodPromissed++;
-                    return ResourceType.Wood;
+                    case ResourceType.Wood:
+                        _woodPromissed++;
+                        break;
+
+                    case ResourceType.Stone:
+                        _stonePromissed++;
+                        break;
                 }
-                // If no wood is required, Check the stone
-                temp = _stoneCost - (_stoneDelivered + _stonePromissed);
-                if (temp > 0 && ResourceTracker.CanSpend(ResourceType.Stone, 1))
-                {
-                    _stonePromissed++;
-                    return ResourceType.Stone;
-                }
+
+                return type;
             }
+        }
+        public ResourceType GetNextDeliverableResource()
+        {
+            int woodNeeded = _woodCost - (_woodDelivered + _woodPromissed);
+
+            if (woodNeeded > 0 && ResourceTracker.CanSpend(ResourceType.Wood, 1))
+                return ResourceType.Wood;
+
+            int stoneNeeded = _stoneCost - (_stoneDelivered + _stonePromissed);
+
+            if (stoneNeeded > 0 && ResourceTracker.CanSpend(ResourceType.Stone, 1))
+                return ResourceType.Stone;
+
             return ResourceType.None;
         }
 

@@ -4,7 +4,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using GameUtilities;
+//using System.Linq;
 
 namespace Keeno
 {
@@ -268,33 +269,41 @@ namespace Keeno
     class Keeno : AnimatedKeeno2D
     {
         #region Variables
-        private SoundEffectInstance _workInst, _dropOffInst, _constructingInst;
+        // Behaviour
+        private KeenoState _state;
+        public KeenoState State { get { return _state; } }
 
-        private List<WorldObject> _dropOffPoints;
-        private List<WorldObject> _buildingsAwaitingResources;
-        private List<WorldObject> _buildingUnderConstruction;
-        private Building _buildingImDeliveringTo;
-        private Point _closestDropOffPoint;
-        private Point _closestBuildingAwaitingResources;
-        private Point _closestBuildingUnderConstruction;
-        private Point _placeOfWork;
-
-        // The resource you are carrying.
-        private ResourceType _resourceType;
-        private int _resourceAmmount;
-        private Texture2D _resourceTxr;
-
+        // Movement Speed
         private float _normalMoveSpeed;
         private float _carryingMovementSpeed;
+
+        // Sounds
+        private SoundEffectInstance _workInst;
+        private SoundEffectInstance _constructingInst;
+
+        // Menu-screen wandering
         private float _moveTimer;
         private float _idleTimer;
         private float _moveTimerReset;
-        private bool _isCarryingResource;
 
-        private KeenoState _state;
-        public KeenoState State { get{  return _state; } }
-        #endregion
+        // Workplace and construction delivery
+        private Point _placeOfWork;
+        private Building _buildingImDeliveringTo;
+        private Point _closestBuildingAwaitingResources;
+
+        // Resource drop-off destination
+        private bool _hasDropOffPoint;
+        private Point _closestDropOffPoint;
+
+        // Resource Carrying
+        private ResourceType _resourceType;
+        private bool _isCarryingResource;
+        private int _resourceAmmount;
+        private Texture2D _resourceTxr;
+
         private Rectangle _itemCarrySpot { get { return new Rectangle(_rect.X, _rect.Y-_rect.Height/4, _rect.Width, _rect.Height); } }
+
+        #endregion
         /// <summary>
         /// Keeno constructor randomises a few values to make each Keeno feel and look a little more unique:
         /// Each Keeno has a random Colour and, within a certain range, movement speed.
@@ -333,18 +342,6 @@ namespace Keeno
             _idleTimer = .5f+(float)Globals.RNG.Next(4);
             _moveTimerReset = _moveTimer;
 
-            #region List initialisations and Point sets
-            _dropOffPoints = new List<WorldObject>();
-            _closestDropOffPoint = Point.Zero;
-
-            _buildingUnderConstruction = new List<WorldObject>();
-            _closestBuildingUnderConstruction = Point.Zero;
-
-
-            _buildingsAwaitingResources = new List<WorldObject>();
-            _closestBuildingAwaitingResources = Point.Zero;
-            #endregion
-
             _constructingInst = Assets.ConstructingSFX.CreateInstance();
             _constructingInst.Volume = .2f;
             _resourceAmmount = 1;
@@ -358,128 +355,132 @@ namespace Keeno
                     break;
 
                 case KeenoState.Idle:
-                    // when idle you're not carrying resources
-                    DontCarryResource();
+                    MarkAsNotCarryingResource();
                     break;
 
-                    case KeenoState.DeliveringMaterials:
-                    CarryResource();
-                    // go to the construction site
+                case KeenoState.DeliveringMaterials:
+                    MarkAsCarryingResource();
                     MoveTo(_closestBuildingAwaitingResources);
-                        // if you have arrived there
-                        if (_position == _closestBuildingAwaitingResources.ToVector2())
-                        {
-                            var sound = Assets.ResourceDeliveredSFX;
-                            var soundInst = sound.CreateInstance();
-                            soundInst.Volume = .8f;
-                            soundInst.Play();
 
-                            _buildingImDeliveringTo.TakeThisResource(_resourceType);
-                            _state = KeenoState.WalkingToBuilderCabin;
-                            _isCarryingResource = false;
-                        }
-                        break;
-
-                case KeenoState.ReadyToBuild:
-                    DontCarryResource();
-
-                    // if there's a building that is ready to construct
-                    if(ScanForBuildingsUnderConstruction())
-                        break;
-                    // look for buildings that are awaiting resources
-                    ScanForBuildingsAwaitingResources();
-                    // if you've found one you're prompted to carry a resource to it
-                    // thus if that checks out, change your state
-                    if (_isCarryingResource)
+                    if (_position == _closestBuildingAwaitingResources.ToVector2())
                     {
-                        _state = KeenoState.DeliveringMaterials;
+                        var sound = Assets.ResourceDeliveredSFX;
+                        var soundInst = sound.CreateInstance();
+                        soundInst.Volume = .8f;
+                        soundInst.Play();
+
+                        _buildingImDeliveringTo.TakeThisResource(_resourceType);
+                        _state = KeenoState.WalkingToBuilderCabin;
+                        _isCarryingResource = false;
                     }
                     break;
 
+                case KeenoState.ReadyToBuild:
+                    MarkAsNotCarryingResource();
+
+                    if (ScanForBuildingsUnderConstruction())
+                        break;
+
+                    ScanForBuildingsAwaitingResources();
+
+                    if (_isCarryingResource)
+                        _state = KeenoState.DeliveringMaterials;
+
+                    break;
+
                 case KeenoState.Building:
-                    DontCarryResource();
-                    // if you're not walking you're at the Construction site and are "building"
+                    MarkAsNotCarryingResource();
+
                     if (!_isWalking)
                         PlayConstructingSound();
+
                     break;
 
                 case KeenoState.Following:
-                    DontCarryResource();
+                    MarkAsNotCarryingResource();
                     break;
 
                 case KeenoState.Working:
-                    // if you're not walking you're at the WorkStation and are "working"
                     if (!_isWalking)
                         PlayWorkSound();
-                    DontCarryResource();
+
+                    MarkAsNotCarryingResource();
                     break;
 
                 case KeenoState.DroppingOff:
                     StopWorkSound();
-                    CarryResource();
+                    MarkAsCarryingResource();
+
+                    // Search when starting a delivery or retrying a failed search.
+                    if (!_hasDropOffPoint && !FindClosestDropOffPoint())
+                        break;
+
                     MoveTo(_closestDropOffPoint);
-                    // once you've arrived at the closest dropoff point
+
                     if (_position == _closestDropOffPoint.ToVector2())
                     {
-                        // check that is still there, or if the player has removed it
-                        FindClosestDropOffPoint();
+                        // Recheck on arrival in case the destination was removed.
+                        if (!FindClosestDropOffPoint())
+                            break;
 
-                        // once you've arrived at the closest dropoff point
                         if (_position == _closestDropOffPoint.ToVector2())
                         {
                             ResourceTracker.Add(_resourceType, _resourceAmmount);
+                            MarkAsNotCarryingResource();
                             _state = KeenoState.Working;
                         }
-                        // if the player has removed the closest dropoff point,
-                        // you'll have to re evaluate which one is the closest drop off point
                         else
+                        {
                             MoveTo(_closestDropOffPoint);
+                        }
                     }
                     break;
 
                 case KeenoState.DroppingOffAndIdle:
-                    // You end up in this state if you're dropping off the last resource of a workstation,
-                    // if the bell is rung, or if the player mines the last resource of the workstation
-                    // you were working on.
                     StopWorkSound();
-                    CarryResource();
+                    MarkAsCarryingResource();
 
-                    FindClosestDropOffPoint();
+                    if (!FindClosestDropOffPoint())
+                        break;
+
                     MoveTo(_closestDropOffPoint);
+
+                    // This destination was already checked during this update.
                     if (_position == _closestDropOffPoint.ToVector2())
                     {
-                        FindClosestDropOffPoint();
-                        if(_position == _closestDropOffPoint.ToVector2())
-                        {
-                            ResourceTracker.Add(_resourceType, _resourceAmmount);
-                            SwitchToIdle();
-                        }
-                        else
-                            MoveTo(_closestDropOffPoint);
+                        ResourceTracker.Add(_resourceType, _resourceAmmount);
+                        MarkAsNotCarryingResource();
+                        SwitchToIdle();
                     }
                     break;
 
-                    case KeenoState.WalkingToIdleSpot:
-                    DontCarryResource();
+                case KeenoState.WalkingToIdleSpot:
+                    MarkAsNotCarryingResource();
                     StopConstructingSound();
                     StopWorkSound();
 
-                    FindClosestDropOffPoint();
+                    if (!FindClosestDropOffPoint())
+                        break;
+
                     MoveTo(_closestDropOffPoint);
+
                     if (_position == _closestDropOffPoint.ToVector2())
                         SwitchToIdle();
+
                     break;
 
-                    case KeenoState.WalkingToBuilderCabin:
-                    DontCarryResource();
+                case KeenoState.WalkingToBuilderCabin:
+                    MarkAsNotCarryingResource();
                     StopConstructingSound();
 
                     if (ScanForBuildingsUnderConstruction())
                         break;
 
                     WalkToBuilderCabin();
+
                     if (_position == _placeOfWork.ToVector2())
                         SwitchToReadyToBuild();
+
                     break;
 
                 case KeenoState.BelRing:
@@ -493,15 +494,20 @@ namespace Keeno
                 case KeenoState.Dead:
                     break;
             }
-            // Base.Update is responsible for animation mostly
+
+            // The base update applies movement and updates animation.
             base.Update(gt);
         }
+
         /// <summary>
         /// At the start of a new day go (teleport essentially) to the closest dropoffpoint.
         /// </summary>
         public void DoNewDay()
         {
-            FindClosestDropOffPoint();
+            if (!FindClosestDropOffPoint())
+                return;
+
+            _velocity = Vector2.Zero;
             _position = _closestDropOffPoint.ToVector2();
 
             if (_isCarryingResource)
@@ -592,29 +598,20 @@ namespace Keeno
         ///             False if none are found. </returns>
         public bool ScanForBuildingsUnderConstruction()
         {
-            _buildingUnderConstruction.Clear();
-            // Loop through the list of worldObjects
-            foreach (var worldObject in _worldObjects)
-            {
-                // find the buildings under construction
-                if (worldObject is Building building)
-                    if (building.State == ObjectState.UnderConstruction)
-                        _buildingUnderConstruction.Add(building);
-            }
-            // if the list is populated (the worker notices that there's a building
-            // waiting to be constructed)
-            if (_buildingUnderConstruction.Count > 0)
-            {
-                // Sort the list
-                var sortedBuildingUnderConstruction = _buildingUnderConstruction.OrderBy(x => x.DistanceTo(Position)).ToList();
+            bool found =ProximityHelper.TryFindClosest(
+                _worldObjects,
+                worldObject => Vector2.DistanceSquared(Position, worldObject.Position),
+                worldObject => worldObject is Building building 
+                               && building.State == ObjectState.UnderConstruction,
+                out WorldObject closest);
 
-                // Find the closest one
-                var targetBuilding = sortedBuildingUnderConstruction[0] as Building;
-                // go to the closest one
-                targetBuilding.CanDropOffWorker(this);
-                return true;
-            }
-            return false;
+            if (!found)
+                return false;
+
+            Building targetBuilding = (Building)closest;
+
+            targetBuilding.CanDropOffWorker(this);
+            return true;
         }
         /// <summary>
         /// Loops through the list of worldObjects in the map class and finds the closest
@@ -622,66 +619,62 @@ namespace Keeno
         /// </summary>
         public void ScanForBuildingsAwaitingResources()
         {
-            _buildingsAwaitingResources.Clear();
-            // Loop through the list of worldObjects
-            foreach (var worldObject in _worldObjects)
-            {
-                // find the buildings awaiting resources
-                if (worldObject is Building building)
-                    if(building.State == ObjectState.AwaitingResourceDelivery)
-                        _buildingsAwaitingResources.Add(building);
-            }
-            if(_buildingsAwaitingResources.Count > 0)
-            {
-                // Sort the list
-                var sortedBuildingAwaitingResources = _buildingsAwaitingResources.OrderBy(x => x.DistanceTo(Position)).ToList();
+            bool found = ProximityHelper.TryFindClosest(
+                _worldObjects,
+                worldObject => Vector2.DistanceSquared(Position, worldObject.Position),
+                worldObject => worldObject is Building building
+                               && building.State == ObjectState.AwaitingResourceDelivery
+                               && building.GetNextDeliverableResource() != ResourceType.None,
+                out WorldObject closest);
 
-                // Check if you can deliver any resources to any buildings awaiting resources
-                // checking from closest to furthest
-                for (int i = 0; i < sortedBuildingAwaitingResources.Count; i++)
-                {
-                    var closest = sortedBuildingAwaitingResources[i] as Building;
-                    // Check what resources you can afford to bring to the building awaiting resources
-                    ResourceType type = closest.CheckCosts();
-                    // If you can afford to bring resources
-                    // And the site still needs it
-                    if (type != ResourceType.None)
-                    {
-                        PickUpOneResource(type);
+            if (!found)
+                return;
 
-                        _closestBuildingAwaitingResources = new Vector2(
-                            sortedBuildingAwaitingResources[i].Position.X - Globals.Tile_Width_Height / 2,
-                            sortedBuildingAwaitingResources[i].Position.Y - Globals.Tile_Width_Height / 2).ToPoint();
-                        // break the loop, don't check any other 
-                        // Construction sites.
-                        _buildingImDeliveringTo = sortedBuildingAwaitingResources[i] as Building;
-                        break;
-                    }
-                }
-            }
+            Building targetBuilding = (Building)closest;
+
+            // Reserve one delivery, only for the selected building.
+            ResourceType type = targetBuilding.CheckCosts();
+
+            if (type == ResourceType.None)
+                return;
+
+            // Spend and pick up that resource.
+            PickUpOneResource(type);
+
+            // Preserve your existing destination-coordinate adjustment.
+            _closestBuildingAwaitingResources = new Vector2(
+                targetBuilding.Position.X - Globals.Tile_Width_Height / 2,
+                targetBuilding.Position.Y - Globals.Tile_Width_Height / 2
+            ).ToPoint();
+
+            _buildingImDeliveringTo = targetBuilding;
         }
         /// <summary>
         /// Loops through the list of worldObjects in the map class and finds the closest
         /// Drop off point.
         /// The closest drop off point is then stored in the "_closestDropOffPoint" variable.
         /// </summary>
-        private void FindClosestDropOffPoint()
+        private bool FindClosestDropOffPoint()
         {
-            _dropOffPoints.Clear();
-            // Loop through the list of worldObjects
-            foreach (var worldObject in _worldObjects)
+            _hasDropOffPoint = ProximityHelper.TryFindClosest(
+                _worldObjects,
+                worldObject => Vector2.DistanceSquared(Position, worldObject.Position),
+                worldObject => worldObject is IDropOffPoint
+                               && worldObject.GetDropOffPointState(),
+                out WorldObject closest);
+
+            if (!_hasDropOffPoint)
             {
-                // find the drop off points and add them to the list
-                if (worldObject is IDropOffPoint && worldObject.GetDropOffPointState())
-                    _dropOffPoints.Add(worldObject);
+                HandleNoDropOffPointFound();
+                return false;
             }
-            // Sort the list
-            var sortedDropOffPointList = _dropOffPoints.OrderBy(x => x.DistanceTo(Position)).ToList();
-            //Find the closest DropOffPoint
-            _closestDropOffPoint = sortedDropOffPointList[0].Position.ToPoint();
+
             _closestDropOffPoint = new Vector2(
-                sortedDropOffPointList[0].Position.X - Globals.Tile_Width_Height / 2,
-                sortedDropOffPointList[0].Position.Y - Globals.Tile_Width_Height / 2).ToPoint();
+                closest.Position.X - Globals.Tile_Width_Height / 2,
+                closest.Position.Y - Globals.Tile_Width_Height / 2
+            ).ToPoint();
+
+            return true;
         }
         #endregion
         /// <summary>
@@ -708,6 +701,7 @@ namespace Keeno
         {
             ResourceTracker.Spend(type, 1);
             _isCarryingResource = true;
+            _resourceAmmount = 1;
             _resourceType = type;
         }
         /// <summary>
@@ -755,11 +749,24 @@ namespace Keeno
         {
             _direction = new Vector2(Globals.RNG.Next(-1, 2), Globals.RNG.Next(-1, 2));
         }
+        /// <summary>
+        /// Called when the Keeno is prompted to drop off a resource, but there are no drop off points available.
+        /// </summary>
+        private void HandleNoDropOffPointFound()
+        {
+            _velocity = Vector2.Zero;
+
+            StopWorkSound();
+            StopConstructingSound();
+
+            // Keep the current state and carried resource.
+            // The relevant Update case will retry.
+        }
         #region Resource Carrying and Movement Speed
         /// <summary>
         /// If you're carrying a resource, walk slow and flip the bool to true
         /// </summary>
-        private void CarryResource()
+        private void MarkAsCarryingResource()
         {
             if(_resourceType == ResourceType.None)
                 return;
@@ -769,7 +776,7 @@ namespace Keeno
         /// <summary>
         /// If you're not carrying a resource, walk fast and flip the bool to false
         /// </summary>
-        private void DontCarryResource()
+        private void MarkAsNotCarryingResource()
         {
             _isCarryingResource = false;
             WalkNormal();
@@ -790,6 +797,7 @@ namespace Keeno
             _state = KeenoState.DroppingOff;
             _resourceType = type;
             _resourceAmmount = amount;
+            MarkAsCarryingResource();
         }
         public void DropOffAndIdle(ResourceType type, int amount)
         {
@@ -797,6 +805,7 @@ namespace Keeno
             _state = KeenoState.DroppingOffAndIdle;
             _resourceType = type;
             _resourceAmmount = amount;
+            MarkAsCarryingResource();
         }
         #endregion
         #region Switch State to:
